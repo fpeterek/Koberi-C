@@ -1,0 +1,353 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4E2B3A8A1DC79ADB00700208 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A891DC79ADB00700208 /* main.cpp */; };
+		4E2B3A921DC79B0C00700208 /* koberi-c.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A901DC79B0C00700208 /* koberi-c.cpp */; };
+		4E2B3A951DC79B3500700208 /* syntax.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A931DC79B3500700208 /* syntax.cpp */; };
+		4E2B3A981DC79B7000700208 /* translator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A961DC79B7000700208 /* translator.cpp */; };
+		4E2B3A9B1DC79BA600700208 /* tokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A991DC79BA600700208 /* tokenizer.cpp */; };
+		4E2B3A9E1DC79BDA00700208 /* token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A9C1DC79BDA00700208 /* token.cpp */; };
+		4E2B3AA11DC79C0500700208 /* exceptions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A9F1DC79C0500700208 /* exceptions.cpp */; };
+		4E2B3AA71DC79C7900700208 /* expressions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3AA51DC79C7900700208 /* expressions.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4E2B3A841DC79ADB00700208 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4E2B3A861DC79ADB00700208 /* koberi-c */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "koberi-c"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E2B3A891DC79ADB00700208 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4E2B3A901DC79B0C00700208 /* koberi-c.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "koberi-c.cpp"; sourceTree = "<group>"; };
+		4E2B3A911DC79B0C00700208 /* koberi-c.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "koberi-c.hpp"; sourceTree = "<group>"; };
+		4E2B3A931DC79B3500700208 /* syntax.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = syntax.cpp; sourceTree = "<group>"; };
+		4E2B3A941DC79B3500700208 /* syntax.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = syntax.hpp; sourceTree = "<group>"; };
+		4E2B3A961DC79B7000700208 /* translator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = translator.cpp; sourceTree = "<group>"; };
+		4E2B3A971DC79B7000700208 /* translator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = translator.hpp; sourceTree = "<group>"; };
+		4E2B3A991DC79BA600700208 /* tokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tokenizer.cpp; sourceTree = "<group>"; };
+		4E2B3A9A1DC79BA600700208 /* tokenizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tokenizer.hpp; sourceTree = "<group>"; };
+		4E2B3A9C1DC79BDA00700208 /* token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = token.cpp; sourceTree = "<group>"; };
+		4E2B3A9D1DC79BDA00700208 /* token.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = token.hpp; sourceTree = "<group>"; };
+		4E2B3A9F1DC79C0500700208 /* exceptions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = exceptions.cpp; sourceTree = "<group>"; };
+		4E2B3AA01DC79C0500700208 /* exceptions.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = exceptions.hpp; sourceTree = "<group>"; };
+		4E2B3AA51DC79C7900700208 /* expressions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = expressions.cpp; sourceTree = "<group>"; };
+		4E2B3AA61DC79C7900700208 /* expressions.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = expressions.hpp; sourceTree = "<group>"; };
+		4E2B3AA81DC79CE000700208 /* debug_macro_definitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = debug_macro_definitions.h; sourceTree = "<group>"; };
+		4E2B3AB01DC79D3600700208 /* print.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = print.hpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4E2B3A831DC79ADB00700208 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4E2B3A7D1DC79ADB00700208 = {
+			isa = PBXGroup;
+			children = (
+				4E2B3A881DC79ADB00700208 /* koberi-c */,
+				4E2B3A871DC79ADB00700208 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4E2B3A871DC79ADB00700208 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4E2B3A861DC79ADB00700208 /* koberi-c */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4E2B3A881DC79ADB00700208 /* koberi-c */ = {
+			isa = PBXGroup;
+			children = (
+				4E2B3A891DC79ADB00700208 /* main.cpp */,
+				4E2B3AA81DC79CE000700208 /* debug_macro_definitions.h */,
+				4E2B3AB01DC79D3600700208 /* print.hpp */,
+				4E2B3A901DC79B0C00700208 /* koberi-c.cpp */,
+				4E2B3A911DC79B0C00700208 /* koberi-c.hpp */,
+				4E2B3AA91DC79CEF00700208 /* Syntax */,
+				4E2B3AAA1DC79CF600700208 /* Translator */,
+				4E2B3AAB1DC79D0300700208 /* Tokenizer */,
+				4E2B3AAC1DC79D0B00700208 /* Token */,
+				4E2B3AAD1DC79D1000700208 /* Exceptions */,
+				4E2B3AAF1DC79D1E00700208 /* Expressions */,
+			);
+			path = "koberi-c";
+			sourceTree = "<group>";
+		};
+		4E2B3AA91DC79CEF00700208 /* Syntax */ = {
+			isa = PBXGroup;
+			children = (
+				4E2B3A931DC79B3500700208 /* syntax.cpp */,
+				4E2B3A941DC79B3500700208 /* syntax.hpp */,
+			);
+			name = Syntax;
+			sourceTree = "<group>";
+		};
+		4E2B3AAA1DC79CF600700208 /* Translator */ = {
+			isa = PBXGroup;
+			children = (
+				4E2B3A961DC79B7000700208 /* translator.cpp */,
+				4E2B3A971DC79B7000700208 /* translator.hpp */,
+			);
+			name = Translator;
+			sourceTree = "<group>";
+		};
+		4E2B3AAB1DC79D0300700208 /* Tokenizer */ = {
+			isa = PBXGroup;
+			children = (
+				4E2B3A991DC79BA600700208 /* tokenizer.cpp */,
+				4E2B3A9A1DC79BA600700208 /* tokenizer.hpp */,
+			);
+			name = Tokenizer;
+			sourceTree = "<group>";
+		};
+		4E2B3AAC1DC79D0B00700208 /* Token */ = {
+			isa = PBXGroup;
+			children = (
+				4E2B3A9C1DC79BDA00700208 /* token.cpp */,
+				4E2B3A9D1DC79BDA00700208 /* token.hpp */,
+			);
+			name = Token;
+			sourceTree = "<group>";
+		};
+		4E2B3AAD1DC79D1000700208 /* Exceptions */ = {
+			isa = PBXGroup;
+			children = (
+				4E2B3A9F1DC79C0500700208 /* exceptions.cpp */,
+				4E2B3AA01DC79C0500700208 /* exceptions.hpp */,
+			);
+			name = Exceptions;
+			sourceTree = "<group>";
+		};
+		4E2B3AAF1DC79D1E00700208 /* Expressions */ = {
+			isa = PBXGroup;
+			children = (
+				4E2B3AA51DC79C7900700208 /* expressions.cpp */,
+				4E2B3AA61DC79C7900700208 /* expressions.hpp */,
+			);
+			name = Expressions;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4E2B3A851DC79ADB00700208 /* koberi-c */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E2B3A8D1DC79ADB00700208 /* Build configuration list for PBXNativeTarget "koberi-c" */;
+			buildPhases = (
+				4E2B3A821DC79ADB00700208 /* Sources */,
+				4E2B3A831DC79ADB00700208 /* Frameworks */,
+				4E2B3A841DC79ADB00700208 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "koberi-c";
+			productName = "koberi-c";
+			productReference = 4E2B3A861DC79ADB00700208 /* koberi-c */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4E2B3A7E1DC79ADB00700208 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0810;
+				ORGANIZATIONNAME = "Filip Peterek";
+				TargetAttributes = {
+					4E2B3A851DC79ADB00700208 = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = UD5SH382DB;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 4E2B3A811DC79ADB00700208 /* Build configuration list for PBXProject "koberi-c" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4E2B3A7D1DC79ADB00700208;
+			productRefGroup = 4E2B3A871DC79ADB00700208 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4E2B3A851DC79ADB00700208 /* koberi-c */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4E2B3A821DC79ADB00700208 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E2B3A9B1DC79BA600700208 /* tokenizer.cpp in Sources */,
+				4E2B3A8A1DC79ADB00700208 /* main.cpp in Sources */,
+				4E2B3A981DC79B7000700208 /* translator.cpp in Sources */,
+				4E2B3A921DC79B0C00700208 /* koberi-c.cpp in Sources */,
+				4E2B3AA71DC79C7900700208 /* expressions.cpp in Sources */,
+				4E2B3A951DC79B3500700208 /* syntax.cpp in Sources */,
+				4E2B3AA11DC79C0500700208 /* exceptions.cpp in Sources */,
+				4E2B3A9E1DC79BDA00700208 /* token.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4E2B3A8B1DC79ADB00700208 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4E2B3A8C1DC79ADB00700208 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4E2B3A8E1DC79ADB00700208 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = UD5SH382DB;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4E2B3A8F1DC79ADB00700208 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = UD5SH382DB;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4E2B3A811DC79ADB00700208 /* Build configuration list for PBXProject "koberi-c" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E2B3A8B1DC79ADB00700208 /* Debug */,
+				4E2B3A8C1DC79ADB00700208 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E2B3A8D1DC79ADB00700208 /* Build configuration list for PBXNativeTarget "koberi-c" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E2B3A8E1DC79ADB00700208 /* Debug */,
+				4E2B3A8F1DC79ADB00700208 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4E2B3A7E1DC79ADB00700208 /* Project object */;
+}
