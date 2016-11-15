@@ -39,6 +39,8 @@ class Translator {
     
     void mangleName(std::string & name, std::vector<parameter> & params);
     
+    std::string parseSex(unsigned long long sexpStart); /* S-expression; I say regex, not regexp, so why should an S-expression be called sexp and not sex, mature fucks */
+    
     void parseFunc(unsigned long long funcStart, unsigned long long funcEnd);
     void parseParams(unsigned long long start, std::vector<parameter> & params);
     

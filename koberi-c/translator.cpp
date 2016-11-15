@@ -43,6 +43,12 @@ void Translator::parseParams(unsigned long long start, std::vector<parameter> & 
     
 }
 
+std::string Translator::parseSex(unsigned long long sexpStart) {
+    
+    return std::string(); // Temporary, so ide doesn't lose it's mind
+    
+}
+
 void Translator::parseFunc(unsigned long long funcStart, unsigned long long funcEnd) {
     
 #if PRINT_FUNCTIONS_TOKENS
@@ -57,13 +63,6 @@ void Translator::parseFunc(unsigned long long funcStart, unsigned long long func
     
     parseParams(funcStart + 3, params);
     mangleName(name, params);
-    std::cout << type << " " << name << "(";
-    for (auto i : params) {
-        
-        std::cout << i.type << " " << i.value << ",";
-        
-    }
-    std::cout << ")";
     
 }
 

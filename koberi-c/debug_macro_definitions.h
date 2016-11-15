@@ -12,9 +12,9 @@
 
 /* This file includes macro definitions used for debugging */
 
-#define PRINT_TOKENS // Print tokens to stdout after input is tokenized
+// #define PRINT_TOKENS // Print tokens to stdout after input is tokenized
 #define PRINT_LINE  // Print lines to stdout after reading them from file
-#define PRINT_FUNCTION_TOKENS // Print tokens of a function
+// #define PRINT_FUNCTION_TOKENS // Print tokens of a function
 #define PRINT_FUNCTION // Print function to stdout
 
 
