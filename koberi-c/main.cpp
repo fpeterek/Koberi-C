@@ -30,6 +30,10 @@ int main(int argc, const char * argv[]) {
         print(e.what());
     } catch (file_not_opened & e) {
         print(e.what());
+    } catch (std::runtime_error & e) {
+        print(e.what());
+    } catch (std::exception & e) {
+        print(e.what());
     }
     
 #ifdef PRINT_TOKENS

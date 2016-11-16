@@ -12,8 +12,12 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include <unordered_map>
+#include <functional>
 
 namespace expr {
+    
+    /* Can't use an std::map for these functions, because they accept different parameters */
     
     std::string variableDeclaration(std::string & type, std::string & name, std::string & value);
     std::string setNumValue(std::string & var, std::string & value);

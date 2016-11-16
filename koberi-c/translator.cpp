@@ -43,9 +43,35 @@ void Translator::parseParams(unsigned long long start, std::vector<parameter> & 
     
 }
 
-std::string Translator::parseSex(unsigned long long sexpStart) {
+std::string Translator::parseSexp(unsigned long long sexpStart) {
     
-    return std::string(); // Temporary, so ide doesn't lose it's mind
+    std::string expr;
+    
+    std::vector<std::string> params;
+    std::string funName = _tokens[sexpStart + 1].value;
+    
+    unsigned long long iter = sexpStart + 2; /* sexpStart is parenthesis, sexpStart + 1 is function name, 
+                                                sexpStart + 2 is the first param */
+    
+    for (unsigned int parenCounter = 1; parenCounter != 0; ++iter ) {
+    
+        /* Recursively parse sexps nested in other sexps */
+        /* If parenCounter == 2 so only the first expression is parsed in this function call, 
+           expressions nested in nested expressions will be parsed recursively */
+        
+        if (_tokens[iter] == tokType::openingPar and parenCounter == 2) {
+            
+            ++parenCounter;
+            params.emplace_back(parseSexp(iter));
+            
+        }
+        else if (_tokens[iter] == tokType::openingPar) { ++parenCounter; }
+        else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }
+        else if (parenCounter == 1) { params.emplace_back(_tokens[iter].value); }
+        
+    }
+    
+    return expr;
     
 }
 

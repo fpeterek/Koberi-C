@@ -27,6 +27,7 @@ std::string expr::setNumValue(std::string & var, std::string & value) {
 std::string expr::numOperation(std::string & operation, std::vector<std::string> & nums) {
     
     if ( not nums.size() ) { return std::string(""); }
+    if (nums.size() == 1 and operation == "-") { return "(-" + nums[0] + ")";  } /* (- x) gives -x */
     if (nums.size() == 1 ) { return nums[0]; }
     
     std::string val = "(" + nums[0];
