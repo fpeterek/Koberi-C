@@ -34,15 +34,30 @@ struct parameter {
 
 class Translator {
     
+    
+    /* Used for function overloading */
+    
+    /* Format: Name - Data Type */
+    std::unordered_map<std::string, std::string> _functions;  /* Keeps track of functions */
+    std::unordered_map<std::string, std::string> _globalVars; /* Keeps track of global variables */
+    std::unordered_map<std::string, std::string> _localVars;  /* Keeps track of local variables inside a function. This variable is 
+                                                                 reset every time the parseFunc() method is called */
+    std::string funCall(); /* Mangle name in a function call */
+    
     std::vector<token> & _tokens;
     std::ofstream _output;
     
     void mangleName(std::string & name, std::vector<parameter> & params);
     
-    std::string parseSexp(unsigned long long sexpStart);
+    std::string parseSexp(unsigned long long sexpBeginning);
     
-    void parseFunc(unsigned long long funcStart, unsigned long long funcEnd);
-    void parseParams(unsigned long long start, std::vector<parameter> & params);
+    void parseDeclarations(); /* Declare functions and global variables */
+    void varDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a global variable,
+                                                                                             called from parseDeclarations() */
+    void funDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a function,
+                                                                                             called from parseDeclarations() */
+    void parseFunc(unsigned long long funcBeginning, unsigned long long funcEnd);
+    void parseParams(unsigned long long beginning, std::vector<parameter> & params);
     
 public:
     Translator(std::vector<token> & vectorRef);

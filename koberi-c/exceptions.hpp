@@ -61,4 +61,17 @@ public:
     
 };
 
+class invalid_declaration : public std::exception {
+  
+    std::string _message;
+    
+public:
+    
+    const char * what();
+    
+    invalid_declaration(const std::string & message);
+    invalid_declaration(const char * message);
+    
+};
+
 #endif /* exceptions_hpp */

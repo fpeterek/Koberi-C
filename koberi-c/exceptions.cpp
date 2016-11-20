@@ -73,3 +73,22 @@ const char * file_not_opened::what() {
     
 }
 
+const char * invalid_declaration::what() {
+    
+    return _message.c_str();
+    
+}
+
+invalid_declaration::invalid_declaration(const std::string & message) {
+    
+    _message = message;
+    
+}
+
+invalid_declaration::invalid_declaration(const char * message) {
+    
+    _message = message;
+    
+}
+
+

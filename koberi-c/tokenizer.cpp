@@ -168,13 +168,13 @@ void Tokenizer::parseLine() {
         
         else if ( syntax::isValidIdChar(_line[_iter]) ) {  identifierCheck();  }
         
+        /* Check for a num or flt literal */
+        
+        else if ( syntax::isNum(_line[_iter]) or _line[_iter] == '-' ) {  numberLiteral();  }
+        
         /* Check for operator */
         
         else if ( syntax::isOperatorChar(_line[_iter]) ) {  operatorCheck();  }
-        
-        /* Check for a num or flt literal */
-        
-        else if ( syntax::isNum(_line[_iter]) ) {  numberLiteral();  }
         
         /* Check for a str literal */
         

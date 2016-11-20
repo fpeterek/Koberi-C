@@ -30,9 +30,9 @@ void Translator::mangleName(std::string & name, std::vector<parameter> & params)
     
 }
 
-void Translator::parseParams(unsigned long long start, std::vector<parameter> & params) {
+void Translator::parseParams(unsigned long long beginning, std::vector<parameter> & params) {
     
-    for (unsigned long long i = start; _tokens[i] != tokType::closingPar; i += 2) {
+    for (unsigned long long i = beginning; _tokens[i] != tokType::closingPar; i += 2) {
         
         if (_tokens[i] == tokType::closingPar or _tokens[i+1] == tokType::closingPar) { break; }
         params.emplace_back();
@@ -43,15 +43,15 @@ void Translator::parseParams(unsigned long long start, std::vector<parameter> & 
     
 }
 
-std::string Translator::parseSexp(unsigned long long sexpStart) {
+std::string Translator::parseSexp(unsigned long long sexpBeginning) {
     
     std::string expr;
     
     std::vector<std::string> params;
-    std::string funName = _tokens[sexpStart + 1].value;
+    std::string funName = _tokens[sexpBeginning + 1].value;
     
-    unsigned long long iter = sexpStart + 2; /* sexpStart is parenthesis, sexpStart + 1 is function name, 
-                                                sexpStart + 2 is the first param */
+    unsigned long long iter = sexpBeginning + 2; /* sexpBeginning is parenthesis, sexpBeginning + 1 is function name,
+                                                    sexpBeginning + 2 is the first param */
     
     for (unsigned int parenCounter = 1; parenCounter != 0; ++iter ) {
     
@@ -75,10 +75,12 @@ std::string Translator::parseSexp(unsigned long long sexpStart) {
     
 }
 
-void Translator::parseFunc(unsigned long long funcStart, unsigned long long funcEnd) {
+void Translator::parseFunc(unsigned long long funcBeginning, unsigned long long funcEnd) {
+    
+    _localVars = std::unordered_map<std::string, std::string>();
     
 #if PRINT_FUNCTIONS_TOKENS
-    for (unsigned long long i = funcStart; i < funcEnd; ++i) {
+    for (unsigned long long i = funcBeginning; i < funcEnd; ++i) {
         print(_tokens[i].value);
     }
 #endif
@@ -87,32 +89,118 @@ void Translator::parseFunc(unsigned long long funcStart, unsigned long long func
     std::string name = _tokens[2].value;
     std::vector<parameter> params;
     
-    parseParams(funcStart + 3, params);
+    parseParams(funcBeginning + 3, params);
     mangleName(name, params);
+    
+}
+
+void Translator::varDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
+    
+    if (declEnd - declBeginning < 4) {
+        
+        std::stringstream ss;
+        
+        for (unsigned long long i = declBeginning; i < declEnd; ++i) {
+            ss << _tokens[i].value;
+        }
+        
+        throw invalid_declaration(ss.str());
+    
+    }
+    
+    std::string type = _tokens[declBeginning + 2].value;
+    std::string name = _tokens[declBeginning + 3].value;
+    _globalVars.emplace(name, type);
+    
+    
+}
+
+void Translator::funDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
+    
+    std::string type = _tokens[1].value;
+    std::string name = _tokens[2].value;
+    std::vector<parameter> params;
+    
+    parseParams(declBeginning + 3, params);
+    mangleName(name, params);
+    _functions.emplace(name, type);
+    
+    std::stringstream ss;
+    ss << type << " " << name << "(";
+    
+    size_t size = params.size();
+    
+    for (size_t i = 0; i < size; ++i) {
+        
+        ss << params[i].type << " " << params[i].value << ((i == size - 1) ? "," : "");
+        
+    }
+    if (not size) { ss << "void"; }
+    ss << ");";
+    
+    _output << ss.str() << std::endl;
+    
+#ifdef OUTPUT_FUNCTION_DECLARATION
+    print(ss.str());
+#endif
+    
+}
+
+void Translator::parseDeclarations() {
+    
+    unsigned long long parens = 0;
+    unsigned long long declBeginning = 0, declEnd = 0;
+    
+    for (unsigned long long i = 0; i < _tokens.size(); ++i) {
+        
+        if (_tokens[i].type == tokType::openingPar) {
+            
+            ++parens;
+            if (parens == 1) { declBeginning = i; }
+            
+        }
+        else if (_tokens[i].type == tokType::closingPar) {
+            
+            --parens;
+            if (not parens) {
+                
+                declEnd = i;
+                if (_tokens[i].value == "global") { varDeclaration(declBeginning, declEnd); i = declEnd; }
+                else { funDeclaration(declBeginning, declEnd); i = declEnd; }
+                
+            }
+            
+        } /* Else If */
+        
+    } /* For */
     
 }
 
 void Translator::translate() {
     
+    parseDeclarations();
+    
     unsigned long long parens = 0;
-    unsigned long long funcStart = 0, funcEnd = 0;
+    unsigned long long funcBeginning = 0, funcEnd = 0;
     
     for (int i = 0; i < _tokens.size(); ++i) {
         
         if (_tokens[i].type == tokType::openingPar) {
             
             ++parens;
-            if (parens == 1) { funcStart = i; }
+            if (parens == 1) { funcBeginning = i; }
             
         }
         else if (_tokens[i].type == tokType::closingPar) {
             
             --parens;
-            if (not parens) { funcEnd = i; }
-            parseFunc(funcStart, funcEnd);
+            if (not parens) {
+                funcEnd = i;
+                parseFunc(funcBeginning, funcEnd);
+            }
             
-        }
+        } /* Else If */
         
-    }
+    } /* For */
     
 }

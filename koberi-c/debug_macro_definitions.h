@@ -16,6 +16,6 @@
 #define PRINT_LINE  // Print lines to stdout after reading them from file
 // #define PRINT_FUNCTION_TOKENS // Print tokens of a function
 #define PRINT_FUNCTION // Print function to stdout
-
+#define OUTPUT_FUNCTION_DECLARATION // Print function declaration to stdout
 
 #endif /* debug_macro_definitions_h */
