@@ -32,7 +32,7 @@ void Translator::mangleName(std::string & name, std::vector<parameter> & params)
 
 void Translator::parseParams(unsigned long long beginning, std::vector<parameter> & params) {
     
-    for (unsigned long long i = beginning; _tokens[i] != tokType::closingPar; i += 2) {
+    for (unsigned long long i = beginning + 1; _tokens[i] != tokType::closingPar and _tokens[i+1] != tokType::closingPar; i += 2) {
         
         if (_tokens[i] == tokType::closingPar or _tokens[i+1] == tokType::closingPar) { break; }
         params.emplace_back();
@@ -85,8 +85,8 @@ void Translator::parseFunc(unsigned long long funcBeginning, unsigned long long 
     }
 #endif
     
-    std::string type = _tokens[1].value;
-    std::string name = _tokens[2].value;
+    std::string type = _tokens[funcBeginning + 1].value;
+    std::string name = _tokens[funcEnd + 2].value;
     std::vector<parameter> params;
     
     parseParams(funcBeginning + 3, params);
@@ -117,8 +117,8 @@ void Translator::varDeclaration(unsigned long long declBeginning, unsigned long 
 
 void Translator::funDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
-    std::string type = _tokens[1].value;
-    std::string name = _tokens[2].value;
+    std::string type = _tokens[declBeginning + 1].value;
+    std::string name = _tokens[declBeginning + 2].value;
     std::vector<parameter> params;
     
     parseParams(declBeginning + 3, params);
@@ -132,7 +132,7 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
     
     for (size_t i = 0; i < size; ++i) {
         
-        ss << params[i].type << " " << params[i].value << ((i == size - 1) ? "," : "");
+        ss << params[i].type << " " << params[i].value << ((i != size - 1) ? ", " : "");
         
     }
     if (not size) { ss << "void"; }
@@ -165,8 +165,16 @@ void Translator::parseDeclarations() {
             if (not parens) {
                 
                 declEnd = i;
-                if (_tokens[i].value == "global") { varDeclaration(declBeginning, declEnd); i = declEnd; }
-                else { funDeclaration(declBeginning, declEnd); i = declEnd; }
+                if (_tokens[i].value == "global") {
+                    varDeclaration(declBeginning, declEnd);
+                    i = declEnd;
+                    parens = 0;
+                }
+                else {
+                    funDeclaration(declBeginning, declEnd);
+                    i = declEnd;
+                    parens = 0;
+                }
                 
             }
             
@@ -176,9 +184,32 @@ void Translator::parseDeclarations() {
     
 }
 
+void Translator::libs() {
+    
+    _output << "#include <stdio.h>\n"
+            << "#include <stdlib.h>\n"
+            << "#include <math.h>\n"
+            << "#include <time.h>\n"
+            << std::endl;
+    
+}
+
+void Translator::typedefs() {
+    
+    _output << "typedef double num;\n"
+            << "typedef long long ll;\n"
+            << std::endl;
+    
+}
+
 void Translator::translate() {
     
+    libs();
+    typedefs();
+    
     parseDeclarations();
+    
+#if 0
     
     unsigned long long parens = 0;
     unsigned long long funcBeginning = 0, funcEnd = 0;
@@ -202,5 +233,5 @@ void Translator::translate() {
         } /* Else If */
         
     } /* For */
-    
+#endif
 }

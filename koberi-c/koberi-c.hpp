@@ -45,7 +45,7 @@ public:
     KoberiC();
     
     void tokenize(const std::string & filename);
-    void parseFunctions(); /* Searches for function definitions */
+    void translate(); 
     
     void test();
     

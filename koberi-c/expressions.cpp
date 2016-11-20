@@ -67,7 +67,7 @@ std::string expr::print(std::vector<std::string> & str) {
     
     for (unsigned int i = 0; i < str.size(); ++i) {
         
-        string += "puts(" + str[i] + ");\n";
+        string += "fputs(" + str[i] + ", stdout);\n";
         
     }
     

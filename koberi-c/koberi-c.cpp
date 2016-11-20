@@ -19,7 +19,7 @@ void KoberiC::tokenize(const std::string & filename) {
     
 }
 
-void KoberiC::parseFunctions() {
+void KoberiC::translate() {
     
     _translator.translate();
     

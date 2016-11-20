@@ -59,6 +59,11 @@ class Translator {
     void parseFunc(unsigned long long funcBeginning, unsigned long long funcEnd);
     void parseParams(unsigned long long beginning, std::vector<parameter> & params);
     
+    /* Outputs includes into the output file */
+    void libs();
+    /* Outputs typedefs into the output file */
+    void typedefs();
+    
 public:
     Translator(std::vector<token> & vectorRef);
     
