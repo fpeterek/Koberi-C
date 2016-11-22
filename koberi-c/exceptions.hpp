@@ -74,4 +74,15 @@ public:
     
 };
 
+class undeclared_function_call : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    const char * what();
+    undeclared_function_call(const std::string & message);
+    
+};
+
 #endif /* exceptions_hpp */

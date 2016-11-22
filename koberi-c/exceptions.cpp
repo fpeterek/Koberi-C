@@ -91,4 +91,14 @@ invalid_declaration::invalid_declaration(const char * message) {
     
 }
 
+undeclared_function_call::undeclared_function_call(const std::string & message) {
+    
+    _message = "Call to undeclared function " + message;
+    
+}
 
+const char * undeclared_function_call::what() {
+    
+    return _message.c_str();
+    
+}

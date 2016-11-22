@@ -42,7 +42,7 @@ class Translator {
     std::unordered_map<std::string, std::string> _globalVars; /* Keeps track of global variables */
     std::unordered_map<std::string, std::string> _localVars;  /* Keeps track of local variables inside a function. This variable is 
                                                                  reset every time the parseFunc() method is called */
-    std::string funCall(); /* Mangle name in a function call */
+    std::string funCall(); /* Mangle name in a function call so the right function is called */
     
     std::vector<token> & _tokens;
     std::ofstream _output;
