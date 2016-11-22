@@ -19,7 +19,8 @@ enum class tokType {
     closingPar,     //  Closing parenthesis ')'
     openingBra,     //  Opening bracket '['         // It has nothing to do with bras
     closingBra,     //  Closing bracket ']'
-    numLit,         //  Number literal
+    numLit,         //  Floating point number literal
+    intLit,         //  Integer literal
     strLit,         //  String literal, eg. "Kobeřice"
     id,             //  An identifier, eg. add
     op,             //  An operator, eg. +

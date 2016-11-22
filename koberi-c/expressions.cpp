@@ -24,7 +24,7 @@ std::string expr::setNumValue(std::string & var, std::string & value) {
     
 }
 
-std::string expr::numOperation(std::string & operation, std::vector<std::string> & nums) {
+std::string expr::numericOperation(std::string & operation, std::vector<std::string> & nums) {
     
     if ( not nums.size() ) { return std::string(""); }
     if (nums.size() == 1 and operation == "-") { return "(-" + nums[0] + ")";  } /* (- x) gives -x */
@@ -42,7 +42,7 @@ std::string expr::numOperation(std::string & operation, std::vector<std::string>
     
 }
 
-std::string expr::mod(std::vector<std::string> & nums) {
+std::string expr::numMod(std::vector<std::string> & nums) {
     
     if ( not nums.size() ) { return std::string(""); }
     if ( nums.size() == 1 ) { return nums[0]; }
@@ -55,9 +55,8 @@ std::string expr::mod(std::vector<std::string> & nums) {
     nums.erase(iter);
     nums.erase(iter);
     nums.insert(iter, val);
-
     
-    return expr::mod(nums);
+    return expr::numMod(nums);
     
 }
 

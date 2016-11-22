@@ -24,10 +24,10 @@ namespace expr {
     
     std::string print(std::vector<std::string> & str); /* Print string to stdout */
     
-    /* + - * / */
-    std::string numOperation(std::string & operation, std::vector<std::string> & nums);
+    /* + - * / % on ints, + - * / on nums */
+    std::string numericOperation(std::string & operation, std::vector<std::string> & nums);
     /* % in C can only be used on ints */
-    std::string mod(std::vector<std::string> & nums);
+    std::string numMod(std::vector<std::string> & nums);
 
 }
 

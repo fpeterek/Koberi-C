@@ -24,7 +24,7 @@ void Translator::mangleName(std::string & name, std::vector<parameter> & params)
     
     for (auto & i : params) {
         
-        name += "_" + i.type.substr(0, 1);
+        name += "_" + i.type;
         
     }
     
