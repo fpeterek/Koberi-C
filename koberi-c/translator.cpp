@@ -202,6 +202,16 @@ void Translator::typedefs() {
     
 }
 
+void Translator::functions() {
+    
+    _output << "const char * __numToStr(num param) { "
+            << "    char temp[50];"
+            << "    snprintf(temp, 50, \"%f\", param);"
+            << "    return temp;"
+            << "}" <<std::endl;
+    
+}
+
 void Translator::translate() {
     
     libs();

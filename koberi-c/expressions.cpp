@@ -60,13 +60,16 @@ std::string expr::numMod(std::vector<std::string> & nums) {
     
 }
 
-std::string expr::print(std::vector<std::string> & str) {
+std::string expr::print(std::vector<parameter> & params) {
     
     std::string string;
     
-    for (unsigned int i = 0; i < str.size(); ++i) {
+    for (auto & i : params) {
         
-        string += "fputs(" + str[i] + ", stdout);\n";
+        if (i.type == "num") {
+            string += "fputs(__numToStr(" + i.value + "), stdout);\n";
+        }
+        string += "fputs(" + i.value + ", stdout);\n";
         
     }
     
@@ -74,10 +77,53 @@ std::string expr::print(std::vector<std::string> & str) {
     
 }
 
+std::string expr::conversionToNum(parameter & param) {
+    
+    if (param.type == "num") {
+        return param.value;
+    }
+    else if (param.type == "int") {
+        expr::intToNum(param);
+    }
+    else if (param.type == "str") {
+        expr::strToNum(param);
+    }
+    
+    return std::string();
+    
+}
 
+std::string expr::intToNum(parameter & param) {
+    return "(num)" + param.value;
+}
 
+std::string expr::strToNum(parameter & param) {
+    return "atof(" + param.value + ")";
+}
 
+std::string expr::conversionToInt(parameter & param) {
+    
+    if (param.type == "num") {
+        return expr::numToInt(param);
+    }
+    else if (param.type == "int") {
+        return param.type;
+    }
+    else if (param.type == "str") {
+        return expr::strToInt(param);
+    }
+    
+    return std::string();
+    
+}
 
+std::string expr::numToInt(parameter & param) {
+    return "(ll)" + param.value;
+}
+
+std::string expr::strToInt(parameter & param) {
+    return "atoi(" + param.value + ")";
+}
 
 
 

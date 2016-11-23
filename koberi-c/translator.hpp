@@ -25,12 +25,6 @@
 #include "expressions.hpp"
 #include "debug_macro_definitions.h"
 
-struct parameter {
-    
-    std::string type;
-    std::string value;
-    
-};
 
 class Translator {
     
@@ -63,6 +57,8 @@ class Translator {
     void libs();
     /* Outputs typedefs into the output file */
     void typedefs();
+    /* Outputs functions into the output file, might change this later */
+    void functions();
     
 public:
     Translator(std::vector<token> & vectorRef);
