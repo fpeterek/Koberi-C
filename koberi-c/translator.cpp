@@ -86,32 +86,70 @@ void Translator::parseFunc(unsigned long long funcBeginning, unsigned long long 
 #endif
     
     std::string type = _tokens[funcBeginning + 1].value;
-    std::string name = _tokens[funcEnd + 2].value;
+    std::string name = _tokens[funcBeginning + 2].value;
     std::vector<parameter> params;
     
     parseParams(funcBeginning + 3, params);
-    mangleName(name, params);
+    if (name != "main") { mangleName(name, params); } /* Don't mangle the name of main */
+    
+    if (name == "main") {
+        
+        _output << "int main(int argc, const char * argv[]) {\n";
+        
+    }
+    else {
+        
+        _output << ((type == "int") ? "ll" : type) << " " << name << "(";
+        
+        size_t size = params.size();
+        for (size_t i = 0; i < size; ++i) {
+            _output << params[i].type << " " << params[i].value << ((i != size - 1) ? ", " : "");
+        }
+        if (not size) { _output << "void"; }
+        _output << ") {\n";
+            
+    }
+    
+    // TODO: make it work
+    // _output << parseSexp(0) << ";\n"; /* Appending a semicolon at the end - semicolons after if () {}; don't do anything */
+    
+    _output << "}\n\n";
     
 }
 
 void Translator::varDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
-    if (declEnd - declBeginning < 4) {
-        
-        std::stringstream ss;
+    std::stringstream ss;
+    
+    if (declEnd - declBeginning < 4) { /* 0 for (; 1 for (); 2 for (global); 3 for (global type); 4 for (global type name); 
+                                          At least 4 tokens are needed to declare a global variable */
         
         for (unsigned long long i = declBeginning; i < declEnd; ++i) {
-            ss << _tokens[i].value;
+            ss << (_tokens[i] != tokType::openingPar ? "" : " ") << _tokens[i].value;
         }
         
-        throw invalid_declaration(ss.str());
+        throw invalid_declaration("Invalid variable declaration:" + ss.str());
     
     }
     
     std::string type = _tokens[declBeginning + 2].value;
     std::string name = _tokens[declBeginning + 3].value;
-    _globalVars.emplace(name, type);
     
+    ss << (type == "int" ? "ll" : type) << " " << name;
+    
+    if (_tokens[declBeginning + 4] != tokType::closingPar) {
+        ss << " = " << _tokens[declBeginning + 4].value;
+    }
+    
+    ss << ";";
+    
+#ifdef OUTPUT_GLOBAL_VARIABLE_DECLARATION
+    print(ss.str());
+#endif
+    
+    _output << ss.str() << std::endl;
+    
+    _globalVars.emplace(name, type);
     
 }
 
@@ -119,6 +157,7 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
     
     std::string type = _tokens[declBeginning + 1].value;
     std::string name = _tokens[declBeginning + 2].value;
+    if (name == "main" and type != "int") { throw invalid_declaration("Main must return int. "); }
     std::vector<parameter> params;
     
     parseParams(declBeginning + 3, params);
@@ -126,8 +165,15 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
     _functions.emplace(name, type);
     
     std::stringstream ss;
-    ss << type << " " << name << "(";
-    
+    if (name != "main") {
+        ss << (type == "int" ? "ll" : type) << " " << name << "(";
+    } else {
+        _output << "int main(int argc, const char * argv[]);" << std::endl;
+#ifdef OUTPUT_FUNCTION_DECLARATION
+        print("int main(int argc, const char * argv[]);");
+#endif
+        return;
+    }
     size_t size = params.size();
     
     for (size_t i = 0; i < size; ++i) {
@@ -148,6 +194,8 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
 
 void Translator::parseDeclarations() {
     
+    _output << "/* User defined function declarations and global variables. */\n\n";
+    
     unsigned long long parens = 0;
     unsigned long long declBeginning = 0, declEnd = 0;
     
@@ -165,7 +213,7 @@ void Translator::parseDeclarations() {
             if (not parens) {
                 
                 declEnd = i;
-                if (_tokens[i].value == "global") {
+                if (_tokens[declBeginning + 1].value == "global") {
                     varDeclaration(declBeginning, declEnd);
                     i = declEnd;
                     parens = 0;
@@ -182,6 +230,8 @@ void Translator::parseDeclarations() {
         
     } /* For */
     
+    _output << "\n"; /* Output two newlines after function declarations, mostly for readability */
+    
 }
 
 void Translator::libs() {
@@ -190,6 +240,7 @@ void Translator::libs() {
             << "#include <stdlib.h>\n"
             << "#include <math.h>\n"
             << "#include <time.h>\n"
+            << "\n"
             << std::endl;
     
 }
@@ -204,11 +255,18 @@ void Translator::typedefs() {
 
 void Translator::functions() {
     
-    _output << "const char * __numToStr(num param) { "
-            << "    char temp[50];"
-            << "    snprintf(temp, 50, \"%f\", param);"
-            << "    return temp;"
-            << "}" <<std::endl;
+    _output << "/* Kobeři-c standard library functions */\n\n"
+            << "char * __numToStr(num param) { \n"
+            << "    char * temp = (char *) malloc(50);\n"
+            << "    sprintf(temp, \"%f\", param);\n"
+            << "    return temp;\n"
+            << "}\n\n"
+            << "char * __intToStr(ll param) {\n"
+            << "    char * temp = (char *) malloc(50);\n"
+            << "    sprintf(temp, \"%f\", param);\n"
+            << "    return temp;\n"
+            << "}\n\n" << std::flush;
+    
     
 }
 
@@ -216,10 +274,11 @@ void Translator::translate() {
     
     libs();
     typedefs();
+    functions();
     
     parseDeclarations();
     
-#if 0
+    _output << "/* User defined function definitions */\n" << std::endl;
     
     unsigned long long parens = 0;
     unsigned long long funcBeginning = 0, funcEnd = 0;
@@ -237,11 +296,13 @@ void Translator::translate() {
             --parens;
             if (not parens) {
                 funcEnd = i;
-                parseFunc(funcBeginning, funcEnd);
+                if (_tokens[funcBeginning + 1].value != "global") {
+                    parseFunc(funcBeginning, funcEnd);
+                }
             }
             
         } /* Else If */
         
     } /* For */
-#endif
+
 }

@@ -67,7 +67,10 @@ std::string expr::print(std::vector<parameter> & params) {
     for (auto & i : params) {
         
         if (i.type == "num") {
-            string += "fputs(__numToStr(" + i.value + "), stdout);\n";
+            string += "printf(\"%f\", " + i.value + ");\n";
+        }
+        else if (i.type == "int") {
+            string += "printf(\"%d\", " + i.value + ");\n";
         }
         string += "fputs(" + i.value + ", stdout);\n";
         
@@ -122,7 +125,7 @@ std::string expr::numToInt(parameter & param) {
 }
 
 std::string expr::strToInt(parameter & param) {
-    return "atoi(" + param.value + ")";
+    return "atoll(" + param.value + ")";
 }
 
 

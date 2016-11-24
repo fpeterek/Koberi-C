@@ -23,6 +23,7 @@
 #include "exceptions.hpp"
 #include "print.hpp"
 #include "expressions.hpp"
+#include "item_in_vector.hpp"
 #include "debug_macro_definitions.h"
 
 
@@ -50,6 +51,7 @@ class Translator {
                                                                                              called from parseDeclarations() */
     void funDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a function,
                                                                                              called from parseDeclarations() */
+    
     void parseFunc(unsigned long long funcBeginning, unsigned long long funcEnd);
     void parseParams(unsigned long long beginning, std::vector<parameter> & params);
     
