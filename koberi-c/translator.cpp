@@ -108,7 +108,7 @@ void Translator::parseFun(unsigned long long funBeginning, unsigned long long fu
         
         size_t size = params.size();
         for (size_t i = 0; i < size; ++i) {
-            _output << params[i].type << " " << params[i].value << ((i != size - 1) ? ", " : "");
+            _output << (params[i].type == "int" ? "ll" : params[i].type) << " " << params[i].value << ((i != size - 1) ? ", " : "");
         }
         if (not size) { _output << "void"; }
         _output << ") {\n";
@@ -183,7 +183,7 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
     
     for (size_t i = 0; i < size; ++i) {
         
-        ss << params[i].type << " " << params[i].value << ((i != size - 1) ? ", " : "");
+        ss << (params[i].type == "int" ? "ll" : params[i].type) << " " << params[i].value << ((i != size - 1) ? ", " : "");
         
     }
     if (not size) { ss << "void"; }
