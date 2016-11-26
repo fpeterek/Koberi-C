@@ -22,6 +22,10 @@ Translator::Translator(std::vector<token> & vectorRef) : _tokens(vectorRef) /* C
 
 void Translator::mangleName(std::string & name, std::vector<parameter> & params) {
     
+    if (name == "main") { return; }
+    
+    name.insert(0, "_");
+    
     for (auto & i : params) {
         
         name += "_" + i.type;
@@ -75,7 +79,7 @@ std::string Translator::parseSexp(unsigned long long sexpBeginning) {
     
 }
 
-void Translator::parseFunc(unsigned long long funcBeginning, unsigned long long funcEnd) {
+void Translator::parseFun(unsigned long long funBeginning, unsigned long long funEnd) {
     
     _localVars = std::unordered_map<std::string, std::string>();
     
@@ -85,12 +89,13 @@ void Translator::parseFunc(unsigned long long funcBeginning, unsigned long long 
     }
 #endif
     
-    std::string type = _tokens[funcBeginning + 1].value;
-    std::string name = _tokens[funcBeginning + 2].value;
+    std::string type = _tokens[funBeginning + 1].value;
+    std::string name = _tokens[funBeginning + 2].value;
     std::vector<parameter> params;
     
-    parseParams(funcBeginning + 3, params);
-    if (name != "main") { mangleName(name, params); } /* Don't mangle the name of main */
+    parseParams(funBeginning + 3, params);
+    
+    mangleName(name, params); /* The name of main won't be mangled */
     
     if (name == "main") {
         
@@ -111,7 +116,7 @@ void Translator::parseFunc(unsigned long long funcBeginning, unsigned long long 
     }
     
     // TODO: make it work
-    // _output << parseSexp(0) << ";\n"; /* Appending a semicolon at the end - semicolons after if () {}; don't do anything */
+    // _output << parseSexp(0) << ";\n"; /* Appending a semicolon at the end - semicolons after if () {} don't do anything */
     
     _output << "}\n\n";
     
@@ -210,27 +215,33 @@ void Translator::parseDeclarations() {
         else if (_tokens[i].type == tokType::closingPar) {
             
             --parens;
-            if (not parens) {
-                
-                declEnd = i;
-                if (_tokens[declBeginning + 1].value == "global") {
-                    varDeclaration(declBeginning, declEnd);
-                    i = declEnd;
-                    parens = 0;
-                }
-                else {
-                    funDeclaration(declBeginning, declEnd);
-                    i = declEnd;
-                    parens = 0;
-                }
-                
-            }
             
-        } /* Else If */
+        }
+        
+        if (not parens) {
+            
+            declEnd = i;
+            declaration(declBeginning, declEnd);
+            
+        }
         
     } /* For */
     
     _output << "\n"; /* Output two newlines after function declarations, mostly for readability */
+    
+}
+
+void Translator::declaration(unsigned long long declBeginning, unsigned long long declEnd) {
+    
+    if (_tokens[declBeginning + 1].value == "global") {
+        
+        varDeclaration(declBeginning, declEnd);
+        
+    } else {
+        
+        funDeclaration(declBeginning, declEnd);
+        
+    }
     
 }
 
@@ -270,6 +281,44 @@ void Translator::functions() {
     
 }
 
+void Translator::parseDefinitions() {
+    
+    _output << "/* User defined function definitions */\n" << std::endl;
+    
+    unsigned long long parens = 0;
+    unsigned long long defBeginning = 0, defEnd = 0;
+    
+    for (int i = 0; i < _tokens.size(); ++i) {
+        
+        if (_tokens[i].type == tokType::openingPar) {
+            
+            ++parens;
+            if (parens == 1) { defBeginning = i; }
+            
+        }
+        else if (_tokens[i].type == tokType::closingPar) {
+            
+            --parens;
+            
+        }
+        
+        if (not parens) {
+            defEnd = i;
+            definition(defBeginning, defEnd);
+        }
+        
+    } /* For */
+    
+}
+
+void Translator::definition(unsigned long long defBeginning, unsigned long long defEnd) {
+    
+    if (_tokens[defBeginning + 1].value != "global") {
+        parseFun(defBeginning, defEnd);
+    }
+    
+}
+
 void Translator::translate() {
     
     libs();
@@ -277,32 +326,6 @@ void Translator::translate() {
     functions();
     
     parseDeclarations();
+    parseDefinitions();
     
-    _output << "/* User defined function definitions */\n" << std::endl;
-    
-    unsigned long long parens = 0;
-    unsigned long long funcBeginning = 0, funcEnd = 0;
-    
-    for (int i = 0; i < _tokens.size(); ++i) {
-        
-        if (_tokens[i].type == tokType::openingPar) {
-            
-            ++parens;
-            if (parens == 1) { funcBeginning = i; }
-            
-        }
-        else if (_tokens[i].type == tokType::closingPar) {
-            
-            --parens;
-            if (not parens) {
-                funcEnd = i;
-                if (_tokens[funcBeginning + 1].value != "global") {
-                    parseFunc(funcBeginning, funcEnd);
-                }
-            }
-            
-        } /* Else If */
-        
-    } /* For */
-
 }

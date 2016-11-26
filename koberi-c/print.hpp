@@ -12,7 +12,7 @@
 #include <iostream>
 
 template <class T>
-void print(T param, std::ostream & os = std::cout) {
+void print(const T & param, std::ostream & os = std::cout) {
     os << param << std::endl;
 }
 

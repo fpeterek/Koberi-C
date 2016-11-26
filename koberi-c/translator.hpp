@@ -23,7 +23,7 @@
 #include "exceptions.hpp"
 #include "print.hpp"
 #include "expressions.hpp"
-#include "item_in_vector.hpp"
+#include "contains.hpp"
 #include "debug_macro_definitions.h"
 
 
@@ -47,12 +47,16 @@ class Translator {
     std::string parseSexp(unsigned long long sexpBeginning);
     
     void parseDeclarations(); /* Declare functions and global variables */
+    void declaration(unsigned long long declBeginning, unsigned long long declEnd);       /* Calls varDeclaration() or funDeclaration(),
+                                                                                             exists to increase code readability and 
+                                                                                             scalability, in case I want to add more 
+                                                                                             declarations later */
     void varDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a global variable,
                                                                                              called from parseDeclarations() */
     void funDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a function,
                                                                                              called from parseDeclarations() */
     
-    void parseFunc(unsigned long long funcBeginning, unsigned long long funcEnd);
+    void parseFun(unsigned long long funBeginning, unsigned long long funEnd);
     void parseParams(unsigned long long beginning, std::vector<parameter> & params);
     
     /* Outputs includes into the output file */
@@ -61,6 +65,9 @@ class Translator {
     void typedefs();
     /* Outputs functions into the output file, might change this later */
     void functions();
+    
+    void parseDefinitions(); /* Parse definitions */
+    void definition(unsigned long long defBeginning, unsigned long long defEnd); /* Same as declaration() */
     
 public:
     Translator(std::vector<token> & vectorRef);

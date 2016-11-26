@@ -56,7 +56,7 @@ std::string expr::numMod(std::vector<std::string> & nums) {
     nums.erase(iter);
     nums.insert(iter, val);
     
-    return expr::numMod(nums);
+    return numMod(nums);
     
 }
 
@@ -86,10 +86,10 @@ std::string expr::conversionToNum(parameter & param) {
         return param.value;
     }
     else if (param.type == "int") {
-        expr::intToNum(param);
+        intToNum(param);
     }
     else if (param.type == "str") {
-        expr::strToNum(param);
+        strToNum(param);
     }
     
     return std::string();
@@ -107,13 +107,13 @@ std::string expr::strToNum(parameter & param) {
 std::string expr::conversionToInt(parameter & param) {
     
     if (param.type == "num") {
-        return expr::numToInt(param);
+        return numToInt(param);
     }
     else if (param.type == "int") {
         return param.type;
     }
     else if (param.type == "str") {
-        return expr::strToInt(param);
+        return strToInt(param);
     }
     
     return std::string();
