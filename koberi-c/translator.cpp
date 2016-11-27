@@ -47,11 +47,11 @@ void Translator::parseParams(unsigned long long beginning, std::vector<parameter
     
 }
 
-std::string Translator::parseSexp(unsigned long long sexpBeginning) {
+parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     
-    std::string expr;
+    parameter expr;
     
-    std::vector<std::string> params;
+    std::vector<parameter> params;
     std::string funName = _tokens[sexpBeginning + 1].value;
     
     unsigned long long iter = sexpBeginning + 2; /* sexpBeginning is parenthesis, sexpBeginning + 1 is function name,
@@ -60,10 +60,10 @@ std::string Translator::parseSexp(unsigned long long sexpBeginning) {
     for (unsigned int parenCounter = 1; parenCounter != 0; ++iter ) {
     
         /* Recursively parse sexps nested in other sexps */
-        /* If parenCounter == 2 so only the first expression is parsed in this function call, 
-           expressions nested in nested expressions will be parsed recursively */
+        /* if (parenCounter == 1 and token == '(') {} so only the first expression is parsed in this function call,
+           expressions nested in other expressions will be parsed recursively */
         
-        if (_tokens[iter] == tokType::openingPar and parenCounter == 2) {
+        if (_tokens[iter] == tokType::openingPar and parenCounter == 1) {
             
             ++parenCounter;
             params.emplace_back(parseSexp(iter));
@@ -73,6 +73,10 @@ std::string Translator::parseSexp(unsigned long long sexpBeginning) {
         else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }
         else if (parenCounter == 1) { params.emplace_back(_tokens[iter].value); }
         
+    }
+    
+    if (funName == "toNum" and params.size() == 1) {
+        expr = expr::conversionToNum(params[0]);
     }
     
     return expr;

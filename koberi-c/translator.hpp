@@ -44,13 +44,14 @@ class Translator {
     
     void mangleName(std::string & name, std::vector<parameter> & params);
     
-    std::string parseSexp(unsigned long long sexpBeginning);
+    /* parseSexp() parses a s-expression and returns a parameter where type is the data type returned by the s-exp and value
+       is the s-exp translated to C */
+    parameter parseSexp(unsigned long long sexpBeginning);
     
     void parseDeclarations(); /* Declare functions and global variables */
     void declaration(unsigned long long declBeginning, unsigned long long declEnd);       /* Calls varDeclaration() or funDeclaration(),
                                                                                              exists to increase code readability and 
-                                                                                             scalability, in case I want to add more 
-                                                                                             declarations later */
+                                                                                             modularity */
     void varDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a global variable,
                                                                                              called from parseDeclarations() */
     void funDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a function,

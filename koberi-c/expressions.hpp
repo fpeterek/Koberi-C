@@ -22,29 +22,34 @@ struct parameter {
     std::string type;
     std::string value;
     
+    parameter();
+    parameter(const std::string & value);
+    parameter(const std::string & value, const std::string & type);
+    
 };
 
 namespace expr {
     
     /* Can't use an std::map for these functions, because they accept different parameters */
     
-    std::string variableDeclaration(std::string & type, std::string & name, std::string & value);
-    std::string setNumValue(std::string & var, std::string & value);
+    parameter variableDeclaration(std::string & type, std::string & name, std::string & value);
+    parameter setNumValue(std::string & var, std::string & value);
     
-    std::string print(std::vector<parameter> & params); /* Print string to stdout */
+    parameter print(std::vector<parameter> & params); /* Print string to stdout */
     
     /* + - * / % on ints, + - * / on nums */
-    std::string numericOperation(std::string & operation, std::vector<std::string> & nums);
+    parameter numericOperation(std::string & operation, std::vector<std::string> & nums);
     /* % in C can only be used on ints */
-    std::string numMod(std::vector<std::string> & nums);
+    parameter numMod(std::vector<std::string> & nums);
     
-    std::string conversionToNum(parameter & param);
-    std::string intToNum(parameter & param);
-    std::string strToNum(parameter & param);
     
-    std::string conversionToInt(parameter & param);
-    std::string numToInt(parameter & param);
-    std::string strToInt(parameter & param);
+    parameter conversionToNum(parameter & param);
+    parameter intToNum(parameter & param);
+    parameter strToNum(parameter & param);
+    
+    parameter conversionToInt(parameter & param);
+    parameter numToInt(parameter & param);
+    parameter strToInt(parameter & param); 
 
 }
 
