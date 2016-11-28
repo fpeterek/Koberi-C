@@ -17,6 +17,7 @@
 #include <cmath>
 #include <fstream>
 #include <sstream>
+#include <set>
 
 #include "syntax.hpp"
 #include "token.hpp"
@@ -28,7 +29,6 @@
 
 
 class Translator {
-    
     
     /* Used for function overloading */
     
@@ -44,9 +44,10 @@ class Translator {
     
     void mangleName(std::string & name, std::vector<parameter> & params);
     
-    /* parseSexp() parses a s-expression and returns a parameter where type is the data type returned by the s-exp and value
+    /* parseSexp() parses an s-expression and returns a parameter where type is the data type returned by the s-exp and value
        is the s-exp translated to C */
     parameter parseSexp(unsigned long long sexpBeginning);
+    void parseSexps(unsigned long long firstSexp);
     
     void parseDeclarations(); /* Declare functions and global variables */
     void declaration(unsigned long long declBeginning, unsigned long long declEnd);       /* Calls varDeclaration() or funDeclaration(),

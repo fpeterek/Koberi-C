@@ -41,26 +41,40 @@ parameter expr::setNumValue(std::string & var, std::string & value) {
     
 }
 
-parameter expr::numericOperation(std::string & operation, std::vector<std::string> & nums) {
+parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op) {
+    
+    if (op == "set" and params.size() != 1) {
+        std::string str = "(set";
+        for (auto & i : params) {
+            str += i.value;
+        }
+        str += ")";
+        throw invalid_operator(str);
+    }
     
     parameter val;
+    val.type = "void";
     
-    if ( not nums.size() ) { return val; }
+    std::string oper = binary_operators_map.at(op);
     
-    if (nums.size() == 1 and operation == "-") {
-        val.value = "(-" + nums[0] + ")";
+    if ( not params.size() ) { return val; }
+    
+    if (params.size() == 1 and op == "-") {
+        val.value = "(-" + params[0].value + ")";
+        val.type = params[0].type;
         return val;
     } /* (- x) gives -x */
     
-    if (nums.size() == 1 ) { val.value = nums[0]; return val; }
+    if (params.size() == 1 ) { val = params[0]; return val; }
     
-    val.value = "(" + nums[0];
-    for ( int i = 1; i < nums.size() - 1; ++i ) {
+    val.value = "(" + params[0].value;
+    val.type = params[0].type;
+    for ( int i = 1; i < params.size() - 1; ++i ) {
         
-        val.value += operation + nums[i];
+        val.value += op + params[i].value;
         
     }
-    val.value += operation + nums.back() + ")";
+    val.value += op + params.back().value + ")";
     
     return val;
     
@@ -132,6 +146,10 @@ parameter expr::strToNum(parameter & param) {
     return val;
 }
 
+parameter expr::voidToNum(parameter & param) {
+    return parameter("0.0", "void");
+}
+
 parameter expr::conversionToInt(parameter & param) {
     
     if (param.type == "num") {
@@ -156,5 +174,19 @@ parameter expr::numToInt(parameter & param) {
 parameter expr::strToInt(parameter & param) {
     parameter val("atoll(" + param.value + ")", "int");
     return val;
+}
+
+parameter expr::voidToInt(parameter & param) {
+    return parameter("0", "int");
+}
+
+parameter expr::unaryOperator(parameter & param, std::string & op) {
+    
+    /* Type stays the same, value changes */
+    parameter val = param;
+    std::string oper = unary_operators_map.at(op);
+    val.value = oper + " ( " + param.value + " )";
+    return val;
+    
 }
 

@@ -8,6 +8,7 @@
 
 #include "translator.hpp"
 
+
 Translator::Translator(std::vector<token> & vectorRef) : _tokens(vectorRef) /* Call the reference constructor */ {
     
     _output.open("output.c");
@@ -75,11 +76,71 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         
     }
     
-    if (funName == "toNum" and params.size() == 1) {
+    if (funName == "toNum" and params.size() == 1 and expr::native_types >> params[0].type) {
         expr = expr::conversionToNum(params[0]);
+    } else if (funName == "toInt" and params.size() == 1 and expr::native_types >> params[0].type) {
+        expr = expr::conversionToInt(params[0]);
+    } else if (expr::unary_operators >> funName and params.size() == 1) {
+        expr = expr::unaryOperator(params[0], funName);
+    } else if (expr::binary_operators >> funName and (params[0].type == "int" or params[0].type == "double")) {
+        expr = expr::binaryOperator(params, funName);
+    } else if ((funName == "while" or funName == "if") and params.size() > 1) {
+        expr.value = funName + params[0].value + " {\n";
+        expr.type = "void";
+        for (size_t i = 1; i < params.size(); ++i) {
+            expr.value += params[i].value + ";\n";
+        }
+        expr.value += "}";
+    } else {
+        mangleName(funName, params);
+        
+        try {
+            expr.type = _functions.at(funName);
+        } catch (const std::exception & e) {
+            throw undeclared_function_call("Invalid call to function " + funName);
+        }
+        
+        std::stringstream ss;
+        
+        ss << funName << "(";
+        
+        size_t size = params.size();
+        for (size_t i = 0; i < size; ++i) {
+            ss << params[i].value << ((i != size - 1) ? ", " : "");
+        }
+        ss << ")";
     }
     
+    
     return expr;
+
+}
+
+void Translator::parseSexps(unsigned long long firstSexp) {
+
+    unsigned long long parenCounter = 1;
+    unsigned long long iter = firstSexp;
+    std::set<unsigned long long> sexps;
+    
+    while (parenCounter) {
+        
+        if (parenCounter == 1) { sexps.emplace(iter); }
+        else if (_tokens[iter] == tokType::openingPar) { ++parenCounter; }
+        else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }
+        
+        ++iter;
+        
+    }
+    
+    for (unsigned long long i : sexps) {
+        
+        /* Appending a semicolon at the end - semicolons after if () {} don't do anything, but  */
+        /*  the compiler would probably miss the semicolon after an assignment                  */
+        /* In the end, there might be too many useless semicolons, but whatever                 */
+        /* If you wanna help battle the semicolon inflation, don't comment your Kobeři-C code   */
+        _output << parseSexp(i).value << ";\n";
+    
+    }
     
 }
 
@@ -119,8 +180,13 @@ void Translator::parseFun(unsigned long long funBeginning, unsigned long long fu
             
     }
     
-    // TODO: make it work
-    // _output << parseSexp(0) << ";\n"; /* Appending a semicolon at the end - semicolons after if () {} don't do anything */
+    unsigned long long sexp = 0;
+    
+    /* funBeginning = (; funBeginning + 1 = data type; funBeginning + 2 = name; funBeginning + 3 = ( */
+    /* Find location of first s-expression */
+    for (sexp = funBeginning + 3; _tokens[sexp] != tokType::closingPar; ++sexp);
+    
+    parseSexps(sexp);
     
     _output << "}\n\n";
     

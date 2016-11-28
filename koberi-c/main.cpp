@@ -12,9 +12,11 @@ static std::string TEST = "testing_script.kbsc";
 
 
 int main(int argc, const char * argv[]) {
-    
-    // std::vector<std::string> numbers = { "123", "4132", "1234423", "4123", "87654", "145", "12", "5" };
-    // print(expr::print(numbers));
+    /*
+    const std::array<std::string, 8> numbers = { "123", "4132", "1234423", "4123", "87654", "145", "12", "5" };
+    std::string x = "123";
+    print(numbers >> parameter("Kappa", "str").type);
+    */
     
     
     KoberiC ks;

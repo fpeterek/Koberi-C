@@ -17,31 +17,12 @@
 
 /* Returns true if item can be found in a vector, otherwise returns false */
 
-/* std::vector template accepts type and allocator, allocator will be inferred automatically, but the template still requires it */
-/* std::array template accepts type and size, so this should also work on std::arrays and maybe even maps if I pass in a tuple   */
-/* T == type, A == allocator, C = container (vector, array) */
-
-template<typename T, typename A, template<typename, typename> class C>
-bool operator >> (const C<T, A> & container, const T & item) {
-    
-    for (auto & iter : container) {
-        
-        if (iter == item) { return true; }
-        
-    }
-    
-    return false;
-    
-}
-
-/* Damn C strings */
-
-template <typename A, template<typename, typename> class C>
-bool operator >> (const C<std::string, A> & container, const char * str) {
+template <typename Container, typename Type>
+bool operator >> (const Container & container, const Type & item) {
     
     for (auto & i : container) {
         
-        if (i == str) { return true; }
+        if (item == i) { return true; }
         
     }
     
