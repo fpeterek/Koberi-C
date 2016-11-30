@@ -147,7 +147,9 @@ parameter expr::strToNum(parameter & param) {
 }
 
 parameter expr::voidToNum(parameter & param) {
-    return parameter("0.0", "void");
+    
+    throw bad_type("Invalid conversion of type void to type num. ");
+    
 }
 
 parameter expr::conversionToInt(parameter & param) {
@@ -177,7 +179,7 @@ parameter expr::strToInt(parameter & param) {
 }
 
 parameter expr::voidToInt(parameter & param) {
-    return parameter("0", "int");
+    throw bad_type("Invalid conversion of type void to type int. ");
 }
 
 parameter expr::unaryOperator(parameter & param, std::string & op) {

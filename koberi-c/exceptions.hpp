@@ -85,4 +85,16 @@ public:
     
 };
 
+class bad_type : public std::exception {
+
+    std::string _message;
+    
+public:
+    
+    const char * what();
+    bad_type(const std::string & message);
+    bad_type(const char * message);
+    
+};
+
 #endif /* exceptions_hpp */

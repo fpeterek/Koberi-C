@@ -34,6 +34,8 @@ int main(int argc, const char * argv[]) {
         print(e.what());
     } catch (undeclared_function_call & e) {
         print(e.what());
+    } catch (bad_type & e) {
+        print(e.what());
     } catch (std::runtime_error & e) {
         print(e.what());
     } catch (std::exception & e) {

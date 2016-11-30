@@ -21,6 +21,14 @@ Translator::Translator(std::vector<token> & vectorRef) : _tokens(vectorRef) /* C
     
 }
 
+void Translator::checkType(std::string & type) {
+    
+    if (not (dataTypes >> type)) {
+        throw bad_type("Invalid declaration of function with return type of unknown data type " + type);
+    }
+    
+}
+
 void Translator::mangleName(std::string & name, std::vector<parameter> & params) {
     
     if (name == "main") { return; }
@@ -42,6 +50,7 @@ void Translator::parseParams(unsigned long long beginning, std::vector<parameter
         if (_tokens[i] == tokType::closingPar or _tokens[i+1] == tokType::closingPar) { break; }
         params.emplace_back();
         params.back().type = _tokens[i].value;
+        checkType(params.back().type);
         params.back().value = _tokens[i+1].value;
         
     }
@@ -118,19 +127,24 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
 
 void Translator::parseSexps(unsigned long long firstSexp) {
 
-    unsigned long long parenCounter = 1;
+    unsigned long long parenCounter = 0;
     unsigned long long iter = firstSexp;
     std::vector<unsigned long long> sexps;
+    token tok;
     
-    while (parenCounter) {
+    do {
         
-        if (parenCounter == 1) { sexps.emplace_back(iter); }
-        else if (_tokens[iter] == tokType::openingPar) { ++parenCounter; }
-        else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }
+        tok = _tokens[iter];
+        
+        if (tok == tokType::openingPar) { ++parenCounter; }
+        else if (tok == tokType::closingPar) { --parenCounter; }
+        
+        if (parenCounter == 1 and tok == tokType::openingPar) {
+            sexps.emplace_back(iter); }
         
         ++iter;
         
-    }
+    } while (parenCounter);
     
     for (unsigned long long i : sexps) {
         
@@ -138,7 +152,7 @@ void Translator::parseSexps(unsigned long long firstSexp) {
         /*  the compiler would probably miss the semicolon after an assignment                  */
         /* In the end, there might be too many useless semicolons, but whatever                 */
         /* If you wanna help battle the semicolon inflation, don't comment your Kobeři-C code   */
-        _output << parseSexp(i).value << ";\n";
+        _output << parseSexp(i).value << ";" << std::endl;
     
     }
     
@@ -155,6 +169,8 @@ void Translator::parseFun(unsigned long long funBeginning, unsigned long long fu
 #endif
     
     std::string type = _tokens[funBeginning + 1].value;
+    checkType(type);
+    
     std::string name = _tokens[funBeginning + 2].value;
     std::vector<parameter> params;
     
@@ -186,7 +202,7 @@ void Translator::parseFun(unsigned long long funBeginning, unsigned long long fu
     /* Find location of first s-expression */
     for (sexp = funBeginning + 3; _tokens[sexp] != tokType::closingPar; ++sexp);
     
-    parseSexps(sexp);
+    parseSexps(sexp + 1);
     
     _output << "}\n\n";
     
@@ -208,6 +224,8 @@ void Translator::varDeclaration(unsigned long long declBeginning, unsigned long 
     }
     
     std::string type = _tokens[declBeginning + 2].value;
+    checkType(type);
+    
     std::string name = _tokens[declBeginning + 3].value;
     
     ss << (type == "int" ? "ll" : type) << " " << name;
@@ -231,6 +249,8 @@ void Translator::varDeclaration(unsigned long long declBeginning, unsigned long 
 void Translator::funDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
     std::string type = _tokens[declBeginning + 1].value;
+    checkType(type);
+    
     std::string name = _tokens[declBeginning + 2].value;
     if (name == "main" and type != "int") { throw invalid_declaration("Main must return int. "); }
     std::vector<parameter> params;

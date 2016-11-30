@@ -29,6 +29,9 @@
 
 class Translator {
     
+    std::vector<std::string> dataTypes = {"int", "num", "str", "void"};
+    void checkType(std::string & type);
+    
     /* Used for function overloading */
     
     /* Format: Name - Data Type */
