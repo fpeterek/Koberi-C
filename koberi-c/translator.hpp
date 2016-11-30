@@ -17,7 +17,6 @@
 #include <cmath>
 #include <fstream>
 #include <sstream>
-#include <set>
 
 #include "syntax.hpp"
 #include "token.hpp"

@@ -120,11 +120,11 @@ void Translator::parseSexps(unsigned long long firstSexp) {
 
     unsigned long long parenCounter = 1;
     unsigned long long iter = firstSexp;
-    std::set<unsigned long long> sexps;
+    std::vector<unsigned long long> sexps;
     
     while (parenCounter) {
         
-        if (parenCounter == 1) { sexps.emplace(iter); }
+        if (parenCounter == 1) { sexps.emplace_back(iter); }
         else if (_tokens[iter] == tokType::openingPar) { ++parenCounter; }
         else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }
         
