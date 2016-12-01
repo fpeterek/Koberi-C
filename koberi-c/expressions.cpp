@@ -34,6 +34,12 @@ parameter expr::variableDeclaration(std::string & type, std::string & name, std:
     
 }
 
+parameter expr::variableDeclaration(std::string & type, std::string & name) {
+    
+    return parameter(type + " " + name + ";", type);
+    
+}
+
 parameter expr::setNumValue(std::string & var, std::string & value) {
     
     parameter val( var + " = " + value + ";");

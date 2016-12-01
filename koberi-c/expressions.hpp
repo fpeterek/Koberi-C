@@ -59,6 +59,7 @@ namespace expr {
     /* Can't use an std::map for these functions, because they accept different parameters */
     
     parameter variableDeclaration(std::string & type, std::string & name, std::string & value);
+    parameter variableDeclaration(std::string & type, std::string & name);
     parameter setNumValue(std::string & var, std::string & value);
     
     parameter print(std::vector<parameter> & params); /* Print string to stdout */

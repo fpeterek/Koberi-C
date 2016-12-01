@@ -24,7 +24,7 @@ Translator::Translator(std::vector<token> & vectorRef) : _tokens(vectorRef) /* C
 void Translator::checkType(std::string & type) {
     
     if (not (dataTypes >> type)) {
-        throw bad_type("Invalid declaration of function with return type of unknown data type " + type);
+        throw bad_type("Invalid data type " + type);
     }
     
 }
@@ -85,7 +85,15 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         
     }
     
-    if (funName == "toNum" and params.size() == 1 and expr::native_types >> params[0].type) {
+    if (dataTypes >> funName and params.size()) {
+        if (params.size() == 1) {
+            expr = expr::variableDeclaration(funName, params[0].value);
+        }
+        else {
+            expr = expr::variableDeclaration(funName, params[0].value, params[1].value);
+        }
+        _localVars.emplace(funName, params[0].value);
+    } else if (funName == "toNum" and params.size() == 1 and expr::native_types >> params[0].type) {
         expr = expr::conversionToNum(params[0]);
     } else if (funName == "toInt" and params.size() == 1 and expr::native_types >> params[0].type) {
         expr = expr::conversionToInt(params[0]);
@@ -100,7 +108,33 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
             expr.value += params[i].value + ";\n";
         }
         expr.value += "}";
-    } else {
+    }
+    else {
+        
+        if (not params.size()) {
+            goto x; /* Eww, but is there a better, readable way? */
+        }
+        
+        /* Check if it's a variable, otherwise call a function */
+        
+        try {
+            expr.type = _localVars.at(funName);
+            expr.value = funName;
+            return expr;
+        } catch(const std::out_of_range & e) {
+            /* Do nothing, just go to next step */
+        }
+        
+        try {
+            expr.type = _globalVars.at(funName);
+            expr.value = funName;
+            return expr;
+        } catch(const std::out_of_range & e) {
+            /* Do nothing, just go to next step */
+        }
+        
+    x:
+        
         mangleName(funName, params);
         
         try {
@@ -176,12 +210,14 @@ void Translator::parseFun(unsigned long long funBeginning, unsigned long long fu
     
     parseParams(funBeginning + 3, params);
     
+    for (parameter & p : params) {
+        _localVars.emplace(p.value, p.type);
+    }
+    
     mangleName(name, params); /* The name of main won't be mangled */
     
     if (name == "main") {
-        
         _output << "int main(int argc, const char * argv[]) {\n";
-        
     }
     else {
         
