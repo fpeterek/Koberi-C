@@ -29,6 +29,30 @@ void Translator::checkType(std::string & type) {
     
 }
 
+std::string Translator::getType(token & tok) {
+    
+    std::string type;
+    
+    if (tok == tokType::intLit) {
+        type = "int";
+    } else if (tok == tokType::numLit) {
+        type = "num";
+    } else if (tok == tokType::strLit) {
+        type = "str";
+    } else {
+        
+        if (_localVars.find(tok.value) != _localVars.end()) {
+            type = _localVars[tok.value];
+        }
+        else if (_globalVars.find(tok.value) != _localVars.end()) {
+            type = _globalVars[tok.value];
+        }
+    }
+    
+    return type;
+    
+}
+
 void Translator::mangleName(std::string & name, std::vector<parameter> & params) {
     
     if (name == "main") { return; }
@@ -81,7 +105,7 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         }
         else if (_tokens[iter] == tokType::openingPar) { ++parenCounter; }
         else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }
-        else if (parenCounter == 1) { params.emplace_back(_tokens[iter].value); }
+        else if (parenCounter == 1) { params.emplace_back(_tokens[iter].value, getType(_tokens[iter])); }
         
     }
     
@@ -102,12 +126,12 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     } else if (expr::binary_operators >> funName and (params[0].type == "int" or params[0].type == "double")) {
         expr = expr::binaryOperator(params, funName);
     } else if ((funName == "while" or funName == "if") and params.size() > 1) {
-        expr.value = funName + params[0].value + " {\n";
+        expr.value = "\t" + funName + " (" + params[0].value + ") {\n";
         expr.type = "void";
         for (size_t i = 1; i < params.size(); ++i) {
-            expr.value += params[i].value + ";\n";
+            expr.value += "\t\t" + params[i].value + ";\n";
         }
-        expr.value += "}";
+        expr.value += "\t}";
     }
     else {
         

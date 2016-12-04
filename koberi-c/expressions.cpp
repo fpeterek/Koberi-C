@@ -49,6 +49,10 @@ parameter expr::setNumValue(std::string & var, std::string & value) {
 
 parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op) {
     
+    if (op == "%" and params[0].type == "num") {
+        return expr::numMod(params);
+    }
+    
     if (op == "set" and params.size() != 1) {
         std::string str = "(set";
         for (auto & i : params) {
@@ -86,15 +90,15 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
     
 }
 
-parameter expr::numMod(std::vector<std::string> & nums) {
+parameter expr::numMod(std::vector<parameter> & nums) {
     
     parameter val;
     val.type = "num";
     
     if ( not nums.size() ) { return val; }
-    if ( nums.size() == 1 ) { val.value = nums[0]; return val; }
+    if ( nums.size() == 1 ) { val.value = nums[0].value; return val; }
     
-    val.value = "fmod(" + nums[0] + ", " + nums[1] + ")";
+    val.value = "fmod(" + nums[0].value + ", " + nums[1].value + ")";
     
     auto iter = nums.begin();
     nums.erase(iter);

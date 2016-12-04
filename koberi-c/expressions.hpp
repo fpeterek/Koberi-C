@@ -67,7 +67,7 @@ namespace expr {
     /* + - * / % on ints, + - * / on nums */
     parameter binaryOperator(std::vector<parameter> & params, std::string & op);
     /* % in C can only be used on ints */
-    parameter numMod(std::vector<std::string> & nums);
+    parameter numMod(std::vector<parameter> & nums);
     
     
     parameter conversionToNum(parameter & param);
