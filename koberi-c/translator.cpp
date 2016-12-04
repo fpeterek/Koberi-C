@@ -111,12 +111,6 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     }
     else {
         
-        for (auto & i : _localVars) {
-        
-            std::cout << i.first << " - " << i.second << std::endl;
-        
-        }
-        
         if (params.size()) {
             goto x; /* Eww, but is there a better, readable way? */
         }
