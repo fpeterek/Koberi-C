@@ -123,7 +123,7 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         expr = expr::conversionToInt(params[0]);
     } else if (expr::unary_operators >> funName and params.size() == 1) {
         expr = expr::unaryOperator(params[0], funName);
-    } else if (expr::binary_operators >> funName and (params[0].type == "int" or params[0].type == "double")) {
+    } else if (expr::binary_operators >> funName and (params[0].type == "int" or params[0].type == "num")) {
         expr = expr::binaryOperator(params, funName);
     } else if ((funName == "while" or funName == "if") and params.size() > 1) {
         expr.value = "\t" + funName + " (" + params[0].value + ") {\n";
@@ -132,6 +132,8 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
             expr.value += "\t\t" + params[i].value + ";\n";
         }
         expr.value += "\t}";
+    } else if (funName == "print") {
+        expr = expr::print(params);
     }
     else {
         

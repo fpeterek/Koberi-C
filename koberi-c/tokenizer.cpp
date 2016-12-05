@@ -79,13 +79,13 @@ void Tokenizer::numberLiteral() {
     
     while ( syntax::isNum(_line[_iter]) or (( _line[_iter] == '.' ) and not isNum) ) {
         
-        if (_line[_iter] == false) { isNum = true; }
+        if (_line[_iter] == '.' and isNum == false) { isNum = true; }
         str += std::string(1, _line[_iter]); /* std::string constructor(repeat: int, character: char) */
         ++_iter;
         
     }
     
-    if (str.back() == '.') { throw unexpected_token(str.back()); }
+    if (str.back() == '.') { throw unexpected_token('.'); }
     
     if (isNum) {
         _tokens.emplace_back(tokType::numLit, str);
