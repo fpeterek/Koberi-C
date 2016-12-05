@@ -172,14 +172,15 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         std::stringstream ss;
         
         ss << funName << "(";
+        print(funName);
         
         size_t size = params.size();
         for (size_t i = 0; i < size; ++i) {
             ss << params[i].value << ((i != size - 1) ? ", " : "");
         }
         ss << ")";
+        expr.value = ss.str();
     }
-    
     
     return expr;
 
