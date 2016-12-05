@@ -81,6 +81,10 @@ void Translator::parseParams(unsigned long long beginning, std::vector<parameter
     
 }
 
+/* Pretend this method does what is says it does and ignore it  */
+/* Seriously                                                    */
+/* For your own well-being                                      */
+
 parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     
     parameter expr;
@@ -105,7 +109,10 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         }
         else if (_tokens[iter] == tokType::openingPar) { ++parenCounter; }
         else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }
-        else if (parenCounter == 1) { params.emplace_back(_tokens[iter].value, getType(_tokens[iter])); }
+        else if (parenCounter == 1) {
+            params.emplace_back( _tokens[iter] == tokType::strLit ?
+                                ("\"" + _tokens[iter].value + "\"") : _tokens[iter].value, getType(_tokens[iter]));
+        }
         
     }
     
@@ -126,13 +133,21 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     } else if (expr::binary_operators >> funName and (params[0].type == "int" or params[0].type == "num")) {
         expr = expr::binaryOperator(params, funName);
     } else if ((funName == "while" or funName == "if") and params.size() > 1) {
-        expr.value = "\t" + funName + " (" + params[0].value + ") {\n";
+        expr.value = funName + " ( " + params[0].value + " ) {\n";
         expr.type = "void";
         for (size_t i = 1; i < params.size(); ++i) {
             expr.value += "\t\t" + params[i].value + ";\n";
         }
         expr.value += "\t}";
-    } else if (funName == "print") {
+    } else if (funName == "else") {
+        expr.value = "else {";
+        expr.type = "void";
+        for (auto & i : params) {
+            expr.value += "\t\t" + i.value + ";\n";
+        }
+        expr.value += "\t}";
+    }
+    else if (funName == "print") {
         expr = expr::print(params);
     }
     else {
@@ -172,11 +187,10 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         std::stringstream ss;
         
         ss << funName << "(";
-        print(funName);
         
         size_t size = params.size();
         for (size_t i = 0; i < size; ++i) {
-            ss << params[i].value << ((i != size - 1) ? ", " : "");
+            ss << " " << params[i].value << ((i != size - 1) ? "," : " ");
         }
         ss << ")";
         expr.value = ss.str();
@@ -188,7 +202,8 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
 
 void Translator::parseSexps(unsigned long long firstSexp) {
 
-    unsigned long long parenCounter = 0;
+    /* If anyone manages to have 2**31 - 1 nested s-expressions, they might as well write their own compiler */
+    int parenCounter = 0;
     unsigned long long iter = firstSexp;
     std::vector<unsigned long long> sexps;
     token tok;
@@ -205,15 +220,15 @@ void Translator::parseSexps(unsigned long long firstSexp) {
         
         ++iter;
         
-    } while (parenCounter);
+    } while (parenCounter >= 0);
     
     for (unsigned long long i : sexps) {
         
         /* Appending a semicolon at the end - semicolons after if () {} don't do anything, but  */
-        /*  the compiler would probably miss the semicolon after an assignment                  */
+        /*     the compiler would probably miss the semicolon after an assignment               */
         /* In the end, there might be too many useless semicolons, but whatever                 */
         /* If you wanna help battle the semicolon inflation, don't comment your Kobeři-C code   */
-        _output << parseSexp(i).value << ";" << std::endl;
+        _output << "\t" << parseSexp(i).value << ";" << std::endl;
     
     }
     

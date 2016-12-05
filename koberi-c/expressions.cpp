@@ -81,10 +81,10 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
     val.type = params[0].type;
     for ( int i = 1; i < params.size() - 1; ++i ) {
         
-        val.value += op + params[i].value;
+        val.value += " " + op + " " + params[i].value;
         
     }
-    val.value += op + params.back().value + ")";
+    val.value += " " + op + " " + params.back().value + ")";
     
     return val;
     
