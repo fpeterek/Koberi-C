@@ -149,7 +149,7 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         else {
             expr = expr::variableDeclaration(funName, params[0].value, params[1].value);
         }
-        _localVars.emplace(funName, params[0].value);
+        _localVars.emplace(params[0].value, funName);
     } else if (funName == "toNum" and params.size() == 1 and expr::native_types >> params[0].type) {
         expr = expr::conversionToNum(params[0]);
     } else if (funName == "toInt" and params.size() == 1 and expr::native_types >> params[0].type) {
