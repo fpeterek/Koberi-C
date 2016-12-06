@@ -18,6 +18,7 @@
 #include <array>
 
 #include "exceptions.hpp"
+#include "print.hpp"
 
 struct parameter {
     

@@ -65,7 +65,7 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
     parameter val;
     val.type = "void";
     
-    std::string oper = binary_operators_map.at(op);
+    const std::string oper = binary_operators_map.at(op);
     
     if ( not params.size() ) { return val; }
     
@@ -81,10 +81,10 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
     val.type = params[0].type;
     for ( int i = 1; i < params.size() - 1; ++i ) {
         
-        val.value += " " + op + " " + params[i].value;
+        val.value += " " + oper + " " + params[i].value;
         
     }
-    val.value += " " + op + " " + params.back().value + ")";
+    val.value += " " + oper + " " + params.back().value + ")";
     
     return val;
     
@@ -120,7 +120,7 @@ parameter expr::print(std::vector<parameter> & params) {
             string.value += "\tprintf(\"%f\", " + i.value + ");\n";
         }
         else if (i.type == "int") {
-            string.value += "\tprintf(\"%d\", " + i.value + ");\n";
+            string.value += "\tprintf(\"%lld\", " + i.value + ");\n";
         } else {
             string.value += "\tfputs(" + i.value + ", stdout);\n";
         }

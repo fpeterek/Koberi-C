@@ -110,6 +110,7 @@ void Translator::parseParams(unsigned long long beginning, std::vector<parameter
 /* Pretend this method does what is says it does and ignore it  */
 /* Seriously                                                    */
 /* For your own well-being                                      */
+/* Harambe didn't die for this                                  */
 
 parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     
@@ -385,9 +386,10 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
     if (name != "main") {
         ss << (type == "int" ? "ll" : type) << " " << name << "(";
     } else {
-        _output << "int main(int argc, const char * argv[]);" << std::endl;
+        /* Not doing this because it doesn't make sense */
+        /* _output << "int main(int argc, const char * argv[]);" << std::endl; */
 #ifdef OUTPUT_FUNCTION_DECLARATION
-        print("int main(int argc, const char * argv[]);");
+        print("int main(int argc, const char * argv[]);");
 #endif
         return;
     }
