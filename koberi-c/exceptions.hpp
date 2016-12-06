@@ -85,6 +85,17 @@ public:
     
 };
 
+class undefined_variable : public std::exception {
+    
+    std::string _variableName;
+    
+public:
+    
+    const char * what();
+    undefined_variable(const std::string & var_name);
+    
+};
+
 class bad_type : public std::exception {
 
     std::string _message;
@@ -94,6 +105,18 @@ public:
     const char * what();
     bad_type(const std::string & message);
     bad_type(const char * message);
+    
+};
+
+class invalid_syntax : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    const char * what();
+    invalid_syntax(const std::string & message);
+    invalid_syntax(const char * message);
     
 };
 

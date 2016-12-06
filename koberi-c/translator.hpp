@@ -48,6 +48,7 @@ class Translator {
     
     /* Gets type of a variable or literal */
     std::string getType(token & tok);
+    std::string getVarType(parameter & param);
     
     /* parseSexp() parses an s-expression and returns a parameter where type is the data type returned by the s-exp and value
        is the s-exp translated to C */

@@ -46,7 +46,33 @@ std::string Translator::getType(token & tok) {
         }
         else if (_globalVars.find(tok.value) != _localVars.end()) {
             type = _globalVars[tok.value];
-        }
+        } /* else {
+            throw undefined_variable(tok.value);
+        } */
+    }
+    
+    return type;
+    
+}
+
+std::string Translator::getVarType(parameter & param) {
+    
+    std::string type;
+    
+    if (_localVars.find(param.value) != _localVars.end()) {
+        
+        type = _localVars[param.value];
+    
+    }
+    else if (_globalVars.find(param.value) != _localVars.end()) {
+    
+        type = _globalVars[param.value];
+    
+    }
+    else {
+       
+        throw undefined_variable(param.value);
+    
     }
     
     return type;
@@ -110,8 +136,8 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         else if (_tokens[iter] == tokType::openingPar) { ++parenCounter; }
         else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }
         else if (parenCounter == 1) {
-            params.emplace_back( _tokens[iter] == tokType::strLit ?
-                                ("\"" + _tokens[iter].value + "\"") : _tokens[iter].value, getType(_tokens[iter]));
+            params.emplace_back( _tokens[iter] == tokType::strLit ? ("\"" + _tokens[iter].value + "\"") : _tokens[iter].value,
+                                getType(_tokens[iter]));
         }
         
     }
@@ -130,18 +156,20 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         expr = expr::conversionToInt(params[0]);
     } else if (expr::unary_operators >> funName and params.size() == 1) {
         expr = expr::unaryOperator(params[0], funName);
+        expr.value.insert(0, "\t");
     } else if (expr::binary_operators >> funName and (params[0].type == "int" or params[0].type == "num")) {
         expr = expr::binaryOperator(params, funName);
-    } else if ((funName == "while" or funName == "if") and params.size() > 1) {
-        expr.value = funName + " ( " + params[0].value + " ) {\n";
-        expr.type = "void";
+        expr.value.insert(0, "\t");
+    } else if ((funName == "while" or funName == "if" or funName == "elif") and params.size() > 1) {
+        expr.value = "\t" + (funName == "elif" ? "else if": funName) + " ( " + params[0].value + " ) {\n";
+        expr.type = ".cf";
         for (size_t i = 1; i < params.size(); ++i) {
             expr.value += "\t\t" + params[i].value + ";\n";
         }
         expr.value += "\t}";
     } else if (funName == "else") {
-        expr.value = "else {";
-        expr.type = "void";
+        expr.value = "\telse {\n";
+        expr.type = ".cf";
         for (auto & i : params) {
             expr.value += "\t\t" + i.value + ";\n";
         }
@@ -176,6 +204,17 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         
     x:
         
+        for (auto & i : params) {
+            
+            if (i.type == "") {
+                i.type = getVarType(i);
+            }
+            else if (i.type == ".cf") {
+                throw invalid_syntax("Invalid syntax. A control flow statement as a function parameter is not allowed");
+            }
+            
+        }
+        
         mangleName(funName, params);
         
         try {
@@ -186,7 +225,7 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
         
         std::stringstream ss;
         
-        ss << funName << "(";
+        ss << "\t" << funName << "(";
         
         size_t size = params.size();
         for (size_t i = 0; i < size; ++i) {
@@ -222,13 +261,18 @@ void Translator::parseSexps(unsigned long long firstSexp) {
         
     } while (parenCounter >= 0);
     
+    parameter expr;
+    
     for (unsigned long long i : sexps) {
         
-        /* Appending a semicolon at the end - semicolons after if () {} don't do anything, but  */
-        /*     the compiler would probably miss the semicolon after an assignment               */
-        /* In the end, there might be too many useless semicolons, but whatever                 */
-        /* If you wanna help battle the semicolon inflation, don't comment your Kobeři-C code   */
-        _output << "\t" << parseSexp(i).value << ";" << std::endl;
+        expr = parseSexp(i);
+        
+        /*  Appending a semicolon at the end unless the expression is of type .cf (control flow)   */
+        /*       In the end there might be some trailing semicolons, but that would just create    */
+        /*       empty expressions which don't matter, unless they are between an if/else if/else  */
+        /*  If you wanna help battle the semicolon inflation, don't comment your Kobeři-C code     */
+        
+        _output << expr.value << (expr.type != ".cf" ? ";" : "") << std::endl;
     
     }
     
@@ -442,7 +486,7 @@ void Translator::functions() {
             << "}\n\n"
             << "char * __intToStr(ll param) {\n"
             << "    char * temp = (char *) malloc(50);\n"
-            << "    sprintf(temp, \"%f\", param);\n"
+            << "    sprintf(temp, \"%lld\", param);\n"
             << "    return temp;\n"
             << "}\n\n" << std::flush;
     

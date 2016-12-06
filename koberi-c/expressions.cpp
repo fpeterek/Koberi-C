@@ -117,12 +117,13 @@ parameter expr::print(std::vector<parameter> & params) {
     for (auto & i : params) {
         
         if (i.type == "num") {
-            string.value += "printf(\"%f\", " + i.value + ");\n";
+            string.value += "\tprintf(\"%f\", " + i.value + ");\n";
         }
         else if (i.type == "int") {
-            string.value += "printf(\"%d\", " + i.value + ");\n";
+            string.value += "\tprintf(\"%d\", " + i.value + ");\n";
+        } else {
+            string.value += "\tfputs(" + i.value + ", stdout);\n";
         }
-        string.value += "fputs(" + i.value + ", stdout);\n";
         
     }
     

@@ -84,3 +84,24 @@ bad_type::bad_type(const char * message) {
 const char * bad_type::what() {
     return _message.c_str();
 }
+
+undefined_variable::undefined_variable(const std::string & var_name) {
+    _variableName = var_name;
+}
+
+const char * undefined_variable::what() {
+    std::string message = "Reference to undefined variable " + _variableName;
+    return message.c_str();
+}
+
+invalid_syntax::invalid_syntax(const std::string & message) {
+    _message = message;
+}
+
+invalid_syntax::invalid_syntax(const char * message) {
+    _message = message;
+}
+
+const char * invalid_syntax::what() {
+    return _message.c_str();
+}

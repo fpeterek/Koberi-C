@@ -34,6 +34,10 @@ int main(int argc, const char * argv[]) {
         print(e.what());
     } catch (undeclared_function_call & e) {
         print(e.what());
+    } catch (undefined_variable & e) {
+        print(e.what());
+    } catch (invalid_syntax & e) {
+        print(e.what());
     } catch (bad_type & e) {
         print(e.what());
     } catch (std::runtime_error & e) {
