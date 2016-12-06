@@ -102,13 +102,13 @@ void Tokenizer::strLiteral() {
     
     ++_iter; /* First " character */
     
-    while ( _line[_iter] != '"' and not isEscape ) {
+    while ( _line[_iter] != '"' or isEscape ) {
         
         if ( _line[_iter] == '\\' ) {
             
             isEscape = not isEscape;
             
-            _line += "\\";
+            str += "\\";
             ++_iter;
             if (_iter >= _lineLen) { throw missing_token('"'); }
             
