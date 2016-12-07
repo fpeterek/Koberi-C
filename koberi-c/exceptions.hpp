@@ -120,4 +120,16 @@ public:
     
 };
 
+class nonexistant_struct : public std::exception {
+    
+    std::string _structName;
+    
+public:
+    
+    const char * what();
+    nonexistant_struct(const std::string & structName);
+    nonexistant_struct(const char * structName);
+    
+};
+
 #endif /* exceptions_hpp */

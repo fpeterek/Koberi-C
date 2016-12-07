@@ -411,6 +411,34 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
     
 }
 
+void Translator::structDeclaration(unsigned long long declBeginning, unsigned long long declEnd ) {
+    
+    std::string name = _tokens[declBeginning + 1].value;
+    std::vector<structureAttribute> params;
+    
+    /* 0th token is paren, first is name, second is paren, third is paren or struct name */
+    if (_tokens[declBeginning + 3] != tokType::closingPar) {
+        
+        std::string superstruct = _tokens[declBeginning + 3].value;
+        
+        try {
+            
+            params = structs.at(superstruct).vars;
+            
+        } catch (const std::out_of_range & e) {
+            
+            throw nonexistant_struct(superstruct);
+            
+        }
+        
+    }
+    
+    /* Iterate through the rest of the declarations */
+    
+    
+    
+}
+
 void Translator::parseDeclarations() {
     
     _output << "/* User defined function declarations and global variables. */\n\n";
@@ -450,6 +478,10 @@ void Translator::declaration(unsigned long long declBeginning, unsigned long lon
     if (_tokens[declBeginning + 1].value == "global") {
         
         varDeclaration(declBeginning, declEnd);
+        
+    } else if (_tokens[declBeginning + 1].value == "struct") {
+      
+        structDeclaration(declBeginning, declEnd);
         
     } else {
         

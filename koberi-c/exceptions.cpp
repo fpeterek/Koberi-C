@@ -105,3 +105,16 @@ invalid_syntax::invalid_syntax(const char * message) {
 const char * invalid_syntax::what() {
     return _message.c_str();
 }
+
+nonexistant_struct::nonexistant_struct(const std::string & structName) {
+    _structName = structName;
+}
+
+nonexistant_struct::nonexistant_struct(const char * structName) {
+    _structName = structName;
+}
+
+const char * nonexistant_struct::what() {
+    std::string message = "Inheriting from a non-existant struct " + _structName;
+    return message.c_str();
+}
