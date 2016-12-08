@@ -26,7 +26,7 @@
 #include "contains.hpp"
 #include "debug_macro_definitions.h"
 
-struct structureAttribute {
+struct classAttribute {
 
     std::string type;
     std::string name;
@@ -34,16 +34,16 @@ struct structureAttribute {
 
 };
 
-struct structure {
+struct _class {
     
-    std::vector<structureAttribute> vars;
+    std::vector<classAttribute> vars;
 
 };
 
 class Translator {
     
     std::vector<std::string> dataTypes = {"int", "num", "str", "void"};
-    std::unordered_map<std::string, structure> structs;
+    std::unordered_map<std::string, _class> classes;
     void checkType(std::string & type);
     
     /* Used for function overloading */
@@ -77,7 +77,7 @@ class Translator {
                                                                                              called from parseDeclarations() */
     void funDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a function,
                                                                                              called from parseDeclarations() */
-    void structDeclaration(unsigned long long declBeginning, unsigned long long declEnd);
+    void classDeclaration(unsigned long long declBeginning, unsigned long long declEnd);
     
     void parseFun(unsigned long long funBeginning, unsigned long long funEnd);
     void parseParams(unsigned long long beginning, std::vector<parameter> & params);

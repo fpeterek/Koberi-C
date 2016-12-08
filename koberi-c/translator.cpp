@@ -411,23 +411,36 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
     
 }
 
-void Translator::structDeclaration(unsigned long long declBeginning, unsigned long long declEnd ) {
+/*
+ 
+ ( class name ( superclass )
+     ( int variable 10 ) )
+ 
+ */
+
+void Translator::classDeclaration(unsigned long long declBeginning, unsigned long long declEnd ) {
     
-    std::string name = _tokens[declBeginning + 1].value;
-    std::vector<structureAttribute> params;
+    std::string name = _tokens[declBeginning + 2].value;
+    std::vector<classAttribute> params;
     
-    /* 0th token is paren, first is name, second is paren, third is paren or struct name */
-    if (_tokens[declBeginning + 3] != tokType::closingPar) {
+    /* Assume class doesn't inherit from anything so fourth token is paren */
+    unsigned long long firstDeclaration = declBeginning + 5;
+    
+    /* 0th token is paren, first is class, second is name, third is opening paren, fourth is closing paren or superclass name */
+    if (_tokens[declBeginning + 4] != tokType::closingPar) {
         
-        std::string superstruct = _tokens[declBeginning + 3].value;
+        /* Increment firstDeclaration by one to reflect the fact that this class inherits from a superclass */
+        ++firstDeclaration;
+        
+        std::string superclass = _tokens[declBeginning + 3].value;
         
         try {
             
-            params = structs.at(superstruct).vars;
+            params = classes.at(superclass).vars;
             
         } catch (const std::out_of_range & e) {
             
-            throw nonexistant_struct(superstruct);
+            throw undefined_class(superclass);
             
         }
         
@@ -435,7 +448,12 @@ void Translator::structDeclaration(unsigned long long declBeginning, unsigned lo
     
     /* Iterate through the rest of the declarations */
     
-    
+    int parenCounter = 0;
+    for (unsigned long long iter = firstDeclaration; parenCounter >= 0; ++ iter) {
+        
+        
+        
+    }
     
 }
 
@@ -479,9 +497,9 @@ void Translator::declaration(unsigned long long declBeginning, unsigned long lon
         
         varDeclaration(declBeginning, declEnd);
         
-    } else if (_tokens[declBeginning + 1].value == "struct") {
+    } else if (_tokens[declBeginning + 1].value == "class") {
       
-        structDeclaration(declBeginning, declEnd);
+        classDeclaration(declBeginning, declEnd);
         
     } else {
         

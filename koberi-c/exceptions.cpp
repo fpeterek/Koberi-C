@@ -106,15 +106,15 @@ const char * invalid_syntax::what() {
     return _message.c_str();
 }
 
-nonexistant_struct::nonexistant_struct(const std::string & structName) {
-    _structName = structName;
+undefined_class::undefined_class(const std::string & className) {
+    _className = className;
 }
 
-nonexistant_struct::nonexistant_struct(const char * structName) {
-    _structName = structName;
+undefined_class::undefined_class(const char * className) {
+    _className = className;
 }
 
-const char * nonexistant_struct::what() {
-    std::string message = "Inheriting from a non-existant struct " + _structName;
+const char * undefined_class::what() {
+    std::string message = "Inheriting from an undefined class " + _className;
     return message.c_str();
 }

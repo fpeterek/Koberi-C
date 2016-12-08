@@ -120,15 +120,15 @@ public:
     
 };
 
-class nonexistant_struct : public std::exception {
+class undefined_class : public std::exception {
     
-    std::string _structName;
+    std::string _className;
     
 public:
     
     const char * what();
-    nonexistant_struct(const std::string & structName);
-    nonexistant_struct(const char * structName);
+    undefined_class(const std::string & className);
+    undefined_class(const char * className);
     
 };
 
