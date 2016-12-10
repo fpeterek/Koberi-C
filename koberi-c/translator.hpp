@@ -26,17 +26,9 @@
 #include "contains.hpp"
 #include "debug_macro_definitions.h"
 
-struct classAttribute {
-
-    std::string type;
-    std::string name;
-    std::string value;
-
-};
-
 struct _class {
     
-    std::vector<classAttribute> vars;
+    std::vector<parameter> vars;
 
 };
 
@@ -67,7 +59,13 @@ class Translator {
     /* parseSexp() parses an s-expression and returns a parameter where type is the data type returned by the s-exp and value
        is the s-exp translated to C */
     parameter parseSexp(unsigned long long sexpBeginning);
-    void parseSexps(unsigned long long firstSexp);
+    
+    /* Similar to parseSexp(), but only parses class attributes */
+    parameter parseClassAttribute(unsigned long long sexpBeginning);
+    
+    /* Parse sexps finds s-expressions and passes them to another method, that parses single s-expressions  */
+    /* That method is passed to parseSexps() via an std::function object, so I can reuse parseSexps()       */
+    void parseSexps(unsigned long long firstSexp, std::function<parameter(Translator*, unsigned long long)> & fun);
     
     void parseDeclarations(); /* Declare functions and global variables */
     void declaration(unsigned long long declBeginning, unsigned long long declEnd);       /* Calls varDeclaration() or funDeclaration(),

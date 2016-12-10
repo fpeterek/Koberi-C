@@ -240,7 +240,7 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
 
 }
 
-void Translator::parseSexps(unsigned long long firstSexp) {
+void Translator::parseSexps(unsigned long long firstSexp, std::function<parameter(Translator*, unsigned long long)> & fun) {
 
     /* If anyone manages to have 2**31 - 1 nested s-expressions, they might as well write their own compiler */
     int parenCounter = 0;
@@ -266,7 +266,7 @@ void Translator::parseSexps(unsigned long long firstSexp) {
     
     for (unsigned long long i : sexps) {
         
-        expr = parseSexp(i);
+        expr = fun(this, i);
         
         /*  Appending a semicolon at the end unless the expression is of type .cf (control flow)   */
         /*       In the end there might be some trailing semicolons, but that would just create    */
@@ -325,7 +325,9 @@ void Translator::parseFun(unsigned long long funBeginning, unsigned long long fu
     /* Find location of first s-expression */
     for (sexp = funBeginning + 3; _tokens[sexp] != tokType::closingPar; ++sexp);
     
-    parseSexps(sexp + 1);
+    std::function<parameter(Translator*, unsigned long long)> fun = &Translator::parseSexp;
+    
+    parseSexps(sexp + 1, fun);
     
     _output << "}\n\n";
     
@@ -416,12 +418,20 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
  ( class name ( superclass )
      ( int variable 10 ) )
  
- */
+*/
+
+parameter Translator::parseClassAttribute(unsigned long long sexpBeginning) {
+    
+    parameter param;
+    
+    return param;
+    
+}
 
 void Translator::classDeclaration(unsigned long long declBeginning, unsigned long long declEnd ) {
     
     std::string name = _tokens[declBeginning + 2].value;
-    std::vector<classAttribute> params;
+    std::vector<parameter> params;
     
     /* Assume class doesn't inherit from anything so fourth token is paren */
     unsigned long long firstDeclaration = declBeginning + 5;
@@ -446,14 +456,25 @@ void Translator::classDeclaration(unsigned long long declBeginning, unsigned lon
         
     }
     
+    if (_tokens[firstDeclaration - 1] != tokType::closingPar) {
+        
+        throw invalid_syntax("Classes can only inherit from 1 superclass. ");
+        
+    }
+    
+    
+    
     /* Iterate through the rest of the declarations */
     
+    /*
     int parenCounter = 0;
+    parameter param;
     for (unsigned long long iter = firstDeclaration; parenCounter >= 0; ++ iter) {
         
         
         
     }
+    */
     
 }
 
