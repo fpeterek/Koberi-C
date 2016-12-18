@@ -462,7 +462,16 @@ void Translator::classDeclaration(unsigned long long declBeginning, unsigned lon
         
     }
     
+    _output << "typedef struct " << name << " {\n";
     
+    for (auto & i : params) {
+        _output << i.type << " " << i.value << ";\n";
+    }
+    
+    std::function<parameter(Translator*, unsigned long long)> fun = &Translator::parseClassAttribute;
+    parseSexps(firstDeclaration, fun);
+    
+    _output << "} " << name << ";\n" << std::endl;
     
     /* Iterate through the rest of the declarations */
     
