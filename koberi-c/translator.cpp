@@ -119,6 +119,20 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     std::vector<parameter> params;
     std::string funName = _tokens[sexpBeginning + 1].value;
     
+    if (_tokens[sexpBeginning + 1].type == tokType::intLit) {
+        expr.value = _tokens[sexpBeginning + 1].value;
+        expr.type = "int";
+        return expr;
+    } else if (_tokens[sexpBeginning + 1].type == tokType::numLit) {
+        expr.value = _tokens[sexpBeginning + 1].value;
+        expr.type = "num";
+        return expr;
+    } else if (_tokens[sexpBeginning + 1].type == tokType::strLit) {
+        expr.value = _tokens[sexpBeginning + 1].value;
+        expr.type = "str";
+        return expr;
+    }
+    
     unsigned long long iter = sexpBeginning + 2; /* sexpBeginning is parenthesis, sexpBeginning + 1 is function name,
                                                     sexpBeginning + 2 is the first param */
     
@@ -161,6 +175,8 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     } else if (expr::binary_operators >> funName and (params[0].type == "int" or params[0].type == "num")) {
         expr = expr::binaryOperator(params, funName);
         expr.value.insert(0, "\t");
+    } else if (expr::parameterless_operators >> funName and not params.size()) {
+        expr = expr::parameterless_operator(funName);
     } else if ((funName == "while" or funName == "if" or funName == "elif") and params.size() > 1) {
         expr.value = "\t" + (funName == "elif" ? "else if": funName) + " ( " + params[0].value + " ) {\n";
         expr.type = ".cf";
@@ -420,9 +436,49 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
  
 */
 
+std::unordered_map<std::string, std::string> Translator::parseClassMembers(unsigned long long firstSexp, std::string & className) {
+    
+    int parenCounter = 0;
+    unsigned long long iter = firstSexp;
+    std::vector<unsigned long long> sexps;
+    token tok;
+    
+    do {
+        
+        tok = _tokens[iter];
+        
+        if (tok == tokType::openingPar) { ++parenCounter; }
+        else if (tok == tokType::closingPar) { --parenCounter; }
+        
+        if (parenCounter == 1 and tok == tokType::openingPar) {
+            sexps.emplace_back(iter); }
+        
+        ++iter;
+        
+    } while (parenCounter >= 0);
+    
+    parameter param;
+    std::unordered_map<std::string, std::string> members;
+    for (auto attribute : sexps) {
+        
+        param = parseClassAttribute(attribute);
+        if (members[param.value] != "") {
+            throw redefinition_of_attribute(param.value, className);
+        }
+        members[param.value] = param.type;
+    
+    }
+    
+    return members;
+    
+}
+
 parameter Translator::parseClassAttribute(unsigned long long sexpBeginning) {
     
     parameter param;
+    
+    param.type = _tokens[sexpBeginning + 1].value;
+    param.value = _tokens[sexpBeginning + 2].value;
     
     return param;
     
@@ -431,7 +487,7 @@ parameter Translator::parseClassAttribute(unsigned long long sexpBeginning) {
 void Translator::classDeclaration(unsigned long long declBeginning, unsigned long long declEnd ) {
     
     std::string name = _tokens[declBeginning + 2].value;
-    std::vector<parameter> params;
+    std::unordered_map<std::string, std::string> params;
     
     /* Assume class doesn't inherit from anything so fourth token is paren */
     unsigned long long firstDeclaration = declBeginning + 5;
@@ -442,7 +498,7 @@ void Translator::classDeclaration(unsigned long long declBeginning, unsigned lon
         /* Increment firstDeclaration by one to reflect the fact that this class inherits from a superclass */
         ++firstDeclaration;
         
-        std::string superclass = _tokens[declBeginning + 3].value;
+        std::string superclass = _tokens[declBeginning + 4].value;
         
         try {
             
@@ -462,28 +518,35 @@ void Translator::classDeclaration(unsigned long long declBeginning, unsigned lon
         
     }
     
-    _output << "typedef struct " << name << " {\n";
+    _output << "\ntypedef struct " << name << " {\n";
     
-    for (auto & i : params) {
-        _output << i.type << " " << i.value << ";\n";
+    {
+        const std::unordered_map<std::string, std::string> temp = parseClassMembers(firstDeclaration, name);
+        
+        for (auto & i : temp) {
+            
+            /* std::map::operator[] creates a new value if no value is assigned to a key */
+            /* If no new string is created, user is trying to redefine a parameter */
+            if (params[std::get<0>(i)] != "") {
+                throw redefinition_of_attribute(std::get<0>(i), name);
+            }
+            params[std::get<0>(i)] = std::get<1>(i);
+            
+            
+        }
+        
     }
     
-    std::function<parameter(Translator*, unsigned long long)> fun = &Translator::parseClassAttribute;
-    parseSexps(firstDeclaration, fun);
+    for (auto & i : params) {
+        /* Key(0) is variable name, value(1) is data type */
+        _output << "    " << std::get<1>(i) << " " << std::get<0>(i) << ";\n";
+    }
     
     _output << "} " << name << ";\n" << std::endl;
     
-    /* Iterate through the rest of the declarations */
-    
-    /*
-    int parenCounter = 0;
-    parameter param;
-    for (unsigned long long iter = firstDeclaration; parenCounter >= 0; ++ iter) {
-        
-        
-        
-    }
-    */
+    _class c;
+    c.vars = params;
+    classes.emplace(name, c);
     
 }
 
@@ -580,14 +643,14 @@ void Translator::parseDefinitions() {
     _output << "/* User defined function definitions */\n" << std::endl;
     
     unsigned long long parens = 0;
-    unsigned long long defBeginning = 0, defEnd = 0;
+    unsigned long long definitionBeginning = 0, definitionEnd = 0;
     
     for (int i = 0; i < _tokens.size(); ++i) {
         
         if (_tokens[i].type == tokType::openingPar) {
             
             ++parens;
-            if (parens == 1) { defBeginning = i; }
+            if (parens == 1) { definitionBeginning = i; }
             
         }
         else if (_tokens[i].type == tokType::closingPar) {
@@ -597,8 +660,8 @@ void Translator::parseDefinitions() {
         }
         
         if (not parens) {
-            defEnd = i;
-            definition(defBeginning, defEnd);
+            definitionEnd = i;
+            definition(definitionBeginning, definitionEnd);
         }
         
     } /* For */
@@ -607,8 +670,15 @@ void Translator::parseDefinitions() {
 
 void Translator::definition(unsigned long long defBeginning, unsigned long long defEnd) {
     
-    if (_tokens[defBeginning + 1].value != "global") {
+    /* Nothing to do here, not now, anyway */
+    if (_tokens[defBeginning + 1].value == "class") {
+        
+        return;
+        
+    } else if (_tokens[defBeginning + 1].value != "global") {
+        
         parseFun(defBeginning, defEnd);
+    
     }
     
 }

@@ -34,14 +34,15 @@ struct parameter {
 namespace expr {
     
     const std::array<std::string, 4> native_types  = {"int", "num", "str", "void"};
-    const std::array<std::string, 6> unary_operators = { "return", "sizeof", "inc", "dec", "not", "compl" };
+    const std::array<std::string, 3> parameterless_operators = { "return", "break", "continue" };
+    const std::array<std::string, 6> unary_operators = { "return", "size_of", "inc", "dec", "not", "compl" };
     const std::array<std::string, 19> binary_operators = { "+", "-", "*", "/", "%", "set", "equals", "not_eq", ">",
     "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"};
     
     const std::unordered_map<std::string /* Kobeři-C function */, std::string /* C operator */ > unary_operators_map = {
     
         {"return", "return"},
-        {"sizeof", "sizeof"},
+        {"size_of", "sizeof"},
         {"inc", "++"},
         {"dec", "--"},
         {"not", "!"},
@@ -82,6 +83,7 @@ namespace expr {
     parameter voidToInt(parameter & param);
     
     parameter unaryOperator(parameter & param, std::string & op);
+    parameter parameterless_operator(std::string & op);
 
 }
 

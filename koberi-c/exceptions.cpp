@@ -118,3 +118,24 @@ const char * undefined_class::what() {
     std::string message = "Inheriting from an undefined class " + _className;
     return message.c_str();
 }
+
+redefinition_of_attribute::redefinition_of_attribute(const std::string && attributeName, const std::string && className) {
+    _attributeName = attributeName;
+    _className = className;
+}
+
+redefinition_of_attribute::redefinition_of_attribute(const std::string & attributeName, const std::string & className) {
+    _attributeName = attributeName;
+    _className = className;
+}
+
+const char * redefinition_of_attribute::what() {
+    
+    std::string msg = "Redefinition of class attribute " + _attributeName + " in class " + _className;
+    return msg.c_str();
+    
+}
+
+
+
+

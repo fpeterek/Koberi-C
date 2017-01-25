@@ -26,9 +26,11 @@
 #include "contains.hpp"
 #include "debug_macro_definitions.h"
 
+
 struct _class {
     
-    std::vector<parameter> vars;
+    std::unordered_map<std::string, std::string> vars;
+    std::unordered_map<std::string, std::string> methods;
 
 };
 
@@ -45,6 +47,7 @@ class Translator {
     std::unordered_map<std::string, std::string> _globalVars; /* Keeps track of global variables */
     std::unordered_map<std::string, std::string> _localVars;  /* Keeps track of local variables inside a function. This variable is 
                                                                  reset every time the parseFunc() method is called */
+    std::unordered_map<std::string, _class> _classes; /* Keeps track of classes and their attributes / methods */
     std::string funCall(); /* Mangle name in a function call so the right function is called */
     
     std::vector<token> & _tokens;
@@ -60,6 +63,8 @@ class Translator {
        is the s-exp translated to C */
     parameter parseSexp(unsigned long long sexpBeginning);
     
+    /* Similar to parseSexps(), but adjusted to work properly on classes */
+    std::unordered_map<std::string, std::string> parseClassMembers(unsigned long long firstSexp, std::string & className);
     /* Similar to parseSexp(), but only parses class attributes */
     parameter parseClassAttribute(unsigned long long sexpBeginning);
     

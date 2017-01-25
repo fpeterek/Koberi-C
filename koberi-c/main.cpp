@@ -42,6 +42,8 @@ int main(int argc, const char * argv[]) {
         print(e.what());
     } catch (undefined_class & e) {
         print(e.what());
+    } catch (redefinition_of_attribute & e) {
+        print(e.what());
     } catch (std::runtime_error & e) {
         print(e.what());
     } catch (std::exception & e) {

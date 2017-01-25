@@ -132,4 +132,17 @@ public:
     
 };
 
+class redefinition_of_attribute : public std::exception {
+    
+    std::string _attributeName;
+    std::string _className;
+public:
+    
+    redefinition_of_attribute(const std::string && attributeName, const std::string && className);
+    redefinition_of_attribute(const std::string & attributeName, const std::string & className);
+
+    const char * what();
+    
+};
+
 #endif /* exceptions_hpp */

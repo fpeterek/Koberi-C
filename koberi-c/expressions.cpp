@@ -203,3 +203,7 @@ parameter expr::unaryOperator(parameter & param, std::string & op) {
     
 }
 
+parameter expr::parameterless_operator(std::string & op) {
+    parameter param(op, "void");
+    return param;
+}
