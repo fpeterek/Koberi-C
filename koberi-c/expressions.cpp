@@ -112,7 +112,7 @@ parameter expr::numMod(std::vector<parameter> & nums) {
 parameter expr::print(std::vector<parameter> & params) {
     
     parameter string;
-    string.type = "int";
+    string.type = ".cf";
     
     for (auto & i : params) {
         
@@ -128,6 +128,40 @@ parameter expr::print(std::vector<parameter> & params) {
     }
     
     return string;
+    
+}
+
+/* Replaces escaped quotation marks in strings so you can use string literals in inline c */
+void replaceEscapeSequence(std::string & str) {
+    
+    size_t position;
+    
+    while ( (position = str.find("\\\"")) != std::string::npos ) {
+        str.replace(position, 2, "\"");
+    }
+    
+}
+
+parameter expr::inlineC(std::vector<parameter> &params) {
+    
+    parameter c;
+    c.type = ".cf";
+    std::string temp;
+    for (auto & i : params) {
+        
+        if (i.type != "str") {
+            throw bad_type("Inline C requires a string literal. ");
+        }
+        
+        temp = i.value.substr(1, i.value.length() - 2);
+        replaceEscapeSequence(temp);
+        c.value += "\t";
+        c.value += temp;
+        c.value += "\n";
+        
+    }
+    
+    return c;
     
 }
 

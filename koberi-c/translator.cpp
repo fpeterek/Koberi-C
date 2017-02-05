@@ -194,6 +194,8 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     }
     else if (funName == "print") {
         expr = expr::print(params);
+    } else if (funName == "c") {
+        expr = expr::inlineC(params);
     }
     else {
         
@@ -353,8 +355,8 @@ void Translator::varDeclaration(unsigned long long declBeginning, unsigned long 
     
     std::stringstream ss;
     
-    if (declEnd - declBeginning < 4) { /* 0 for (; 1 for (); 2 for (global); 3 for (global type); 4 for (global type name); 
-                                          At least 4 tokens are needed to declare a global variable */
+    if (declEnd - declBeginning < 3) { /* 0 for (; 1 for (); 2 for (type); 3 for (type name);
+                                          At least 3 tokens are needed to declare a global variable */
         
         for (unsigned long long i = declBeginning; i < declEnd; ++i) {
             ss << (_tokens[i] != tokType::openingPar ? "" : " ") << _tokens[i].value;
@@ -364,15 +366,15 @@ void Translator::varDeclaration(unsigned long long declBeginning, unsigned long 
     
     }
     
-    std::string type = _tokens[declBeginning + 2].value;
+    std::string type = _tokens[declBeginning + 1].value;
     checkType(type);
     
-    std::string name = _tokens[declBeginning + 3].value;
+    std::string name = _tokens[declBeginning + 2].value;
     
     ss << (type == "int" ? "ll" : type) << " " << name;
     
-    if (_tokens[declBeginning + 4] != tokType::closingPar) {
-        ss << " = " << _tokens[declBeginning + 4].value;
+    if (_tokens[declBeginning + 3] != tokType::closingPar) {
+        ss << " = " << _tokens[declBeginning + 3].value;
     }
     
     ss << ";";
@@ -431,8 +433,9 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
 
 /*
  
- ( class name ( superclass )
-     ( int variable 10 ) )
+ (class name (superclass)
+     (int variable)
+     (num variable2))
  
 */
 
@@ -547,6 +550,7 @@ void Translator::classDeclaration(unsigned long long declBeginning, unsigned lon
     _class c;
     c.vars = params;
     classes.emplace(name, c);
+    dataTypes.emplace_back(name);
     
 }
 
@@ -584,21 +588,41 @@ void Translator::parseDeclarations() {
     
 }
 
+/* --- Definition example ---
+ 
+ ;;; Function
+ (int x ()
+     (if (x)
+          (print x " evaluates to true")))
+ 
+ ;;; Class
+ (class c (base_class)
+     (int x)
+     (num y))
+ 
+ ;;; Global variable
+ (int var1)             ; Allowed
+ (int var2 10)          ; Allowed
+ (int var3 (+ 10 10))   ; Not Allowed, global variables must be initialized with a literal or not at all
+ (int var4 ())          ; Function Definition
+ (int var5 (int param)) ; Function Definition
+ 
+ */
+
 void Translator::declaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
-    if (_tokens[declBeginning + 1].value == "global") {
-        
-        varDeclaration(declBeginning, declEnd);
-        
-    } else if (_tokens[declBeginning + 1].value == "class") {
-      
+    if (_tokens[declBeginning + 1].value == "class") {
         classDeclaration(declBeginning, declEnd);
-        
-    } else {
-        
-        funDeclaration(declBeginning, declEnd);
-        
+        return;
     }
+    
+    /* Only allow literals */
+    if (not (_tokens[declBeginning + 3].type == tokType::openingPar)) {
+        varDeclaration(declBeginning, declEnd);
+        return;
+    }
+    
+    funDeclaration(declBeginning, declEnd);
     
 }
 
@@ -621,9 +645,14 @@ void Translator::typedefs() {
     
 }
 
+/* These should be replaced with a standard library written in Kobeři-C        */
+/* They probably aren't used anywhere anyway, so I'll comment them out for now */
+/* I should remove them in the near future                                     */
+
+/*
 void Translator::functions() {
     
-    _output << "/* Kobeři-c standard library functions */\n\n"
+    _output << "// Kobeři-c standard library functions \n\n"
             << "char * __numToStr(num param) { \n"
             << "    char * temp = (char *) malloc(50);\n"
             << "    sprintf(temp, \"%f\", param);\n"
@@ -637,6 +666,26 @@ void Translator::functions() {
     
     
 }
+*/
+
+/* --- Definition example ---
+ 
+ ;;; Function
+ (int x ()
+     (if (x)
+     (print x " evaluates to true")))
+ 
+ ;;; Class
+ (class c (base_class)
+     (int x)
+     (num y))
+ 
+ ;;; Global variable
+ (int var (+ 10 10)) ; Allowed
+ (int var2 10)       ; Allowed
+ (int var3 ())       ; Not Allowed
+ 
+ */
 
 void Translator::parseDefinitions() {
     
@@ -675,7 +724,7 @@ void Translator::definition(unsigned long long defBeginning, unsigned long long 
         
         return;
         
-    } else if (_tokens[defBeginning + 1].value != "global") {
+    } else if ( _tokens[defBeginning + 3].type == tokType::openingPar ) {
         
         parseFun(defBeginning, defEnd);
     
@@ -687,7 +736,7 @@ void Translator::translate() {
     
     libs();
     typedefs();
-    functions();
+    // functions();
     
     parseDeclarations();
     parseDefinitions();

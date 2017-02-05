@@ -90,7 +90,7 @@ class Translator {
     /* Outputs typedefs into the output file */
     void typedefs();
     /* Outputs functions into the output file, might change this later */
-    void functions();
+    // void functions();
     
     void parseDefinitions(); /* Parse definitions */
     void definition(unsigned long long defBeginning, unsigned long long defEnd); /* Same as declaration() */
