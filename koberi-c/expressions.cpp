@@ -30,13 +30,13 @@ parameter::parameter(const std::string & newValue, const std::string & newType) 
 
 parameter expr::variableDeclaration(std::string & type, std::string & name, std::string & value) {
     
-    return parameter(type + " " + name + " = " + value + ";", type);
+    return parameter((type == "int" ? "ll" : type) + " " + name + " = " + value + ";", type);
     
 }
 
 parameter expr::variableDeclaration(std::string & type, std::string & name) {
     
-    return parameter(type + " " + name + ";", type);
+    return parameter((type == "int" ? "ll" : type) + " " + name + ";", type);
     
 }
 

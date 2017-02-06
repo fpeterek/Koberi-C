@@ -542,7 +542,9 @@ void Translator::classDeclaration(unsigned long long declBeginning, unsigned lon
     
     for (auto & i : params) {
         /* Key(0) is variable name, value(1) is data type */
-        _output << "    " << std::get<1>(i) << " " << std::get<0>(i) << ";\n";
+        std::string & type = std::get<1>(i), name = std::get<0>(i);
+        expr::variableDeclaration(type, name);
+        _output << "    " << expr::variableDeclaration(type, name).value << "\n";
     }
     
     _output << "} " << name << ";\n" << std::endl;
@@ -632,6 +634,7 @@ void Translator::libs() {
             << "#include <stdlib.h>\n"
             << "#include <math.h>\n"
             << "#include <time.h>\n"
+            << "#include <string.h>\n"
             << "\n"
             << std::endl;
     
