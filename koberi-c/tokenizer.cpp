@@ -134,8 +134,8 @@ void Tokenizer::parseLine() {
     
     for (_iter = 0; _iter < _lineLen; /* Don't increment here, iter is incremented inside loop */) {
         
-        /* Check for single line comment, if found, break out of loop */
-        /* The content of a comment is none of the compilers bussines */
+        /* Check for single line comment, if found, break out of loop  */
+        /* The content of a comment is none of the compiler's bussines */
         
         if ( _line[_iter] == ';' ) {  break;  }
         

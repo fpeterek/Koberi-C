@@ -110,7 +110,6 @@ void Translator::parseParams(unsigned long long beginning, std::vector<parameter
 /* Pretend this method does what is says it does and ignore it  */
 /* Seriously                                                    */
 /* For your own well-being                                      */
-/* Harambe didn't die for this                                  */
 
 parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     
