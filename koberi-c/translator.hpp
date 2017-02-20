@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include <list>
 #include <unordered_map>
 #include <map>
 #include <cmath>
@@ -58,6 +59,7 @@ class Translator {
     /* Gets type of a variable or literal */
     std::string getType(token & tok);
     std::string getVarType(parameter & param);
+    std::string getVarType(std::string & varName);
     
     /* parseSexp() parses an s-expression and returns a parameter where type is the data type returned by the s-exp and value
        is the s-exp translated to C */
@@ -67,6 +69,8 @@ class Translator {
     std::unordered_map<std::string, std::string> parseClassMembers(unsigned long long firstSexp, std::string & className);
     /* Similar to parseSexp(), but only parses class attributes */
     parameter parseClassAttribute(unsigned long long sexpBeginning);
+    
+    parameter classAttributeAccess(unsigned long long sexpBeginning);
     
     /* Parse sexps finds s-expressions and passes them to another method, that parses single s-expressions  */
     /* That method is passed to parseSexps() via an std::function object, so I can reuse parseSexps()       */

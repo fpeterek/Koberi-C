@@ -79,6 +79,14 @@ std::string Translator::getVarType(parameter & param) {
     
 }
 
+std::string Translator::getVarType(std::string & varName) {
+    
+    parameter param;
+    param.value = varName;
+    return getVarType(param);
+    
+}
+
 void Translator::mangleName(std::string & name, std::vector<parameter> & params) {
     
     if (name == "main") { return; }
@@ -104,6 +112,73 @@ void Translator::parseParams(unsigned long long beginning, std::vector<parameter
         params.back().value = _tokens[i+1].value;
         
     }
+    
+}
+
+parameter Translator::classAttributeAccess(unsigned long long sexpBeginning) {
+    
+    parameter attr;
+    
+    std::list<std::string> variables;
+    
+    std::string variableName;
+    
+    unsigned long long iter = sexpBeginning + 1;
+    
+    while (_tokens[iter] != tokType::closingBra) {
+        
+        if (_tokens[iter] != tokType::id) {
+            throw invalid_syntax("Error: Expected identifier in class attribute access operator[] ");
+        }
+        
+        variables.push_back(_tokens[iter].value);
+        
+        ++iter;
+        
+    }
+    
+    if (variables.size() < 2) {
+        throw invalid_syntax("Error: Expected identifier in class attribute access operator[] ");
+    }
+    
+    attr.value = variableName.front();
+    
+    while (variables.size() < 2) {
+        
+        variableName = variables.front();
+        
+        variables.pop_front();
+        
+        try {
+            
+            attr.type = getVarType(variableName);
+            
+            const _class & c = _classes.at(attr.type);
+            
+            
+            try {
+                
+                /* Try to access value at variables.front(). If there is no such value, an exception is throw */
+                /* If such value exists, nothing happens                                                      */
+                c.vars.at(variables.front());
+                
+            } catch (const std::out_of_range & e) {
+                
+                throw no_such_member(variables.front(), variableName);
+            
+            }
+            
+            attr.value += "." + variables.front();
+            
+        } catch (const std::out_of_range & e) {
+            
+            throw undefined_class(attr.type);
+            
+        }
+        
+    }
+    std::cout << attr.value << std::endl;
+    return attr;
     
 }
 
@@ -146,6 +221,17 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
             ++parenCounter;
             params.emplace_back(parseSexp(iter));
             
+        } else if (_tokens[iter] == tokType::openingBra) {
+            
+            params.emplace_back(classAttributeAccess(iter));
+            while (_tokens[iter] != tokType::closingBra) {
+                ++iter;
+            }
+            
+            
+        }
+        else if (_tokens[iter] == tokType::closingBra) {
+            throw unexpected_token(']');
         }
         else if (_tokens[iter] == tokType::openingPar) { ++parenCounter; }
         else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }

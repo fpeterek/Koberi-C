@@ -11,14 +11,15 @@
 
 #include <stdio.h>
 #include <iostream>
+#include <string>
 
 class unexpected_token : public std::exception {
     
-    char _token;
+    std::string _message;
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     
     unexpected_token(char tok);
     
@@ -26,11 +27,11 @@ public:
 
 class missing_token : public std::exception {
     
-    char _token;
+    std::string _message;
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     
     missing_token(char tok);
     
@@ -38,11 +39,11 @@ public:
 
 class invalid_operator : public std::exception {
     
-    std::string _operator;
+    std::string _message;
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     
     invalid_operator(std::string & op);
     
@@ -50,14 +51,14 @@ public:
 
 class file_not_opened : public std::exception {
     
-    std::string _filename;
+    std::string _message;
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     
     file_not_opened(const std::string & filename);
-    file_not_opened(const char * filename);
+    file_not_opened(const std::string && filename);
     
 };
 
@@ -67,10 +68,10 @@ class invalid_declaration : public std::exception {
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     
     invalid_declaration(const std::string & message);
-    invalid_declaration(const char * message);
+    invalid_declaration(const std::string && message);
     
 };
 
@@ -80,18 +81,18 @@ class undeclared_function_call : public std::exception {
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     undeclared_function_call(const std::string & message);
     
 };
 
 class undefined_variable : public std::exception {
     
-    std::string _variableName;
+    std::string _message;
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     undefined_variable(const std::string & var_name);
     
 };
@@ -102,9 +103,9 @@ class bad_type : public std::exception {
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     bad_type(const std::string & message);
-    bad_type(const char * message);
+    bad_type(const std::string && message);
     
 };
 
@@ -114,34 +115,47 @@ class invalid_syntax : public std::exception {
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     invalid_syntax(const std::string & message);
-    invalid_syntax(const char * message);
+    invalid_syntax(const std::string && message);
     
 };
 
 class undefined_class : public std::exception {
     
-    std::string _className;
+    std::string _message;
     
 public:
     
-    const char * what();
+    const char * what() const throw();
     undefined_class(const std::string & className);
-    undefined_class(const char * className);
+    undefined_class(const std::string && className);
     
 };
 
 class redefinition_of_attribute : public std::exception {
     
-    std::string _attributeName;
-    std::string _className;
+    std::string _message;
+    
 public:
     
     redefinition_of_attribute(const std::string && attributeName, const std::string && className);
     redefinition_of_attribute(const std::string & attributeName, const std::string & className);
 
-    const char * what();
+    const char * what() const throw();
+    
+};
+
+class no_such_member : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    no_such_member(const std::string && memberName, const std::string && className);
+    no_such_member(const std::string & memberName, const std::string & className);
+    
+    const char * what() const throw();
     
 };
 
