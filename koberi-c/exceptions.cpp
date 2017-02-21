@@ -161,6 +161,24 @@ const char * undefined_class::what() const throw() {
 
 }
 
+not_a_class::not_a_class(const std::string & id) {
+    
+    _message = id + " is not a class";
+    
+}
+
+not_a_class::not_a_class(const std::string && id) {
+    
+    _message = id + " is not a class";
+    
+}
+
+const char * not_a_class::what() const throw() {
+    
+    return _message.c_str();
+    
+}
+
 redefinition_of_attribute::redefinition_of_attribute(const std::string && attributeName, const std::string && className) {
     
     _message = "Redefinition of class attribute " + attributeName + " in class " + className;

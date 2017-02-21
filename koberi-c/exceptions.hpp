@@ -133,6 +133,18 @@ public:
     
 };
 
+class not_a_class : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    const char * what() const throw();
+    not_a_class(const std::string & id);
+    not_a_class(const std::string && id);
+    
+};
+
 class redefinition_of_attribute : public std::exception {
     
     std::string _message;

@@ -53,10 +53,10 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
         return expr::numMod(params);
     }
     
-    if (op == "set" and params.size() != 1) {
+    if (op == "set" and params.size() != 2) {
         std::string str = "(set";
         for (auto & i : params) {
-            str += i.value;
+            str += " " + i.value;
         }
         str += ")";
         throw invalid_operator(str);
@@ -112,6 +112,8 @@ parameter expr::numMod(std::vector<parameter> & nums) {
 parameter expr::print(std::vector<parameter> & params) {
     
     parameter string;
+    /* It's not really control flow, which is what .cf originally stood for */
+    /* It serves it's purpose but I may want to change this in the future   */
     string.type = ".cf";
     
     for (auto & i : params) {

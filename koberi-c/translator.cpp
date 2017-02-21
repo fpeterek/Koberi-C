@@ -122,6 +122,7 @@ parameter Translator::classAttributeAccess(unsigned long long sexpBeginning) {
     std::list<std::string> variables;
     
     std::string variableName;
+    std::string className;
     
     unsigned long long iter = sexpBeginning + 1;
     
@@ -141,9 +142,12 @@ parameter Translator::classAttributeAccess(unsigned long long sexpBeginning) {
         throw invalid_syntax("Error: Expected identifier in class attribute access operator[] ");
     }
     
-    attr.value = variableName.front();
+    attr.value = variables.front();
+    className = getVarType(attr.value);
     
-    while (variables.size() < 2) {
+    variables.pop_front();
+    
+    while (variables.size()) {
         
         variableName = variables.front();
         
@@ -151,33 +155,34 @@ parameter Translator::classAttributeAccess(unsigned long long sexpBeginning) {
         
         try {
             
-            attr.type = getVarType(variableName);
-            
-            const _class & c = _classes.at(attr.type);
-            
+            /* Empty class object I can bind to the reference wrapper so I can avoid using pointers    */
+            /* The reference is either overwritten or an exception is thrown so temp is never accessed */
+            _class temp{};
+            std::reference_wrapper<_class> c(temp);
             
             try {
                 
-                /* Try to access value at variables.front(). If there is no such value, an exception is throw */
-                /* If such value exists, nothing happens                                                      */
-                c.vars.at(variables.front());
-                
+                c = classes.at(className);
+            
             } catch (const std::out_of_range & e) {
-                
-                throw no_such_member(variables.front(), variableName);
+            
+                throw not_a_class(className);
             
             }
             
-            attr.value += "." + variables.front();
+            attr.type = c.get().vars.at(variableName);
+            attr.value += "." + variableName;
+            
+            className = attr.type;
             
         } catch (const std::out_of_range & e) {
             
-            throw undefined_class(attr.type);
+            throw no_such_member(variables.front(), className);
             
         }
         
     }
-    std::cout << attr.value << std::endl;
+    
     return attr;
     
 }
@@ -257,7 +262,7 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     } else if (expr::unary_operators >> funName and params.size() == 1) {
         expr = expr::unaryOperator(params[0], funName);
         expr.value.insert(0, "\t");
-    } else if (expr::binary_operators >> funName and (params[0].type == "int" or params[0].type == "num")) {
+    } else if (expr::binary_operators >> funName /*and (params[0].type == "int" or params[0].type == "num")*/) {
         expr = expr::binaryOperator(params, funName);
         expr.value.insert(0, "\t");
     } else if (expr::parameterless_operators >> funName and not params.size()) {

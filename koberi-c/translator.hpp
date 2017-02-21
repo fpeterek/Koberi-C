@@ -18,6 +18,7 @@
 #include <cmath>
 #include <fstream>
 #include <sstream>
+#include <functional>
 
 #include "syntax.hpp"
 #include "token.hpp"
@@ -38,7 +39,8 @@ struct _class {
 class Translator {
     
     std::vector<std::string> dataTypes = {"int", "num", "str", "void"};
-    std::unordered_map<std::string, _class> classes;
+    std::unordered_map<std::string, _class> classes; /* Keeps track of classes and their attributes / methods */
+    
     void checkType(std::string & type);
     
     /* Used for function overloading */
@@ -48,7 +50,13 @@ class Translator {
     std::unordered_map<std::string, std::string> _globalVars; /* Keeps track of global variables */
     std::unordered_map<std::string, std::string> _localVars;  /* Keeps track of local variables inside a function. This variable is 
                                                                  reset every time the parseFunc() method is called */
-    std::unordered_map<std::string, _class> _classes; /* Keeps track of classes and their attributes / methods */
+    
+    /* --------------------------------------------------------------------------------------------------------- */
+    /*                                                                                                           */
+    /* std::unordered_map<std::string, _class> _classes; // Keeping this here as a reminder of my stupid mistake */
+    /*                                                                                                           */
+    /* --------------------------------------------------------------------------------------------------------- */
+    
     std::string funCall(); /* Mangle name in a function call so the right function is called */
     
     std::vector<token> & _tokens;
