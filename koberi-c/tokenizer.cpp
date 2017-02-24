@@ -90,7 +90,7 @@ void Tokenizer::numberLiteral() {
     if (isNum) {
         _tokens.emplace_back(tokType::numLit, str);
     } else {
-        _tokens.emplace_back(tokType::intLit, str);
+        _tokens.emplace_back(tokType::intLit, str + "ll");
     }
     
 }
