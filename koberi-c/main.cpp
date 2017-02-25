@@ -8,7 +8,7 @@
 
 #include "koberi-c.hpp"
 
-static std::string TEST = "testing_script.kbsc";
+static const std::string TEST = "testing_script.koberice";
 
 
 int main(int argc, const char * argv[]) {
