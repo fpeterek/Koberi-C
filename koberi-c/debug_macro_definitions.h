@@ -13,9 +13,11 @@
 /* This file includes macro definitions used for debugging */
 
 // #define PRINT_TOKENS // Print tokens to stdout after input is tokenized
-#define PRINT_LINE  // Print lines to stdout after reading them from file
+// #define PRINT_LINE  // Print lines to stdout after reading them from file
 // #define PRINT_FUNCTION_TOKENS // Print tokens of a function
-#define PRINT_FUNCTION // Print function to stdout
+// #define PRINT_FUNCTION // Print function to stdout
 #define OUTPUT_FUNCTION_DECLARATION // Print function declaration to stdout
-#define OUTPUT_GLOBAL_VARIABLE_DECLARATION // Print global variable declaration to stdout
+// #define OUTPUT_GLOBAL_VARIABLE_DECLARATION // Print global variable declaration to stdout
+
+
 #endif /* debug_macro_definitions_h */
