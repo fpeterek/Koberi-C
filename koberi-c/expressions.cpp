@@ -49,8 +49,21 @@ parameter expr::setNumValue(std::string & var, std::string & value) {
 
 parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op) {
     
-    if (op == "%" and params[0].type == "num") {
-        return expr::numMod(params);
+    if (op == "mod") {
+        
+        for (auto & param : params) {
+            
+            /* If at least one of the parameters is a floating point number, call fmod() */
+            if (param.type == "num") {
+                return expr::numMod(params);
+            }
+            
+        }
+        
+    }
+    
+    if (op == ">" or op == "<" or op == "equals") {
+        return comparison(op, params);
     }
     
     if (op == "set" and params.size() != 2) {
@@ -83,10 +96,69 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
         
         val.value += " " + oper + " " + params[i].value;
         
+        if (params[i].value == "num") {
+            val.value = "num";
+        }
+        
     }
     val.value += " " + oper + " " + params.back().value + ")";
     
     return val;
+    
+}
+
+/* Can't use a lambda expressions because different lambdas have different types, so I'm creating two helper */
+/* Functions which are only called from one function, don't belong to the expr namespace, aren't declared    */
+/* In expressions.hpp and should never be called                                                             */
+
+/* ----------------------------------------------------- Don't use ----------------------------------------------------- */
+/* - */                                                                                                             /* - */
+/* - */ void equals(parameter & expr, const std::string & op, std::vector<parameter> & params, const size_t iter) { /* - */
+/* - */     expr.value += " " + params[0].value + " == " + params[iter].value + " &&";                              /* - */
+/* - */ }                                                                                                           /* - */
+/* - */                                                                                                             /* - */
+/* - */ void ltOrGt(parameter & expr, const std::string & op, std::vector<parameter> & params, const size_t iter) { /* - */
+/* - */     expr.value += " " + params[iter - 1].value + " " + op + " " + params[iter].value + " &&";               /* - */
+/* - */ }                                                                                                           /* - */
+/* - */                                                                                                             /* - */
+/* ----------------------------------------------------- Don't use ----------------------------------------------------- */
+
+parameter expr::comparison(std::string & op, std::vector<parameter> & params) {
+    
+    const size_t paramsSize = params.size();
+    
+    if (paramsSize < 2) {
+        
+        std::string expr = "(" + op;
+        for (auto & i : params) {
+            expr += i.value;
+        }
+        expr += ")";
+        throw invalid_operator(expr);
+        
+    }
+    
+    parameter expr;
+    expr.type = "int";
+    
+    expr.value = "(";
+    
+    /* Can't use a lambda expressions because different lambdas have different types, so I'm using an std::function */
+    auto fun = op == "equals" ? equals : ltOrGt;
+    
+    for (size_t i = 1; i < paramsSize; ++i) {
+        
+        fun(expr, op, params, i);
+        
+    }
+    
+    /* Also add 1 at the end of the expression, because the main loop in this function adds the and operator */
+    /* So there's a trailing and at the end of the expression, adding 1 fixes this in a simple way without   */
+    /* Making me change the loop to something more complicated                                               */
+    /* The compiler will optimize this anyway                                                                */
+    expr.value += " 1 )";
+    
+    return expr;
     
 }
 

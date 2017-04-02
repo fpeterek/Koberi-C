@@ -16,48 +16,22 @@
 
 namespace syntax {
     
-    const std::array<char, 13> operatorChar = {
+    const std::array<char, 8> operatorChar = {
         
-        '=', '+', '-', '*', '/', '%', '<', '>', '!', '&', '|', '~', '^'
+        '=', '+', '-', '*', '/', '%', '<', '>'
         
     };
     
-    const std::array<std::string, 31> operators = {
+    const std::array<std::string, 9> operators = {
         
-        "=",
-        "+", "+=",
-        "-", "-=",
-        "*", "*=",
-        "/", "/=",
-        "%", "%=",
-        "++", "--",
+        "+", "-",
+        "*", "/",
+        "%",
         
         // Comparison operators
         
         "<", ">",
         "<=", ">=",
-        "==", "!=",
-        
-        // Bitwise operators
-        
-        "&", "&=",
-        "|", "|=",
-        "<<", "<<=",
-        ">>", ">>",
-        "~", "~=",
-        "^", "^="
-        
-        /*
-         
-         // Logic operators
-         
-         "and", "or",
-         
-         // Negation operator
-         
-         "not",
-         
-         */
         
     };
     

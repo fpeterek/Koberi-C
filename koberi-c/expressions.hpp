@@ -36,7 +36,7 @@ namespace expr {
     const std::array<std::string, 4> native_types  = {"int", "num", "str", "void"};
     const std::array<std::string, 3> parameterless_operators = { "return", "break", "continue" };
     const std::array<std::string, 6> unary_operators = { "return", "size_of", "inc", "dec", "not", "compl" };
-    const std::array<std::string, 19> binary_operators = { "+", "-", "*", "/", "%", "set", "equals", "not_eq", ">",
+    const std::array<std::string, 19> binary_operators = { "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
     "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"};
     
     const std::unordered_map<std::string /* Kobeři-C function */, std::string /* C operator */ > unary_operators_map = {
@@ -46,7 +46,7 @@ namespace expr {
         {"inc", "++"},
         {"dec", "--"},
         {"not", "!"},
-        {"compl", "~"}
+        {"compl", "~"},
     
     };
     
@@ -54,7 +54,7 @@ namespace expr {
         
         {"+", "+"}, {"-", "-"}, {"*", "*"}, {"/", "/"}, {"%", "%"}, {"set", "="}, {"equals", "=="}, {"not_eq", "!="},
         {">", ">"}, {"<", "<"}, {">=", ">="}, {"<=", "<="}, {"and", "&&"}, {"or", "||"}, {"bit_and", "&"},
-        {"bit_or", "|"}, {"xor", "^"}, {"lshift", "<<"}, {"rshift", ">>"}
+        {"bit_or", "|"}, {"xor", "^"}, {"lshift", "<<"}, {"rshift", ">>"}, {"mod", "%"}
         
     };
     
@@ -67,10 +67,12 @@ namespace expr {
     parameter print(std::vector<parameter> & params); /* Print string to stdout */
     parameter inlineC(std::vector<parameter> & params);
     
-    /* + - * / % on ints, + - * / on nums */
+    /* + - * / mod on ints, + - * / on nums */
     parameter binaryOperator(std::vector<parameter> & params, std::string & op);
     /* % in C can only be used on ints */
     parameter numMod(std::vector<parameter> & nums);
+    
+    parameter comparison(std::string & op, std::vector<parameter> & params);
     
     
     parameter conversionToNum(parameter & param);

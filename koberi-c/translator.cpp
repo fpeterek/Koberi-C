@@ -193,6 +193,8 @@ parameter Translator::classAttributeAccess(unsigned long long sexpBeginning) {
 
 parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     
+    unsigned long long tokensLen = _tokens.size();
+    
     parameter expr;
     
     std::vector<parameter> params;
@@ -217,6 +219,12 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
     
     for (unsigned int parenCounter = 1; parenCounter != 0; ++iter ) {
     
+        
+        /* Prevent the compiler from trying to access outside memory bounds */
+        if (iter == tokensLen) {
+            throw missing_token(')');
+        }
+        
         /* Recursively parse sexps nested in other sexps */
         /* if (parenCounter == 1 and token == '(') {} so only the first expression is parsed in this function call,
            expressions nested in other expressions will be parsed recursively */
@@ -350,13 +358,20 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
 
 void Translator::parseSexps(unsigned long long firstSexp, std::function<parameter(Translator*, unsigned long long)> & fun) {
 
-    /* If anyone manages to have 2**31 - 1 nested s-expressions, they might as well write their own compiler */
+    const unsigned long long tokensLen = _tokens.size();
+    
+    /* If anyone manages to have 2**31 - 1 nested s-expressions, they are doing something wrong */
     int parenCounter = 0;
     unsigned long long iter = firstSexp;
     std::vector<unsigned long long> sexps;
     token tok;
     
     do {
+        
+        /* Prevent the compiler from trying to access outside memory bounds */
+        if (iter == tokensLen) {
+            throw missing_token(')');
+        }
         
         tok = _tokens[iter];
         
@@ -531,12 +546,19 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
 
 std::unordered_map<std::string, std::string> Translator::parseClassMembers(unsigned long long firstSexp, std::string & className) {
     
+    const unsigned long long tokensLen = _tokens.size();
+    
     int parenCounter = 0;
     unsigned long long iter = firstSexp;
     std::vector<unsigned long long> sexps;
     token tok;
     
     do {
+        
+        /* Prevent the compiler from trying to access outside memory bounds */
+        if (iter == tokensLen) {
+            throw missing_token(')');
+        }
         
         tok = _tokens[iter];
         
@@ -650,7 +672,7 @@ void Translator::parseDeclarations() {
     
     _output << "/* User defined function declarations and global variables. */\n\n";
     
-    unsigned long long parens = 0;
+    long long parens = 0;
     unsigned long long declBeginning = 0, declEnd = 0;
     
     for (unsigned long long i = 0; i < _tokens.size(); ++i) {
@@ -675,6 +697,13 @@ void Translator::parseDeclarations() {
         }
         
     } /* For */
+    
+    if (parens > 0) {
+        throw missing_token(')');
+    }
+    if (parens < 0) {
+        throw unexpected_token(')');
+    }
     
     _output << "\n"; /* Output two newlines after function declarations, mostly for readability */
     
@@ -764,9 +793,9 @@ void Translator::functions() {
 /* --- Definition example ---
  
  ;;; Function
- (int x ()
-     (if (x)
-     (print x " evaluates to true")))
+ (void x ()
+     (if (1)
+        (print 1 " evaluates to true")))
  
  ;;; Class
  (class c (base_class)
@@ -784,7 +813,7 @@ void Translator::parseDefinitions() {
     
     _output << "/* User defined function definitions */\n" << std::endl;
     
-    unsigned long long parens = 0;
+    long long parens = 0;
     unsigned long long definitionBeginning = 0, definitionEnd = 0;
     
     for (int i = 0; i < _tokens.size(); ++i) {
@@ -807,6 +836,13 @@ void Translator::parseDefinitions() {
         }
         
     } /* For */
+    
+    if (parens > 0) {
+        throw missing_token(')');
+    }
+    if (parens < 0) {
+        throw unexpected_token(')');
+    }
     
 }
 
