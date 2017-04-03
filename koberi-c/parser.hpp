@@ -27,16 +27,10 @@
 #include "expressions.hpp"
 #include "contains.hpp"
 #include "debug_macro_definitions.h"
+#include "class.hpp"
 
 
-struct _class {
-    
-    std::unordered_map<std::string, std::string> vars;
-    std::unordered_map<std::string, std::string> methods;
-
-};
-
-class Translator {
+class Parser {
     
     std::vector<std::string> dataTypes = {"int", "num", "str", "void"};
     std::unordered_map<std::string, _class> classes; /* Keeps track of classes and their attributes / methods */
@@ -82,7 +76,7 @@ class Translator {
     
     /* Parse sexps finds s-expressions and passes them to another method, that parses single s-expressions  */
     /* That method is passed to parseSexps() via an std::function object, so I can reuse parseSexps()       */
-    void parseSexps(unsigned long long firstSexp, std::function<parameter(Translator*, unsigned long long)> & fun);
+    void parseSexps(unsigned long long firstSexp, std::function<parameter(Parser*, unsigned long long)> & fun);
     
     void parseDeclarations(); /* Declare functions and global variables */
     void declaration(unsigned long long declBeginning, unsigned long long declEnd);       /* Calls varDeclaration() or funDeclaration(),
@@ -108,9 +102,9 @@ class Translator {
     void definition(unsigned long long defBeginning, unsigned long long defEnd); /* Same as declaration() */
     
 public:
-    Translator(std::vector<token> & vectorRef);
+    Parser(std::vector<token> & vectorRef);
     
-    void translate();
+    void parse();
     
 };
 

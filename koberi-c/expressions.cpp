@@ -8,25 +8,6 @@
 
 #include "expressions.hpp"
 
-parameter::parameter() {
-    
-    value = "";
-    type = "";
-    
-}
-
-parameter::parameter(const std::string & newValue) {
-    
-    value = newValue;
-    
-}
-
-parameter::parameter(const std::string & newValue, const std::string & newType) {
-    
-    value = newValue;
-    type = newType;
-    
-}
 
 parameter expr::variableDeclaration(std::string & type, std::string & name, std::string & value) {
     
@@ -144,7 +125,7 @@ parameter expr::comparison(std::string & op, std::vector<parameter> & params) {
     expr.value = "(";
     
     /* Can't use a lambda expressions because different lambdas have different types, so I'm using an std::function */
-    auto fun = op == "equals" ? equals : ltOrGt;
+    auto fun = (op == "equals") ? equals : ltOrGt;
     
     for (size_t i = 1; i < paramsSize; ++i) {
         

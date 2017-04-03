@@ -23,7 +23,7 @@ int main(int argc, const char * argv[]) {
     
     try {
         ks.tokenize(TEST);
-        ks.translate();
+        ks.parse();
     } catch (unexpected_token & e) {
         print(e.what());
     } catch (missing_token & e) {

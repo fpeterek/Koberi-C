@@ -1,15 +1,15 @@
 //
-//  translator.cpp
+//  parser.cpp
 //  koberi-c
 //
 //  Created by Filip Peterek on 31/10/2016.
 //  Copyright © 2016 Filip Peterek. All rights reserved.
 //
 
-#include "translator.hpp"
+#include "parser.hpp"
 
 
-Translator::Translator(std::vector<token> & vectorRef) : _tokens(vectorRef) /* Call the reference constructor */ {
+Parser::Parser(std::vector<token> & vectorRef) : _tokens(vectorRef) /* Call the reference constructor */ {
     
     _output.open("output.c");
     
@@ -21,7 +21,7 @@ Translator::Translator(std::vector<token> & vectorRef) : _tokens(vectorRef) /* C
     
 }
 
-void Translator::checkType(std::string & type) {
+void Parser::checkType(std::string & type) {
     
     if (not (dataTypes >> type)) {
         throw bad_type("Invalid data type " + type);
@@ -29,7 +29,7 @@ void Translator::checkType(std::string & type) {
     
 }
 
-std::string Translator::getType(token & tok) {
+std::string Parser::getType(token & tok) {
     
     std::string type;
     
@@ -55,7 +55,7 @@ std::string Translator::getType(token & tok) {
     
 }
 
-std::string Translator::getVarType(parameter & param) {
+std::string Parser::getVarType(parameter & param) {
     
     std::string type;
     
@@ -79,7 +79,7 @@ std::string Translator::getVarType(parameter & param) {
     
 }
 
-std::string Translator::getVarType(std::string & varName) {
+std::string Parser::getVarType(std::string & varName) {
     
     parameter param;
     param.value = varName;
@@ -87,7 +87,7 @@ std::string Translator::getVarType(std::string & varName) {
     
 }
 
-void Translator::mangleName(std::string & name, std::vector<parameter> & params) {
+void Parser::mangleName(std::string & name, std::vector<parameter> & params) {
     
     if (name == "main") { return; }
     
@@ -101,7 +101,7 @@ void Translator::mangleName(std::string & name, std::vector<parameter> & params)
     
 }
 
-void Translator::parseParams(unsigned long long beginning, std::vector<parameter> & params) {
+void Parser::parseParams(unsigned long long beginning, std::vector<parameter> & params) {
     
     for (unsigned long long i = beginning + 1; _tokens[i] != tokType::closingPar and _tokens[i+1] != tokType::closingPar; i += 2) {
         
@@ -115,7 +115,7 @@ void Translator::parseParams(unsigned long long beginning, std::vector<parameter
     
 }
 
-parameter Translator::classAttributeAccess(unsigned long long sexpBeginning) {
+parameter Parser::classAttributeAccess(unsigned long long sexpBeginning) {
     
     parameter attr;
     
@@ -191,7 +191,7 @@ parameter Translator::classAttributeAccess(unsigned long long sexpBeginning) {
 /* Seriously                                                    */
 /* For your own well-being                                      */
 
-parameter Translator::parseSexp(unsigned long long sexpBeginning) {
+parameter Parser::parseSexp(unsigned long long sexpBeginning) {
     
     unsigned long long tokensLen = _tokens.size();
     
@@ -356,7 +356,7 @@ parameter Translator::parseSexp(unsigned long long sexpBeginning) {
 
 }
 
-void Translator::parseSexps(unsigned long long firstSexp, std::function<parameter(Translator*, unsigned long long)> & fun) {
+void Parser::parseSexps(unsigned long long firstSexp, std::function<parameter(Parser*, unsigned long long)> & fun) {
 
     const unsigned long long tokensLen = _tokens.size();
     
@@ -402,7 +402,7 @@ void Translator::parseSexps(unsigned long long firstSexp, std::function<paramete
     
 }
 
-void Translator::parseFun(unsigned long long funBeginning, unsigned long long funEnd) {
+void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd) {
     
     _localVars = std::unordered_map<std::string, std::string>();
     
@@ -448,7 +448,7 @@ void Translator::parseFun(unsigned long long funBeginning, unsigned long long fu
     /* Find location of first s-expression */
     for (sexp = funBeginning + 3; _tokens[sexp] != tokType::closingPar; ++sexp);
     
-    std::function<parameter(Translator*, unsigned long long)> fun = &Translator::parseSexp;
+    std::function<parameter(Parser*, unsigned long long)> fun = &Parser::parseSexp;
     
     parseSexps(sexp + 1, fun);
     
@@ -456,7 +456,7 @@ void Translator::parseFun(unsigned long long funBeginning, unsigned long long fu
     
 }
 
-void Translator::varDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
+void Parser::varDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
     std::stringstream ss;
     
@@ -494,7 +494,7 @@ void Translator::varDeclaration(unsigned long long declBeginning, unsigned long 
     
 }
 
-void Translator::funDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
+void Parser::funDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
     std::string type = _tokens[declBeginning + 1].value;
     checkType(type);
@@ -544,7 +544,7 @@ void Translator::funDeclaration(unsigned long long declBeginning, unsigned long 
  
 */
 
-std::unordered_map<std::string, std::string> Translator::parseClassMembers(unsigned long long firstSexp, std::string & className) {
+std::unordered_map<std::string, std::string> Parser::parseClassMembers(unsigned long long firstSexp, std::string & className) {
     
     const unsigned long long tokensLen = _tokens.size();
     
@@ -588,7 +588,7 @@ std::unordered_map<std::string, std::string> Translator::parseClassMembers(unsig
     
 }
 
-parameter Translator::parseClassAttribute(unsigned long long sexpBeginning) {
+parameter Parser::parseClassAttribute(unsigned long long sexpBeginning) {
     
     parameter param;
     
@@ -599,7 +599,7 @@ parameter Translator::parseClassAttribute(unsigned long long sexpBeginning) {
     
 }
 
-void Translator::classDeclaration(unsigned long long declBeginning, unsigned long long declEnd ) {
+void Parser::classDeclaration(unsigned long long declBeginning, unsigned long long declEnd ) {
     
     std::string name = _tokens[declBeginning + 2].value;
     std::unordered_map<std::string, std::string> params;
@@ -668,7 +668,7 @@ void Translator::classDeclaration(unsigned long long declBeginning, unsigned lon
     
 }
 
-void Translator::parseDeclarations() {
+void Parser::parseDeclarations() {
     
     _output << "/* User defined function declarations and global variables. */\n\n";
     
@@ -730,7 +730,7 @@ void Translator::parseDeclarations() {
  
  */
 
-void Translator::declaration(unsigned long long declBeginning, unsigned long long declEnd) {
+void Parser::declaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
     if (_tokens[declBeginning + 1].value == "class") {
         classDeclaration(declBeginning, declEnd);
@@ -747,7 +747,7 @@ void Translator::declaration(unsigned long long declBeginning, unsigned long lon
     
 }
 
-void Translator::libs() {
+void Parser::libs() {
     
     _output << "#include <stdio.h>\n"
             << "#include <stdlib.h>\n"
@@ -759,7 +759,7 @@ void Translator::libs() {
     
 }
 
-void Translator::typedefs() {
+void Parser::typedefs() {
     
     _output << "typedef double num;\n"
             << "typedef long long ll;\n"
@@ -772,7 +772,7 @@ void Translator::typedefs() {
 /* I should remove them in the near future                                     */
 
 /*
-void Translator::functions() {
+void Parser::functions() {
     
     _output << "// Kobeři-c standard library functions \n\n"
             << "char * __numToStr(num param) { \n"
@@ -809,7 +809,7 @@ void Translator::functions() {
  
  */
 
-void Translator::parseDefinitions() {
+void Parser::parseDefinitions() {
     
     _output << "/* User defined function definitions */\n" << std::endl;
     
@@ -846,7 +846,7 @@ void Translator::parseDefinitions() {
     
 }
 
-void Translator::definition(unsigned long long defBeginning, unsigned long long defEnd) {
+void Parser::definition(unsigned long long defBeginning, unsigned long long defEnd) {
     
     /* Nothing to do here, not now, anyway */
     if (_tokens[defBeginning + 1].value == "class") {
@@ -861,7 +861,7 @@ void Translator::definition(unsigned long long defBeginning, unsigned long long 
     
 }
 
-void Translator::translate() {
+void Parser::parse() {
     
     libs();
     typedefs();

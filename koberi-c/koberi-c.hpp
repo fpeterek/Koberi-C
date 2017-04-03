@@ -29,7 +29,7 @@
 #include "exceptions.hpp"
 #include "token.hpp"
 #include "syntax.hpp"
-#include "translator.hpp"
+#include "parser.hpp"
 
 #include "debug_macro_definitions.h"
 
@@ -38,14 +38,14 @@ class KoberiC {
     
     std::vector<token> _tokens;
     Tokenizer _tokenizer;
-    Translator _translator;
+    Parser _parser;
     
 public:
     
     KoberiC();
     
     void tokenize(const std::string & filename);
-    void translate(); 
+    void parse();
     
     void test();
     

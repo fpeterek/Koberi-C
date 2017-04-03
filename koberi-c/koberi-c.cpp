@@ -9,7 +9,7 @@
 #include "koberi-c.hpp"
 
 
-KoberiC::KoberiC() : _tokenizer(_tokens), _translator(_tokens) /* Call the constructors which accept references */ {
+KoberiC::KoberiC() : _tokenizer(_tokens), _parser(_tokens) /* Call the constructors which accept references */ {
     
 }
 
@@ -19,9 +19,9 @@ void KoberiC::tokenize(const std::string & filename) {
     
 }
 
-void KoberiC::translate() {
+void KoberiC::parse() {
     
-    _translator.translate();
+    _parser.parse();
     
 }
 

@@ -19,17 +19,8 @@
 
 #include "exceptions.hpp"
 #include "print.hpp"
+#include "parameter.hpp"
 
-struct parameter {
-    
-    std::string type;
-    std::string value;
-    
-    parameter();
-    parameter(const std::string & value);
-    parameter(const std::string & value, const std::string & type);
-    
-};
 
 namespace expr {
     
@@ -46,7 +37,7 @@ namespace expr {
         {"inc", "++"},
         {"dec", "--"},
         {"not", "!"},
-        {"compl", "~"},
+        {"compl", "~"}
     
     };
     
