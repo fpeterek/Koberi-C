@@ -21,16 +21,23 @@
 class AbstractSyntaxTree {
     
     /* Format: Name - Data Type */
-    /* Might not use this since globalScope keeps track of functions too */
-    /* Functions are found faster in a map than in an array              */
-    /* But doing this would result in storing duplicate data             */
-    std::unordered_map<std::string, std::string> _functions;  /* Keeps track of functions */
+    /* Keeps track of functions with mangled names, whereas globalScope holds names before mangling */
+    std::unordered_map<std::string, std::string> _functions;
     
     /* Defines the global scope, since the global scope has no parent, parentScope points to 0 */
     ASTScope _globalScope;
     
 public:
     AbstractSyntaxTree();
+    
+    void emplaceFunction(const std::string & functionName,
+                         const std::string & returnType,
+                         const std::vector<parameter> & params);
+    
+    std::string getVariableType(const std::string & varName);
+    
+    void leaveScope();
+    void newScope();
     
     
 };

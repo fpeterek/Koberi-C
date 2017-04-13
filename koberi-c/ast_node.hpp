@@ -24,6 +24,7 @@ enum class NodeType {
     Class,
     Declaration,
     Function,
+    Construct,
     None /* Used for construction of ASTNode, which should never be constructed and None should never be used */
     
 };
@@ -56,6 +57,16 @@ struct ASTScope : public ASTNode {
     
 };
 
+/* A function call (operators count too) */
+/* It will also be used for storing literals used in language constructs (while 1) */
+struct ASTFunCall : public ASTNode {
+    
+    std::string function;
+    std::vector<parameter> parameters;
+    
+    ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<parameter> & params);
+    
+};
 
 /* The Function node is essentially just a wrapper for a named scope with parameters (function)     */
 /* The global scope will point forward to function scopes, but nothing will point to them backwards */
@@ -74,13 +85,13 @@ struct ASTFunction : public ASTNode {
     
 };
 
-/* A function call (operators count too) */
-struct ASTFunCall : public ASTNode {
+/* Similar functionality as ASTFunction, but it's used for language constructs such as if/while... */
+
+struct ASTConstruct : public ASTNode {
     
-    std::string function;
-    std::vector<parameter> parameters;
-    
-    ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<parameter> & params);
+    ASTScope scope;
+    std::string construct;
+    ASTFunCall function;
     
 };
 
