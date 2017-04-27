@@ -9,7 +9,7 @@
 #include "koberi-c.hpp"
 
 
-KoberiC::KoberiC() : _tokenizer(_tokens), _parser(_tokens) /* Call the constructors which accept references */ {
+KoberiC::KoberiC() : _tokenizer(_tokens), _parser(_tokens, _ast) /* Call the constructors which accept references */ {
     
 }
 

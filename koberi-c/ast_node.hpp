@@ -45,7 +45,7 @@ struct ASTNode {
 /* A scope ({} in C) */
 struct ASTScope : public ASTNode {
   
-    std::vector<ASTNode> childNodes;
+    std::vector<ASTNode*> childNodes;
     /* Format: Name - Data Type */
     /* Keeps track of variables for the current scope                                               */
     /* To access variables from parent scope, access parentScope.vars (apply recursively if needed) */
@@ -53,6 +53,8 @@ struct ASTScope : public ASTNode {
     
     /* Pass in an ASTNode, not an ASTScope so the constructor isn't treated as a copy-constructor */
     ASTScope(ASTScope * parent);
+    
+    ~ASTScope();
     
     
 };
@@ -91,11 +93,11 @@ struct ASTConstruct : public ASTNode {
     
     ASTScope scope;
     std::string construct;
-    ASTFunCall function;
+    ASTFunCall condition;
     
 };
 
-/* Not sure if I'll even need this, probably not */
+/* Not sure if I'll even need this, maybe later */
 struct ASTClass : public ASTNode {
     
     

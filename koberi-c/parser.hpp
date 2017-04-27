@@ -28,9 +28,12 @@
 #include "contains.hpp"
 #include "debug_macro_definitions.h"
 #include "class.hpp"
+#include "ast.hpp"
 
 
 class Parser {
+    
+    AbstractSyntaxTree & _ast;
     
     std::vector<std::string> dataTypes = {"int", "num", "str", "void"};
     std::unordered_map<std::string, _class> classes; /* Keeps track of classes and their attributes / methods */
@@ -68,7 +71,7 @@ class Parser {
     parameter parseSexp(unsigned long long sexpBeginning);
     
     /* Similar to parseSexps(), but adjusted to work properly on classes */
-    std::unordered_map<std::string, std::string> parseClassMembers(unsigned long long firstSexp, std::string & className);
+    std::vector<parameter> parseClassMembers(unsigned long long firstSexp, std::string & className);
     /* Similar to parseSexp(), but only parses class attributes */
     parameter parseClassAttribute(unsigned long long sexpBeginning);
     
@@ -102,7 +105,7 @@ class Parser {
     void definition(unsigned long long defBeginning, unsigned long long defEnd); /* Same as declaration() */
     
 public:
-    Parser(std::vector<token> & vectorRef);
+    Parser(std::vector<token> & vectorRef, AbstractSyntaxTree & ast);
     
     void parse();
     

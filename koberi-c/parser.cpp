@@ -9,7 +9,9 @@
 #include "parser.hpp"
 
 
-Parser::Parser(std::vector<token> & vectorRef) : _tokens(vectorRef) /* Call the reference constructor */ {
+Parser::Parser(std::vector<token> & vectorRef, AbstractSyntaxTree & ast):
+        _tokens(vectorRef),
+        _ast(ast) /* Call reference constructors */ {
     
     _output.open("output.c");
     
@@ -170,7 +172,7 @@ parameter Parser::classAttributeAccess(unsigned long long sexpBeginning) {
             
             }
             
-            attr.type = c.get().vars.at(variableName);
+            attr.type = c.get().getVarType(variableName);
             attr.value += "." + variableName;
             
             className = attr.type;
@@ -190,6 +192,8 @@ parameter Parser::classAttributeAccess(unsigned long long sexpBeginning) {
 /* Pretend this method does what is says it does and ignore it  */
 /* Seriously                                                    */
 /* For your own well-being                                      */
+
+/* Code is being rewritten, this monstrosity will hopefully be removed soon™ */
 
 parameter Parser::parseSexp(unsigned long long sexpBeginning) {
     
@@ -544,7 +548,7 @@ void Parser::funDeclaration(unsigned long long declBeginning, unsigned long long
  
 */
 
-std::unordered_map<std::string, std::string> Parser::parseClassMembers(unsigned long long firstSexp, std::string & className) {
+std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, std::string & className) {
     
     const unsigned long long tokensLen = _tokens.size();
     
@@ -573,14 +577,22 @@ std::unordered_map<std::string, std::string> Parser::parseClassMembers(unsigned 
     } while (parenCounter >= 0);
     
     parameter param;
-    std::unordered_map<std::string, std::string> members;
+    std::vector<parameter> members;
     for (auto attribute : sexps) {
         
         param = parseClassAttribute(attribute);
-        if (members[param.value] != "") {
+        
+        bool hasAttribute = false;
+        for (auto & i : members) {
+            if (i.value == param.value) {
+                hasAttribute = true;
+            }
+        }
+        
+        if (hasAttribute) {
             throw redefinition_of_attribute(param.value, className);
         }
-        members[param.value] = param.type;
+        members.emplace_back(param);
     
     }
     
@@ -602,7 +614,7 @@ parameter Parser::parseClassAttribute(unsigned long long sexpBeginning) {
 void Parser::classDeclaration(unsigned long long declBeginning, unsigned long long declEnd ) {
     
     std::string name = _tokens[declBeginning + 2].value;
-    std::unordered_map<std::string, std::string> params;
+    std::vector<parameter> params;
     
     /* Assume class doesn't inherit from anything so fourth token is paren */
     unsigned long long firstDeclaration = declBeginning + 5;
@@ -636,16 +648,24 @@ void Parser::classDeclaration(unsigned long long declBeginning, unsigned long lo
     _output << "\ntypedef struct " << name << " {\n";
     
     {
-        const std::unordered_map<std::string, std::string> temp = parseClassMembers(firstDeclaration, name);
+        const std::vector<parameter> temp = parseClassMembers(firstDeclaration, name);
         
         for (auto & i : temp) {
             
-            /* std::map::operator[] creates a new value if no value is assigned to a key */
-            /* If no new string is created, user is trying to redefine a parameter */
-            if (params[std::get<0>(i)] != "") {
-                throw redefinition_of_attribute(std::get<0>(i), name);
+            /* Check if class already has such attribute to prevent redefinitions */
+            bool hasAttribute = false;
+            for (const parameter & v : params) {
+                
+                if (v.value == i.value) {
+                    hasAttribute = true;
+                }
+                
             }
-            params[std::get<0>(i)] = std::get<1>(i);
+            
+            if (hasAttribute) {
+                throw redefinition_of_attribute(i.value, name);
+            }
+            params.emplace_back(i);
             
             
         }
@@ -653,8 +673,7 @@ void Parser::classDeclaration(unsigned long long declBeginning, unsigned long lo
     }
     
     for (auto & i : params) {
-        /* Key(0) is variable name, value(1) is data type */
-        std::string & type = std::get<1>(i), name = std::get<0>(i);
+        std::string & type = i.type, name = i.value;
         expr::variableDeclaration(type, name);
         _output << "    " << expr::variableDeclaration(type, name).value << "\n";
     }

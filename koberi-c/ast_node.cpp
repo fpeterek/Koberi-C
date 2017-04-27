@@ -28,6 +28,46 @@ ASTScope::ASTScope(ASTScope * parent) {
     
 }
 
+ASTScope::~ASTScope() {
+    
+    for (ASTNode * childNode : childNodes) {
+        
+        switch (childNode -> nodeType) {
+                
+            case NodeType::Scope:
+                delete (ASTScope*)childNode;
+                break;
+                
+            case NodeType::FunCall:
+                delete (ASTFunCall*)childNode;
+                break;
+                
+            case NodeType::Class:
+                delete (ASTClass*)childNode;
+                break;
+                
+            case NodeType::Declaration:
+                delete (ASTDeclaration*)childNode;
+                break;
+                
+            case NodeType::Function:
+                delete (ASTFunction*)childNode;
+                break;
+                
+            case NodeType::Construct:
+                delete (ASTConstruct*)childNode;
+                break;
+                
+            default:
+                delete childNode;
+                break;
+                
+        }
+        
+    }
+    
+}
+
 ASTFunction::ASTFunction(ASTScope * parent,
                          const std::string & functionName,
                          const std::string & returnType,

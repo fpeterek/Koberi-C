@@ -21,3 +21,17 @@ std::string _class::getVarType(const std::string & name) const {
     throw no_such_member(name, className);
     
 }
+
+bool _class::hasVar(const std::string & name) const {
+    
+    for (const parameter & i : vars) {
+        
+        if (i.value == name) {
+            return true;
+        }
+        
+    }
+    
+    return false;
+    
+}

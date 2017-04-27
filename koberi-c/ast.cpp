@@ -10,6 +10,21 @@
 
 AbstractSyntaxTree::AbstractSyntaxTree() : _globalScope(nullptr) {
     
+    _currentScope = &_globalScope;
     
+}
+
+void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
+                                         const std::string & returnType,
+                                         const std::vector<parameter> & params) {
+    
+    /* Functions must be in the global scope */
+    _currentScope = &_globalScope;
+    ASTFunction * function = new ASTFunction(&_globalScope, functionName, returnType, params);
+    
+    _globalScope.childNodes.emplace_back(function);
+    /* Somehow I don't believe this is gonna work */
+    /* Edit: It should work now that I fixed it   */
+    _currentScope = (ASTScope*)_globalScope.childNodes.back();
     
 }

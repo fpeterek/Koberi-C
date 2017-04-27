@@ -25,6 +25,7 @@ struct _class {
     std::unordered_map<std::string, std::string> methods;
     
     std::string getVarType(const std::string & name) const;
+    bool hasVar(const std::string & name) const;
     
 };
 
