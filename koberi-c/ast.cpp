@@ -28,3 +28,12 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
     _currentScope = (ASTScope*)_globalScope.childNodes.back();
     
 }
+
+void AbstractSyntaxTree::emplaceConstruct(const std::string & construct,
+                                          const ASTFunCall & condition) {
+
+    ASTConstruct * constructPtr = new ASTConstruct(_currentScope, construct, condition);
+    
+    _currentScope -> childNodes.emplace_back(constructPtr);
+
+}

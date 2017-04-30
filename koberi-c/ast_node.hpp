@@ -95,6 +95,10 @@ struct ASTConstruct : public ASTNode {
     std::string construct;
     ASTFunCall condition;
     
+    ASTConstruct(ASTScope * parent,
+                const std::string & construct,
+                const ASTFunCall & condition);
+    
 };
 
 /* Not sure if I'll even need this, maybe later */

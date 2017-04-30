@@ -81,6 +81,15 @@ ASTFunction::ASTFunction(ASTScope * parent,
     
 }
 
+ASTConstruct::ASTConstruct(ASTScope * parent,
+                           const std::string & construct,
+                           const ASTFunCall & newCondition) : scope(parent), condition(newCondition) {
+
+    parentScope = parent;
+    this->construct = construct;
+    this->condition = condition;
+    
+}
 
 ASTFunCall::ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<parameter> & params) {
     
