@@ -23,7 +23,11 @@ class AbstractSyntaxTree {
     
     /* Format: Name - Data Type */
     /* Keeps track of functions with mangled names, whereas globalScope holds names before mangling */
+    /* Less memory efficient, but look-up is faster and code looks better (maybe)                   */
     std::unordered_map<std::string, std::string> _functions;
+    
+    /* Keeps track of all data types, whether native types or user defined types */
+    std::vector<std::string> _dataTypes;
     
     /* Defines the global scope, since the global scope has no parent, parentScope points to 0 */
     ASTScope _globalScope;
@@ -31,6 +35,8 @@ class AbstractSyntaxTree {
     /* Pointer to the current scope */
     /* I could also use an std::reference_wrapper, but that would probably create even more cluttered code than a pointer */
     ASTScope * _currentScope;
+    
+    std::string mangleName(const std::string & name, const std::vector<parameter> & parameters);
     
 public:
     AbstractSyntaxTree();
@@ -49,7 +55,7 @@ public:
     
     void emplaceDeclaration(const std::string & type,
                             const std::string & name,
-                            const std::string & value);
+                            const std::string & value = "");
     
     std::string getVariableType(const std::string & varName);
     

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 class unexpected_token : public std::exception {
     
@@ -169,6 +170,18 @@ public:
     
     const char * what() const throw();
     
+};
+
+class exiting_global_scope : public std::exception {
+
+    std::string _message;
+    
+public:
+    
+    exiting_global_scope();
+    
+    const char * what() const throw();
+
 };
 
 #endif /* exceptions_hpp */

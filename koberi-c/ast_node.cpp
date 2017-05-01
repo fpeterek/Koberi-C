@@ -71,10 +71,9 @@ ASTScope::~ASTScope() {
 ASTFunction::ASTFunction(ASTScope * parent,
                          const std::string & functionName,
                          const std::string & returnType,
-                         const std::vector<parameter> & params) : scope(parent) {
+                         const std::vector<parameter> & params) : ASTScope(parent) {
     
     nodeType    = NodeType::Function;
-    parentScope = parent;
     name        = functionName;
     type        = returnType;
     parameters  = params;
@@ -83,9 +82,9 @@ ASTFunction::ASTFunction(ASTScope * parent,
 
 ASTConstruct::ASTConstruct(ASTScope * parent,
                            const std::string & construct,
-                           const ASTFunCall & newCondition) : scope(parent), condition(newCondition) {
+                           const ASTFunCall & newCondition) : ASTScope(parent), condition(newCondition) {
 
-    parentScope = parent;
+    nodeType = NodeType::Construct;
     this->construct = construct;
     this->condition = condition;
     

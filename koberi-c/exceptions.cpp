@@ -215,4 +215,19 @@ const char * no_such_member::what() const throw() {
     
 }
 
+exiting_global_scope::exiting_global_scope() {
+    
+    std::stringstream message;
+    message << "Error: Attempting to exit global scope. "
+            << "This error message should never find it's way towards the end-user. "
+            << "If you happen to be an end-user and you see this message, something has gone wrong.";
+    _message = message.str();
+    
+}
+
+const char * exiting_global_scope::what() const throw() {
+    
+    return _message.c_str();
+    
+}
 

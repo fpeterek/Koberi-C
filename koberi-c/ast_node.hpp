@@ -73,9 +73,8 @@ struct ASTFunCall : public ASTNode {
 /* The Function node is essentially just a wrapper for a named scope with parameters (function)     */
 /* The global scope will point forward to function scopes, but nothing will point to them backwards */
 /* Function nodes are skipped and child nodes point to global scope as their parent                 */
-struct ASTFunction : public ASTNode {
+struct ASTFunction : public ASTScope {
     
-    ASTScope scope;
     std::string name;
     std::string type;
     std::vector<parameter> parameters;
@@ -89,9 +88,8 @@ struct ASTFunction : public ASTNode {
 
 /* Similar functionality as ASTFunction, but it's used for language constructs such as if/while... */
 
-struct ASTConstruct : public ASTNode {
+struct ASTConstruct : public ASTScope {
     
-    ASTScope scope;
     std::string construct;
     ASTFunCall condition;
     
