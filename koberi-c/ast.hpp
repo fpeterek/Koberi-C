@@ -48,16 +48,15 @@ public:
     void emplaceConstruct(const std::string & construct,
                           const ASTFunCall & condition);
     
-    void emplaceClass();
+    void emplaceClass(const std::string & className,
+                      const std::vector<parameter> & attributes);
     
     void emplaceFunCall(const std::string & name,
-                        const std::vector<parameter> & params);
+                        const std::vector<ASTNode *> & params);
     
     void emplaceDeclaration(const std::string & type,
                             const std::string & name,
                             const std::string & value = "");
-    
-    std::string getVariableType(const std::string & varName);
     
     void leaveScope();
     

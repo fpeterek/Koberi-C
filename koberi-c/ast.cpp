@@ -33,8 +33,11 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
                                          const std::string & returnType,
                                          const std::vector<parameter> & params) {
     
-    /* Functions must be in the global scope */
-    _currentScope = &_globalScope;
+    /* Functions must be defined in the global scope in C */
+    if (_currentScope != &_globalScope) {
+        throw wrong_scope("Functions can only be defined in the global scope. ");
+    }
+    
     ASTFunction * function = new ASTFunction(&_globalScope, functionName, returnType, params);
     
     _globalScope.childNodes.emplace_back(function);
@@ -58,7 +61,7 @@ void AbstractSyntaxTree::emplaceConstruct(const std::string & construct,
 }
 
 void AbstractSyntaxTree::emplaceFunCall(const std::string & name,
-                                        const std::vector<parameter> & params) {
+                                        const std::vector<ASTNode *> & params) {
     
     ASTFunCall * funcall = new ASTFunCall(_currentScope, name, params);
     
@@ -73,6 +76,21 @@ void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
     ASTDeclaration * declaration = new ASTDeclaration(_currentScope, type, name, value);
     _currentScope -> childNodes.emplace_back(declaration);
     
+}
+
+void AbstractSyntaxTree::emplaceClass(const std::string & className,
+                                      const std::vector<parameter> & attributes) {
+
+    /* Structs can be defined in local scopes in C, but if functions can't */
+    /* This would make implementing methods difficult, so I'm only going   */
+    /* to allow class definitions in the global scope                      */
+    if (_currentScope != &_globalScope) {
+        throw wrong_scope("Classes can only be defined in the global scope. ");
+    }
+    
+    ASTClass * _class = new ASTClass(_currentScope, className, attributes);
+    _currentScope -> childNodes.emplace_back(_class);
+
 }
 
 void AbstractSyntaxTree::leaveScope() {

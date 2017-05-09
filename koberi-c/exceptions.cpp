@@ -231,3 +231,15 @@ const char * exiting_global_scope::what() const throw() {
     
 }
 
+wrong_scope::wrong_scope(const std::string & message) {
+
+    _message = message;
+    
+}
+
+const char * wrong_scope::what() const throw() {
+
+    return _message.c_str();
+    
+}
+

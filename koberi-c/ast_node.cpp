@@ -58,6 +58,16 @@ ASTScope::~ASTScope() {
                 delete (ASTConstruct*)childNode;
                 break;
                 
+            /* These two cases should never occur, but I'm putting them here just to be sure */
+            /* Can't risk creating memory leaks if someone emplaces these somewhere          */
+            case NodeType::Variable:
+                delete (ASTVariable*)childNode;
+                break;
+                
+            case NodeType::Literal:
+                delete (ASTLiteral*)childNode;
+                break;
+                
             default:
                 delete childNode;
                 break;
@@ -66,6 +76,16 @@ ASTScope::~ASTScope() {
         
     }
     
+}
+
+ASTClass::ASTClass(ASTScope * parent,
+                   const std::string & className,
+                   const std::vector<parameter> & params) {
+
+    nodeType    = NodeType::Class;
+    name        = className;
+    attributes  = params;
+
 }
 
 ASTFunction::ASTFunction(ASTScope * parent,
@@ -90,11 +110,119 @@ ASTConstruct::ASTConstruct(ASTScope * parent,
     
 }
 
-ASTFunCall::ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<parameter> & params) {
+ASTFunCall::ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<ASTNode *> & params) {
     
     nodeType    = NodeType::FunCall;
     parentScope = parent;
     function    = name;
     parameters  = params;
+    
+}
+
+ASTFunCall::~ASTFunCall() {
+    
+    for (ASTNode * param : parameters) {
+        
+        switch (param -> nodeType) {
+                
+            case NodeType::Variable:
+                delete (ASTVariable*)param;
+                break;
+                
+            case NodeType::Literal:
+                delete (ASTLiteral*)param;
+                break;
+                
+            /* These cases should never occur, but I'd rather be safe than sorry */
+                
+            case NodeType::Scope:
+                delete (ASTScope*)param;
+                break;
+                
+            case NodeType::FunCall:
+                delete (ASTFunCall*)param;
+                break;
+                
+            case NodeType::Class:
+                delete (ASTClass*)param;
+                break;
+                
+            case NodeType::Declaration:
+                delete (ASTDeclaration*)param;
+                break;
+                
+            case NodeType::Function:
+                delete (ASTFunction*)param;
+                break;
+                
+            case NodeType::Construct:
+                delete (ASTConstruct*)param;
+                break;
+                
+            default:
+                delete param;
+                break;
+                
+        }
+        
+    }
+    
+}
+
+ASTLiteral::ASTLiteral(const parameter & literal) {
+
+    nodeType = NodeType::Literal;
+    type     = literal.type;
+    name     = literal.value;
+    
+    /* Parent scope shouldn't be accessed here, so I'm setting it to nullptr */
+    parentScope = nullptr;
+    
+}
+
+ASTLiteral::ASTLiteral(const std::string & literalType, const std::string literalName) {
+    
+    nodeType = NodeType::Literal;
+    type     = literalType;
+    name     = literalName;
+    
+    /* Parent scope shouldn't be accessed here, so I'm setting it to nullptr */
+    parentScope = nullptr;
+    
+}
+
+ASTVariable::ASTVariable(const std::string & variableName) {
+
+    nodeType = NodeType::Variable;
+    name     = variableName;
+    
+    /* Parent scope shouldn't be accessed here, so I'm setting it to nullptr */
+    parentScope = nullptr;
+    
+}
+
+ASTVariable * ASTVariable::createVariable(const std::string & variableName) {
+    
+    ASTVariable * var = new ASTVariable(variableName);
+    
+    return var;
+    
+}
+
+ASTLiteral * ASTLiteral::createLiteral(const std::string & type,
+                                       const std::string & value) {
+    
+    ASTLiteral * literal = new ASTLiteral(type, value);
+    
+    return literal;
+    
+}
+
+ASTFunCall * ASTFunCall::createFunCall(const std::string & name,
+                                       const std::vector<ASTNode *> & params) {
+    
+    ASTFunCall * funcall = new ASTFunCall(nullptr, name, params);
+    
+    return funcall;
     
 }

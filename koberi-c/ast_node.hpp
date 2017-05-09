@@ -25,6 +25,8 @@ enum class NodeType {
     Declaration,
     Function,
     Construct,
+    Variable,
+    Literal,
     None /* Used for construction of ASTNode, which should never be constructed and None should never be used */
     
 };
@@ -64,10 +66,41 @@ struct ASTScope : public ASTNode {
 struct ASTFunCall : public ASTNode {
     
     std::string function;
-    std::vector<parameter> parameters;
+    std::vector<ASTNode *> parameters;
     
-    ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<parameter> & params);
+    ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<ASTNode *> & params);
+    ~ASTFunCall();
     
+    static ASTFunCall * createFunCall(const std::string & name,
+                                      const std::vector<ASTNode *> & params);
+    
+};
+
+/* Used to pass variables as funcall values                 */
+/* Shouldn't be used anywhere outside ASTFunCall parameters */
+struct ASTVariable : public ASTNode {
+    
+    std::string name;
+    
+    ASTVariable(const std::string & name);
+    
+    static ASTVariable * createVariable(const std::string & variableName);
+    
+};
+
+/* Used to pass literals as funcall values                  */
+/* Shouldn't be used anywhere outside ASTFunCall parameters */
+struct ASTLiteral : public ASTNode {
+
+    std::string type;
+    std::string name;
+    
+    ASTLiteral(const parameter & literal);
+    ASTLiteral(const std::string & type, const std::string name);
+    
+    static ASTLiteral * createLiteral(const std::string & type,
+                                      const std::string & value);
+
 };
 
 /* The Function node is essentially just a wrapper for a named scope with parameters (function)     */
@@ -99,9 +132,14 @@ struct ASTConstruct : public ASTScope {
     
 };
 
-/* Not sure if I'll even need this, maybe later */
 struct ASTClass : public ASTNode {
     
+    std::string name;
+    std::vector<parameter> attributes;
+    
+    ASTClass(ASTScope * parent,
+             const std::string & className,
+             const std::vector<parameter> & params);
     
     
 };

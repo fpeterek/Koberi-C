@@ -184,4 +184,16 @@ public:
 
 };
 
+class wrong_scope : public std::exception {
+
+    std::string _message;
+    
+public:
+    
+    wrong_scope(const std::string & message);
+    
+    const char * what() const throw();
+    
+};
+
 #endif /* exceptions_hpp */
