@@ -6,8 +6,8 @@
 //  Copyright © 2016 Filip Peterek. All rights reserved.
 //
 
-#ifndef print_h
-#define print_h
+#ifndef print_hpp
+#define print_hpp
 
 #include <iostream>
 
@@ -17,4 +17,4 @@ void print(const T & param, std::ostream & os = std::cout) {
 }
 
 
-#endif /* print_h */
+#endif /* print_hpp */

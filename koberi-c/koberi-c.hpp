@@ -32,7 +32,7 @@
 #include "parser.hpp"
 #include "ast.hpp"
 
-#include "debug_macro_definitions.h"
+#include "debug_macro_definitions.hpp"
 
 
 class KoberiC {

@@ -26,7 +26,7 @@
 #include "print.hpp"
 #include "expressions.hpp"
 #include "contains.hpp"
-#include "debug_macro_definitions.h"
+#include "debug_macro_definitions.hpp"
 #include "class.hpp"
 #include "ast.hpp"
 
