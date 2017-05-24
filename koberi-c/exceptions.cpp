@@ -243,3 +243,10 @@ const char * wrong_scope::what() const throw() {
     
 }
 
+const std::string not_a_scope::message = "Node can not be casted to a scope node because node is not a scope. ";
+
+const char * not_a_scope::what() const throw() {
+    
+    return not_a_scope::message.c_str();
+    
+}

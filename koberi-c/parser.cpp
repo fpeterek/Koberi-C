@@ -9,7 +9,7 @@
 #include "parser.hpp"
 
 
-Parser::Parser(std::vector<token> & vectorRef, AbstractSyntaxTree & ast):
+Parser::Parser(std::vector<token> & vectorRef, TraversableAbstractSyntaxTree & ast):
         _tokens(vectorRef),
         _ast(ast) /* Call reference constructors */ {
     

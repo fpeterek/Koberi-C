@@ -28,12 +28,12 @@
 #include "contains.hpp"
 #include "debug_macro_definitions.hpp"
 #include "class.hpp"
-#include "ast.hpp"
+#include "traversable_ast.hpp"
 
 
 class Parser {
     
-    AbstractSyntaxTree & _ast;
+    TraversableAbstractSyntaxTree & _ast;
     
     std::vector<std::string> dataTypes = {"int", "num", "str", "void"};
     std::unordered_map<std::string, _class> classes; /* Keeps track of classes and their attributes / methods */
@@ -105,7 +105,7 @@ class Parser {
     void definition(unsigned long long defBeginning, unsigned long long defEnd); /* Same as declaration() */
     
 public:
-    Parser(std::vector<token> & vectorRef, AbstractSyntaxTree & ast);
+    Parser(std::vector<token> & vectorRef, TraversableAbstractSyntaxTree & ast);
     
     void parse();
     

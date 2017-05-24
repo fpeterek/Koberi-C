@@ -21,6 +21,7 @@
 
 class AbstractSyntaxTree {
     
+protected:
     /* Format: Name - Data Type */
     /* Keeps track of functions with mangled names, whereas globalScope holds names before mangling */
     /* Less memory efficient, but look-up is faster and code looks better (maybe)                   */

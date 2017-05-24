@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E041AF11EC8D41200C3DB34 /* traversable_ast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E041AEF1EC8D41200C3DB34 /* traversable_ast.cpp */; };
 		4E2B3A8A1DC79ADB00700208 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A891DC79ADB00700208 /* main.cpp */; };
 		4E2B3A921DC79B0C00700208 /* koberi-c.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A901DC79B0C00700208 /* koberi-c.cpp */; };
 		4E2B3A951DC79B3500700208 /* syntax.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A931DC79B3500700208 /* syntax.cpp */; };
@@ -34,6 +35,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4E041AEF1EC8D41200C3DB34 /* traversable_ast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = traversable_ast.cpp; sourceTree = "<group>"; };
+		4E041AF01EC8D41200C3DB34 /* traversable_ast.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = traversable_ast.hpp; sourceTree = "<group>"; };
 		4E0929011DE99E2C004D7BDA /* contains.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = contains.hpp; sourceTree = "<group>"; };
 		4E2B3A861DC79ADB00700208 /* koberi-c */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "koberi-c"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E2B3A891DC79ADB00700208 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -171,6 +174,8 @@
 				4E425D3E1E916F330090F591 /* ast.hpp */,
 				4E425D401E91719D0090F591 /* ast_node.cpp */,
 				4E425D411E91719D0090F591 /* ast_node.hpp */,
+				4E041AEF1EC8D41200C3DB34 /* traversable_ast.cpp */,
+				4E041AF01EC8D41200C3DB34 /* traversable_ast.hpp */,
 			);
 			name = "Abstract Syntax Tree";
 			sourceTree = "<group>";
@@ -272,6 +277,7 @@
 				4E425D4C1E91897A0090F591 /* class.cpp in Sources */,
 				4E2B3A9B1DC79BA600700208 /* tokenizer.cpp in Sources */,
 				4E2B3A8A1DC79ADB00700208 /* main.cpp in Sources */,
+				4E041AF11EC8D41200C3DB34 /* traversable_ast.cpp in Sources */,
 				4E425D421E91719D0090F591 /* ast_node.cpp in Sources */,
 				4E2B3A981DC79B7000700208 /* parser.cpp in Sources */,
 				4E425D3F1E916F330090F591 /* ast.cpp in Sources */,

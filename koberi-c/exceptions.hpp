@@ -14,6 +14,8 @@
 #include <string>
 #include <sstream>
 
+/* TODO: Rewrite exceptions with unmodifiable error messages to use a static string to store their messages */
+
 class unexpected_token : public std::exception {
     
     std::string _message;
@@ -192,6 +194,15 @@ public:
     
     wrong_scope(const std::string & message);
     
+    const char * what() const throw();
+    
+};
+
+class not_a_scope : public std::exception {
+    
+    static const std::string message;
+    
+public:
     const char * what() const throw();
     
 };

@@ -30,7 +30,7 @@
 #include "token.hpp"
 #include "syntax.hpp"
 #include "parser.hpp"
-#include "ast.hpp"
+#include "traversable_ast.hpp"
 
 #include "debug_macro_definitions.hpp"
 
@@ -40,7 +40,7 @@ class KoberiC {
     std::vector<token> _tokens;
     Tokenizer _tokenizer;
     Parser _parser;
-    AbstractSyntaxTree _ast;
+    TraversableAbstractSyntaxTree _ast;
     
 public:
     
