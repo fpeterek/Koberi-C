@@ -76,20 +76,50 @@ void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
     ASTDeclaration * declaration = new ASTDeclaration(_currentScope, type, name, value);
     _currentScope -> childNodes.emplace_back(declaration);
     
+    _currentScope->vars.emplace(name, type);
+    
 }
 
 void AbstractSyntaxTree::emplaceClass(const std::string & className,
+                                      const std::string & superClass,
                                       const std::vector<parameter> & attributes) {
 
-    /* Structs can be defined in local scopes in C, but if functions can't */
+    /* Structs can be defined in local scopes in C, but functions can't    */
     /* This would make implementing methods difficult, so I'm only going   */
     /* to allow class definitions in the global scope                      */
     if (_currentScope != &_globalScope) {
         throw wrong_scope("Classes can only be defined in the global scope. ");
     }
     
-    ASTClass * _class = new ASTClass(_currentScope, className, attributes);
-    _currentScope -> childNodes.emplace_back(_class);
+    for (auto & i : _dataTypes) {
+        
+        if (className == i) {
+            throw redefinition_of_class(className);
+        }
+        
+    }
+    
+    _class c;
+    
+    if (className != "") {
+        
+        try {
+            c.attributes = _classes.at(superClass).attributes;
+        }
+        catch (std::out_of_range) {
+            throw undefined_class(superClass);
+        }
+        
+    }
+    
+    c.className = className;
+    c.superClass = superClass;
+    
+    for (const auto & attribute : attributes) {
+        c.attributes.emplace_back(attribute);
+    }
+    
+    _dataTypes.emplace_back(className);
 
 }
 

@@ -161,6 +161,18 @@ const char * undefined_class::what() const throw() {
 
 }
 
+redefinition_of_class::redefinition_of_class(const std::string & className) {
+    
+    _message = "Redefinition of class " + className;
+    
+}
+
+const char * redefinition_of_class::what() const throw() {
+    
+    return _message.c_str();
+    
+}
+
 not_a_class::not_a_class(const std::string & id) {
     
     _message = id + " is not a class";

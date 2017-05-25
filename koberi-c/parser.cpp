@@ -12,15 +12,7 @@
 Parser::Parser(std::vector<token> & vectorRef, TraversableAbstractSyntaxTree & ast):
         _tokens(vectorRef),
         _ast(ast) /* Call reference constructors */ {
-    
-    _output.open("output.c");
-    
-    if (not _output) {
-        
-        throw file_not_opened("output.c");
-        
-    }
-    
+            
 }
 
 void Parser::checkType(std::string & type) {
@@ -41,65 +33,9 @@ std::string Parser::getType(token & tok) {
         type = "num";
     } else if (tok == tokType::strLit) {
         type = "str";
-    } else {
-        
-        if (_localVars.find(tok.value) != _localVars.end()) {
-            type = _localVars[tok.value];
-        }
-        else if (_globalVars.find(tok.value) != _localVars.end()) {
-            type = _globalVars[tok.value];
-        } /* else {
-            throw undefined_variable(tok.value);
-        } */
     }
     
     return type;
-    
-}
-
-std::string Parser::getVarType(parameter & param) {
-    
-    std::string type;
-    
-    if (_localVars.find(param.value) != _localVars.end()) {
-        
-        type = _localVars[param.value];
-    
-    }
-    else if (_globalVars.find(param.value) != _localVars.end()) {
-    
-        type = _globalVars[param.value];
-    
-    }
-    else {
-       
-        throw undefined_variable(param.value);
-    
-    }
-    
-    return type;
-    
-}
-
-std::string Parser::getVarType(std::string & varName) {
-    
-    parameter param;
-    param.value = varName;
-    return getVarType(param);
-    
-}
-
-void Parser::mangleName(std::string & name, std::vector<parameter> & params) {
-    
-    if (name == "main") { return; }
-    
-    name.insert(0, "_");
-    
-    for (auto & i : params) {
-        
-        name += "_" + i.type;
-        
-    }
     
 }
 
@@ -114,78 +50,6 @@ void Parser::parseParams(unsigned long long beginning, std::vector<parameter> & 
         params.back().value = _tokens[i+1].value;
         
     }
-    
-}
-
-parameter Parser::classAttributeAccess(unsigned long long sexpBeginning) {
-    
-    parameter attr;
-    
-    std::list<std::string> variables;
-    
-    std::string variableName;
-    std::string className;
-    
-    unsigned long long iter = sexpBeginning + 1;
-    
-    while (_tokens[iter] != tokType::closingBra) {
-        
-        if (_tokens[iter] != tokType::id) {
-            throw invalid_syntax("Error: Expected identifier in class attribute access operator[] ");
-        }
-        
-        variables.push_back(_tokens[iter].value);
-        
-        ++iter;
-        
-    }
-    
-    if (variables.size() < 2) {
-        throw invalid_syntax("Error: Expected identifier in class attribute access operator[] ");
-    }
-    
-    attr.value = variables.front();
-    className = getVarType(attr.value);
-    
-    variables.pop_front();
-    
-    while (variables.size()) {
-        
-        variableName = variables.front();
-        
-        variables.pop_front();
-        
-        try {
-            
-            /* Empty class object I can bind to the reference wrapper so I can avoid using pointers    */
-            /* The reference is either overwritten or an exception is thrown so temp is never accessed */
-            _class temp{};
-            std::reference_wrapper<_class> c(temp);
-            
-            try {
-                
-                c = classes.at(className);
-            
-            } catch (const std::out_of_range & e) {
-            
-                throw not_a_class(className);
-            
-            }
-            
-            attr.type = c.get().getVarType(variableName);
-            attr.value += "." + variableName;
-            
-            className = attr.type;
-            
-        } catch (const std::out_of_range & e) {
-            
-            throw no_such_member(variables.front(), className);
-            
-        }
-        
-    }
-    
-    return attr;
     
 }
 
@@ -240,7 +104,8 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
             
         } else if (_tokens[iter] == tokType::openingBra) {
             
-            params.emplace_back(classAttributeAccess(iter));
+
+            
             while (_tokens[iter] != tokType::closingBra) {
                 ++iter;
             }
@@ -266,7 +131,8 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
         else {
             expr = expr::variableDeclaration(funName, params[0].value, params[1].value);
         }
-        _localVars.emplace(params[0].value, funName);
+
+        
     } else if (funName == "toNum" and params.size() == 1 and expr::native_types >> params[0].type) {
         expr = expr::conversionToNum(params[0]);
     } else if (funName == "toInt" and params.size() == 1 and expr::native_types >> params[0].type) {
@@ -308,7 +174,8 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
         /* Check if it's a variable, otherwise call a function */
         
         try {
-            expr.type = _localVars.at(funName);
+            
+            
             expr.value = funName;
             return expr;
         } catch(const std::out_of_range & e) {
@@ -316,7 +183,8 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
         }
         
         try {
-            expr.type = _globalVars.at(funName);
+            
+            
             expr.value = funName;
             return expr;
         } catch(const std::out_of_range & e) {
@@ -328,7 +196,8 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
         for (auto & i : params) {
             
             if (i.type == "") {
-                i.type = getVarType(i);
+                
+                
             }
             else if (i.type == ".cf") {
                 throw invalid_syntax("Invalid syntax. A control flow statement as a function parameter is not allowed");
@@ -336,10 +205,9 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
             
         }
         
-        mangleName(funName, params);
         
         try {
-            expr.type = _functions.at(funName);
+            
         } catch (const std::exception & e) {
             throw undeclared_function_call("Invalid call to function " + funName);
         }
@@ -391,24 +259,10 @@ void Parser::parseSexps(unsigned long long firstSexp, std::function<parameter(Pa
     
     parameter expr;
     
-    for (unsigned long long i : sexps) {
-        
-        expr = fun(this, i);
-        
-        /*  Appending a semicolon at the end unless the expression is of type .cf (control flow)   */
-        /*       In the end there might be some trailing semicolons, but that would just create    */
-        /*       empty expressions which don't matter, unless they are between an if/else if/else  */
-        /*  If you wanna help battle the semicolon inflation, don't comment your Kobeři-C code     */
-        
-        _output << expr.value << (expr.type != ".cf" ? ";" : "") << std::endl;
-    
-    }
-    
 }
 
 void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd) {
     
-    _localVars = std::unordered_map<std::string, std::string>();
     
 #if PRINT_FUNCTIONS_TOKENS
     for (unsigned long long i = funcBeginning; i < funcEnd; ++i) {
@@ -425,25 +279,7 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     parseParams(funBeginning + 3, params);
     
     for (parameter & p : params) {
-        _localVars.emplace(p.value, p.type);
-    }
-    
-    mangleName(name, params); /* The name of main won't be mangled */
-    
-    if (name == "main") {
-        _output << "int main(int argc, const char * argv[]) {\n";
-    }
-    else {
         
-        _output << ((type == "int") ? "ll" : type) << " " << name << "(";
-        
-        size_t size = params.size();
-        for (size_t i = 0; i < size; ++i) {
-            _output << (params[i].type == "int" ? "ll" : params[i].type) << " " << params[i].value << ((i != size - 1) ? ", " : "");
-        }
-        if (not size) { _output << "void"; }
-        _output << ") {\n";
-            
     }
     
     unsigned long long sexp = 0;
@@ -456,7 +292,6 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     
     parseSexps(sexp + 1, fun);
     
-    _output << "}\n\n";
     
 }
 
@@ -492,52 +327,7 @@ void Parser::varDeclaration(unsigned long long declBeginning, unsigned long long
     print(ss.str());
 #endif
     
-    _output << ss.str() << std::endl;
-    
-    _globalVars.emplace(name, type);
-    
-}
 
-void Parser::funDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
-    
-    std::string type = _tokens[declBeginning + 1].value;
-    checkType(type);
-    
-    std::string name = _tokens[declBeginning + 2].value;
-    if (name == "main" and type != "int") { throw invalid_declaration("Main must return int. "); }
-    std::vector<parameter> params;
-    
-    parseParams(declBeginning + 3, params);
-    mangleName(name, params);
-    _functions.emplace(name, type);
-    
-    std::stringstream ss;
-    if (name != "main") {
-        ss << (type == "int" ? "ll" : type) << " " << name << "(";
-    } else {
-        /* Not doing this because it doesn't make sense */
-        /* _output << "int main(int argc, const char * argv[]);" << std::endl; */
-#ifdef OUTPUT_FUNCTION_DECLARATION
-        print("int main(int argc, const char * argv[]);");
-#endif
-        return;
-    }
-    size_t size = params.size();
-    
-    for (size_t i = 0; i < size; ++i) {
-        
-        ss << (params[i].type == "int" ? "ll" : params[i].type) << " " << params[i].value << ((i != size - 1) ? ", " : "");
-        
-    }
-    if (not size) { ss << "void"; }
-    ss << ");";
-    
-    _output << ss.str() << std::endl;
-    
-#ifdef OUTPUT_FUNCTION_DECLARATION
-    print(ss.str());
-#endif
-    
 }
 
 /*
@@ -611,7 +401,7 @@ parameter Parser::parseClassAttribute(unsigned long long sexpBeginning) {
     
 }
 
-void Parser::classDeclaration(unsigned long long declBeginning, unsigned long long declEnd ) {
+void Parser::classDefinition(unsigned long long declBeginning, unsigned long long declEnd ) {
     
     std::string name = _tokens[declBeginning + 2].value;
     std::vector<parameter> params;
@@ -627,15 +417,6 @@ void Parser::classDeclaration(unsigned long long declBeginning, unsigned long lo
         
         std::string superclass = _tokens[declBeginning + 4].value;
         
-        try {
-            
-            params = classes.at(superclass).vars;
-            
-        } catch (const std::out_of_range & e) {
-            
-            throw undefined_class(superclass);
-            
-        }
         
     }
     
@@ -644,8 +425,6 @@ void Parser::classDeclaration(unsigned long long declBeginning, unsigned long lo
         throw invalid_syntax("Classes can only inherit from 1 superclass. ");
         
     }
-    
-    _output << "\ntypedef struct " << name << " {\n";
     
     {
         const std::vector<parameter> temp = parseClassMembers(firstDeclaration, name);
@@ -675,162 +454,37 @@ void Parser::classDeclaration(unsigned long long declBeginning, unsigned long lo
     for (auto & i : params) {
         std::string & type = i.type, name = i.value;
         expr::variableDeclaration(type, name);
-        _output << "    " << expr::variableDeclaration(type, name).value << "\n";
     }
     
-    _output << "} " << name << ";\n" << std::endl;
-    
     _class c;
-    c.vars = params;
-    classes.emplace(name, c);
+    c.attributes = params;
+    
     dataTypes.emplace_back(name);
     
 }
 
-void Parser::parseDeclarations() {
-    
-    _output << "/* User defined function declarations and global variables. */\n\n";
-    
-    long long parens = 0;
-    unsigned long long declBeginning = 0, declEnd = 0;
-    
-    for (unsigned long long i = 0; i < _tokens.size(); ++i) {
-        
-        if (_tokens[i].type == tokType::openingPar) {
-            
-            ++parens;
-            if (parens == 1) { declBeginning = i; }
-            
-        }
-        else if (_tokens[i].type == tokType::closingPar) {
-            
-            --parens;
-            
-        }
-        
-        if (not parens) {
-            
-            declEnd = i;
-            declaration(declBeginning, declEnd);
-            
-        }
-        
-    } /* For */
-    
-    if (parens > 0) {
-        throw missing_token(')');
-    }
-    if (parens < 0) {
-        throw unexpected_token(')');
-    }
-    
-    _output << "\n"; /* Output two newlines after function declarations, mostly for readability */
-    
-}
-
 /* --- Definition example ---
  
- ;;; Function
- (int x ()
-     (if (x)
-          (print x " evaluates to true")))
- 
- ;;; Class
- (class c (base_class)
-     (int x)
-     (num y))
- 
- ;;; Global variable
- (int var1)             ; Allowed
- (int var2 10)          ; Allowed
- (int var3 (+ 10 10))   ; Not Allowed, global variables must be initialized with a literal or not at all
- (int var4 ())          ; Function Definition
- (int var5 (int param)) ; Function Definition
- 
- */
-
-void Parser::declaration(unsigned long long declBeginning, unsigned long long declEnd) {
-    
-    if (_tokens[declBeginning + 1].value == "class") {
-        classDeclaration(declBeginning, declEnd);
-        return;
-    }
-    
-    /* Only allow literals */
-    if (not (_tokens[declBeginning + 3].type == tokType::openingPar)) {
-        varDeclaration(declBeginning, declEnd);
-        return;
-    }
-    
-    funDeclaration(declBeginning, declEnd);
-    
-}
-
-void Parser::libs() {
-    
-    _output << "#include <stdio.h>\n"
-            << "#include <stdlib.h>\n"
-            << "#include <math.h>\n"
-            << "#include <time.h>\n"
-            << "#include <string.h>\n"
-            << "\n"
-            << std::endl;
-    
-}
-
-void Parser::typedefs() {
-    
-    _output << "typedef double num;\n"
-            << "typedef long long ll;\n"
-            << std::endl;
-    
-}
-
-/* These should be replaced with a standard library written in Kobeři-C        */
-/* They probably aren't used anywhere anyway, so I'll comment them out for now */
-/* I should remove them in the near future                                     */
-
-/*
-void Parser::functions() {
-    
-    _output << "// Kobeři-c standard library functions \n\n"
-            << "char * __numToStr(num param) { \n"
-            << "    char * temp = (char *) malloc(50);\n"
-            << "    sprintf(temp, \"%f\", param);\n"
-            << "    return temp;\n"
-            << "}\n\n"
-            << "char * __intToStr(ll param) {\n"
-            << "    char * temp = (char *) malloc(50);\n"
-            << "    sprintf(temp, \"%lld\", param);\n"
-            << "    return temp;\n"
-            << "}\n\n" << std::flush;
-    
-    
-}
-*/
-
-/* --- Definition example ---
- 
- ;;; Function
- (void x ()
-     (if (1)
+;;; Function
+(void x ()
+    (if (1)
         (print 1 " evaluates to true")))
  
- ;;; Class
- (class c (base_class)
-     (int x)
-     (num y))
+;;; Class
+(class c (base_class)
+    (int x)
+    (num y))
  
- ;;; Global variable
- (int var (+ 10 10)) ; Allowed
- (int var2 10)       ; Allowed
- (int var3 ())       ; Not Allowed
+;;; Global variable
+(int var1)             ; Allowed
+(int var2 10)          ; Allowed
+(int var3 (+ 10 10))   ; Not Allowed, global variables must be initialized with a literal or not at all
+(int var4 ())          ; Function Definition
+(int var5 (int param)) ; Function Definition
  
- */
+*/
 
 void Parser::parseDefinitions() {
-    
-    _output << "/* User defined function definitions */\n" << std::endl;
     
     long long parens = 0;
     unsigned long long definitionBeginning = 0, definitionEnd = 0;
@@ -882,11 +536,6 @@ void Parser::definition(unsigned long long defBeginning, unsigned long long defE
 
 void Parser::parse() {
     
-    libs();
-    typedefs();
-    // functions();
-    
-    parseDeclarations();
     parseDefinitions();
     
 }

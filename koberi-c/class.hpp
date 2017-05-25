@@ -20,8 +20,10 @@
 struct _class {
     
     std::string className;
-    /* Implementing this as a vector because I want the variables sorted */
-    std::vector<parameter> vars;
+    std::string superClass; 
+    
+    /* Implementing this as a vector because I want the attributes sorted */
+    std::vector<parameter> attributes;
     std::unordered_map<std::string, std::string> methods;
     
     std::string getVarType(const std::string & name) const;

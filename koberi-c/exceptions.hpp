@@ -136,6 +136,17 @@ public:
     
 };
 
+class redefinition_of_class : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    const char * what() const throw();
+    redefinition_of_class(const std::string & className);
+    
+};
+
 class not_a_class : public std::exception {
     
     std::string _message;

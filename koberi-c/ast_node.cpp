@@ -42,10 +42,6 @@ ASTScope::~ASTScope() {
                 delete (ASTFunCall*)childNode;
                 break;
                 
-            case NodeType::Class:
-                delete (ASTClass*)childNode;
-                break;
-                
             case NodeType::Declaration:
                 delete (ASTDeclaration*)childNode;
                 break;
@@ -76,16 +72,6 @@ ASTScope::~ASTScope() {
         
     }
     
-}
-
-ASTClass::ASTClass(ASTScope * parent,
-                   const std::string & className,
-                   const std::vector<parameter> & params) {
-
-    nodeType    = NodeType::Class;
-    name        = className;
-    attributes  = params;
-
 }
 
 ASTFunction::ASTFunction(ASTScope * parent,
@@ -141,10 +127,6 @@ ASTFunCall::~ASTFunCall() {
                 
             case NodeType::FunCall:
                 delete (ASTFunCall*)param;
-                break;
-                
-            case NodeType::Class:
-                delete (ASTClass*)param;
                 break;
                 
             case NodeType::Declaration:

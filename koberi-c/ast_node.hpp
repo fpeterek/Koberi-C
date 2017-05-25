@@ -132,18 +132,6 @@ struct ASTConstruct : public ASTScope {
     
 };
 
-struct ASTClass : public ASTNode {
-    
-    std::string name;
-    std::vector<parameter> attributes;
-    
-    ASTClass(ASTScope * parent,
-             const std::string & className,
-             const std::vector<parameter> & params);
-    
-    
-};
-
 /* Variable declaration */
 struct ASTDeclaration : public ASTNode {
     

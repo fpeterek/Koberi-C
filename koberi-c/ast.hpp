@@ -17,6 +17,7 @@
 
 #include "ast_node.hpp"
 #include "exceptions.hpp"
+#include "class.hpp"
 
 
 class AbstractSyntaxTree {
@@ -29,6 +30,9 @@ protected:
     
     /* Keeps track of all data types, whether native types or user defined types */
     std::vector<std::string> _dataTypes;
+    
+    /* Stores classes */
+    std::unordered_map<std::string, _class> _classes;
     
     /* Defines the global scope, since the global scope has no parent, parentScope points to 0 */
     ASTScope _globalScope;
@@ -50,6 +54,7 @@ public:
                           const ASTFunCall & condition);
     
     void emplaceClass(const std::string & className,
+                      const std::string & superClass,
                       const std::vector<parameter> & attributes);
     
     void emplaceFunCall(const std::string & name,
