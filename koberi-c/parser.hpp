@@ -35,10 +35,6 @@ class Parser {
     
     TraversableAbstractSyntaxTree & _ast;
     
-    std::vector<std::string> dataTypes = {"int", "num", "str", "void"};
-    
-    void checkType(std::string & type);
-    
     /* --------------------------------------------------------------------------------------------------------- */
     /*                                                                                                           */
     /* std::unordered_map<std::string, _class> _classes; // Keeping this here as a reminder of my stupid mistake */
@@ -57,8 +53,8 @@ class Parser {
     /* Similar to parseSexps(), but adjusted to work properly on classes */
     std::vector<parameter> parseClassMembers(unsigned long long firstSexp, std::string & className);
     
-    /* Similar to parseSexp(), but only parses class attributes */
-    parameter parseClassAttribute(unsigned long long sexpBeginning);
+    /* Similar to parseSexp(), but only parses class attributes and global variables */
+    parameter parseVariable(unsigned long long sexpBeginning);
     
     /* Parse sexps finds s-expressions and passes them to another method, that parses single s-expressions  */
     /* That method is passed to parseSexps() via an std::function object, so I can reuse parseSexps()       */
@@ -72,7 +68,7 @@ class Parser {
     void varDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a global variable,
                                                                                              called from parseDeclarations() */
 
-    void classDefinition(unsigned long long declBeginning, unsigned long long declEnd);
+    void classDefinition(unsigned long long defBeginning, unsigned long long defEnd);
     
     void parseFun(unsigned long long funBeginning, unsigned long long funEnd);
     void parseParams(unsigned long long beginning, std::vector<parameter> & params);

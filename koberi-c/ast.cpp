@@ -12,7 +12,16 @@ AbstractSyntaxTree::AbstractSyntaxTree() : _globalScope(nullptr) {
     
     _currentScope = &_globalScope;
     
-    _dataTypes = { "num", "int" };
+    _dataTypes = { "num", "int", "str", "void" };
+    
+}
+
+void AbstractSyntaxTree::checkType(const std::string & type) {
+    
+    if (_dataTypes >> type) {
+        return;
+    }
+    throw bad_type("Error: Unknown type: " + type);
     
 }
 
@@ -38,12 +47,22 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
         throw wrong_scope("Functions can only be defined in the global scope. ");
     }
     
+    /* Check if all types exist */
+    for (const auto & param : params) {
+        checkType(param.type);
+    }
+    checkType(returnType);
+    
     ASTFunction * function = new ASTFunction(&_globalScope, functionName, returnType, params);
     
     _globalScope.childNodes.emplace_back(function);
     /* Somehow I don't believe this is gonna work */
     /* Edit: It should work now that I fixed it   */
     _currentScope = (ASTScope*)_globalScope.childNodes.back();
+    
+    for (const auto & param : params) {
+        _currentScope->vars.emplace(param.name, param.type);
+    }
     
     _functions.emplace(mangleName(functionName, params), returnType);
     
@@ -72,6 +91,8 @@ void AbstractSyntaxTree::emplaceFunCall(const std::string & name,
 void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
                                             const std::string & name,
                                             const std::string & value) {
+    
+    checkType(type);
     
     ASTDeclaration * declaration = new ASTDeclaration(_currentScope, type, name, value);
     _currentScope -> childNodes.emplace_back(declaration);
@@ -116,10 +137,23 @@ void AbstractSyntaxTree::emplaceClass(const std::string & className,
     c.superClass = superClass;
     
     for (const auto & attribute : attributes) {
+        
+        /* Check if attribute has an existant data type */
+        checkType(attribute.type);
+        
+        /* Check if attribute doesn't already exist */
+        for (const auto & i : c.attributes) {
+            if (i.name == attribute.name) {
+                throw redefinition_of_attribute(i.name, className);
+            }
+        }
+        
         c.attributes.emplace_back(attribute);
+        
     }
-    
+
     _dataTypes.emplace_back(className);
+    _classes.emplace(className, c);
 
 }
 

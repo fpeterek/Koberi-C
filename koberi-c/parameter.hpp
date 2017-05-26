@@ -15,12 +15,21 @@
 struct parameter {
     
     std::string type;
-    /* Either variable name or a literal */
+    
+    /* Use value for literals, name for variable names */
+    /* They both refer to the same object */
+    
+    /* Value of a literal */
     std::string value;
+    /* Reference to parameter::value, used for variable names */
+    std::string & name;
     
     parameter();
     parameter(const std::string & value);
     parameter(const std::string & value, const std::string & type);
+    parameter(const parameter & param);
+    
+    parameter & operator= (const parameter & param);
     
 };
 

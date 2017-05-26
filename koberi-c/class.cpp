@@ -12,7 +12,7 @@ std::string _class::getVarType(const std::string & name) const {
     
     for (const parameter & i : attributes) {
         
-        if (i.value == name) {
+        if (i.name == name) {
             return i.type;
         }
         
@@ -26,7 +26,7 @@ bool _class::hasVar(const std::string & name) const {
     
     for (const parameter & i : attributes) {
         
-        if (i.value == name) {
+        if (i.name == name) {
             return true;
         }
         

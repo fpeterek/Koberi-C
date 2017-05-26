@@ -155,18 +155,18 @@ ASTLiteral::ASTLiteral(const parameter & literal) {
 
     nodeType = NodeType::Literal;
     type     = literal.type;
-    name     = literal.value;
+    value    = literal.value;
     
     /* Parent scope shouldn't be accessed here, so I'm setting it to nullptr */
     parentScope = nullptr;
     
 }
 
-ASTLiteral::ASTLiteral(const std::string & literalType, const std::string literalName) {
+ASTLiteral::ASTLiteral(const std::string & literalType, const std::string literalValue) {
     
     nodeType = NodeType::Literal;
     type     = literalType;
-    name     = literalName;
+    value    = literalValue;
     
     /* Parent scope shouldn't be accessed here, so I'm setting it to nullptr */
     parentScope = nullptr;

@@ -18,7 +18,7 @@
 #include "ast_node.hpp"
 #include "exceptions.hpp"
 #include "class.hpp"
-
+#include "contains.hpp"
 
 class AbstractSyntaxTree {
     
@@ -30,6 +30,8 @@ protected:
     
     /* Keeps track of all data types, whether native types or user defined types */
     std::vector<std::string> _dataTypes;
+    
+    void checkType(const std::string & type);
     
     /* Stores classes */
     std::unordered_map<std::string, _class> _classes;

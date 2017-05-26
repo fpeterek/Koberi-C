@@ -15,13 +15,6 @@ Parser::Parser(std::vector<token> & vectorRef, TraversableAbstractSyntaxTree & a
             
 }
 
-void Parser::checkType(std::string & type) {
-    
-    if (not (dataTypes >> type)) {
-        throw bad_type("Invalid data type " + type);
-    }
-    
-}
 
 std::string Parser::getType(token & tok) {
     
@@ -46,8 +39,7 @@ void Parser::parseParams(unsigned long long beginning, std::vector<parameter> & 
         if (_tokens[i] == tokType::closingPar or _tokens[i+1] == tokType::closingPar) { break; }
         params.emplace_back();
         params.back().type = _tokens[i].value;
-        checkType(params.back().type);
-        params.back().value = _tokens[i+1].value;
+        params.back().name = _tokens[i+1].value;
         
     }
     
@@ -124,7 +116,7 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
         
     }
     
-    if (dataTypes >> funName and params.size()) {
+    if (params.size()) {
         if (params.size() == 1) {
             expr = expr::variableDeclaration(funName, params[0].value);
         }
@@ -271,7 +263,6 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
 #endif
     
     std::string type = _tokens[funBeginning + 1].value;
-    checkType(type);
     
     std::string name = _tokens[funBeginning + 2].value;
     std::vector<parameter> params;
@@ -279,7 +270,7 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     parseParams(funBeginning + 3, params);
     
     for (parameter & p : params) {
-        
+        p.name = p.name;
     }
     
     unsigned long long sexp = 0;
@@ -297,37 +288,10 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
 
 void Parser::varDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
-    std::stringstream ss;
-    
-    if (declEnd - declBeginning < 3) { /* 0 for (; 1 for (); 2 for (type); 3 for (type name);
-                                          At least 3 tokens are needed to declare a global variable */
-        
-        for (unsigned long long i = declBeginning; i < declEnd; ++i) {
-            ss << (_tokens[i] != tokType::openingPar ? "" : " ") << _tokens[i].value;
-        }
-        
-        throw invalid_declaration("Invalid variable declaration:" + ss.str());
-    
-    }
-    
-    std::string type = _tokens[declBeginning + 1].value;
-    checkType(type);
-    
-    std::string name = _tokens[declBeginning + 2].value;
-    
-    ss << (type == "int" ? "ll" : type) << " " << name;
-    
-    if (_tokens[declBeginning + 3] != tokType::closingPar) {
-        ss << " = " << _tokens[declBeginning + 3].value;
-    }
-    
-    ss << ";";
-    
-#ifdef OUTPUT_GLOBAL_VARIABLE_DECLARATION
-    print(ss.str());
-#endif
-    
+    parameter var = parseVariable(declBeginning);
 
+    _ast.emplaceDeclaration(var.type, var.name);
+    
 }
 
 /*
@@ -356,11 +320,19 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
         
         tok = _tokens[iter];
         
-        if (tok == tokType::openingPar) { ++parenCounter; }
-        else if (tok == tokType::closingPar) { --parenCounter; }
+        if (tok == tokType::openingPar) {
+            ++parenCounter;
+        }
+        else if (tok == tokType::closingPar) {
+            --parenCounter;
+        }
         
         if (parenCounter == 1 and tok == tokType::openingPar) {
-            sexps.emplace_back(iter); }
+            sexps.emplace_back(iter);
+        }
+        else if (parenCounter > 1) {
+            throw unexpected_token(')');
+        }
         
         ++iter;
         
@@ -370,18 +342,16 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
     std::vector<parameter> members;
     for (auto attribute : sexps) {
         
-        param = parseClassAttribute(attribute);
+        param = parseVariable(attribute);
         
-        bool hasAttribute = false;
+        /* Check if attribute isn't being redefined twice in one class definition */
+        
         for (auto & i : members) {
-            if (i.value == param.value) {
-                hasAttribute = true;
+            if (i.name == param.name) {
+                throw redefinition_of_attribute(param.name, className);
             }
         }
-        
-        if (hasAttribute) {
-            throw redefinition_of_attribute(param.value, className);
-        }
+
         members.emplace_back(param);
     
     }
@@ -390,33 +360,41 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
     
 }
 
-parameter Parser::parseClassAttribute(unsigned long long sexpBeginning) {
+parameter Parser::parseVariable(unsigned long long sexpBeginning) {
     
     parameter param;
     
     param.type = _tokens[sexpBeginning + 1].value;
-    param.value = _tokens[sexpBeginning + 2].value;
+    param.name = _tokens[sexpBeginning + 2].value;
+    
+    if (_tokens[sexpBeginning + 3] != tokType::closingPar) {
+        
+        throw invalid_declaration("Class attributes and global variables can't be initialized with default values. Initialze \
+                                  them using a function. ");
+    }
     
     return param;
     
 }
 
-void Parser::classDefinition(unsigned long long declBeginning, unsigned long long declEnd ) {
+void Parser::classDefinition(unsigned long long defBeginning, unsigned long long defEnd ) {
     
-    std::string name = _tokens[declBeginning + 2].value;
+    std::string name = _tokens[defBeginning + 2].value;
     std::vector<parameter> params;
     
+    std::string superclass;
+    
     /* Assume class doesn't inherit from anything so fourth token is paren */
-    unsigned long long firstDeclaration = declBeginning + 5;
+    unsigned long long firstDeclaration = defBeginning + 5;
     
     /* 0th token is paren, first is class, second is name, third is opening paren, fourth is closing paren or superclass name */
-    if (_tokens[declBeginning + 4] != tokType::closingPar) {
+    /* If 4th token isn't a closing parenthesis, class is most likely inheriting from another superclass                      */
+    if (_tokens[defBeginning + 4] != tokType::closingPar) {
         
         /* Increment firstDeclaration by one to reflect the fact that this class inherits from a superclass */
         ++firstDeclaration;
         
-        std::string superclass = _tokens[declBeginning + 4].value;
-        
+        superclass = _tokens[defBeginning + 4].value;
         
     }
     
@@ -426,40 +404,9 @@ void Parser::classDefinition(unsigned long long declBeginning, unsigned long lon
         
     }
     
-    {
-        const std::vector<parameter> temp = parseClassMembers(firstDeclaration, name);
-        
-        for (auto & i : temp) {
-            
-            /* Check if class already has such attribute to prevent redefinitions */
-            bool hasAttribute = false;
-            for (const parameter & v : params) {
-                
-                if (v.value == i.value) {
-                    hasAttribute = true;
-                }
-                
-            }
-            
-            if (hasAttribute) {
-                throw redefinition_of_attribute(i.value, name);
-            }
-            params.emplace_back(i);
-            
-            
-        }
-        
-    }
+    params = parseClassMembers(firstDeclaration, name);
     
-    for (auto & i : params) {
-        std::string & type = i.type, name = i.value;
-        expr::variableDeclaration(type, name);
-    }
-    
-    _class c;
-    c.attributes = params;
-    
-    dataTypes.emplace_back(name);
+    _ast.emplaceClass(name, superclass, params);
     
 }
 
@@ -524,12 +471,16 @@ void Parser::definition(unsigned long long defBeginning, unsigned long long defE
     /* Nothing to do here, not now, anyway */
     if (_tokens[defBeginning + 1].value == "class") {
         
-        return;
+        classDefinition(defBeginning, defEnd);
         
     } else if ( _tokens[defBeginning + 3].type == tokType::openingPar ) {
         
         parseFun(defBeginning, defEnd);
     
+    } else {
+        
+        varDeclaration(defBeginning, defEnd);
+        
     }
     
 }

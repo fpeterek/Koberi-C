@@ -93,10 +93,10 @@ struct ASTVariable : public ASTNode {
 struct ASTLiteral : public ASTNode {
 
     std::string type;
-    std::string name;
+    std::string value;
     
     ASTLiteral(const parameter & literal);
-    ASTLiteral(const std::string & type, const std::string name);
+    ASTLiteral(const std::string & type, const std::string value);
     
     static ASTLiteral * createLiteral(const std::string & type,
                                       const std::string & value);
