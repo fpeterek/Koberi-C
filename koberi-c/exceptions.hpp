@@ -172,6 +172,18 @@ public:
     
 };
 
+class redefinition_of_variable : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    redefinition_of_variable(const std::string & varName);
+    
+    const char * what() const throw();
+    
+};
+
 class no_such_member : public std::exception {
     
     std::string _message;

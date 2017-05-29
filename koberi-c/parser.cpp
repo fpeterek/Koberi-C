@@ -51,7 +51,7 @@ void Parser::parseParams(unsigned long long beginning, std::vector<parameter> & 
 
 /* Code is being rewritten, this monstrosity will hopefully be removed soon™ */
 
-parameter Parser::parseSexp(unsigned long long sexpBeginning) {
+void Parser::parseSexp(unsigned long long sexpBeginning) {
     
     unsigned long long tokensLen = _tokens.size();
     
@@ -63,15 +63,15 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
     if (_tokens[sexpBeginning + 1].type == tokType::intLit) {
         expr.value = _tokens[sexpBeginning + 1].value;
         expr.type = "int";
-        return expr;
+        // return expr;
     } else if (_tokens[sexpBeginning + 1].type == tokType::numLit) {
         expr.value = _tokens[sexpBeginning + 1].value;
         expr.type = "num";
-        return expr;
+        // return expr;
     } else if (_tokens[sexpBeginning + 1].type == tokType::strLit) {
         expr.value = _tokens[sexpBeginning + 1].value;
         expr.type = "str";
-        return expr;
+        // return expr;
     }
     
     unsigned long long iter = sexpBeginning + 2; /* sexpBeginning is parenthesis, sexpBeginning + 1 is function name,
@@ -92,7 +92,7 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
         if (_tokens[iter] == tokType::openingPar and parenCounter == 1) {
             
             ++parenCounter;
-            params.emplace_back(parseSexp(iter));
+            // params.emplace_back(parseSexp(iter));
             
         } else if (_tokens[iter] == tokType::openingBra) {
             
@@ -169,7 +169,7 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
             
             
             expr.value = funName;
-            return expr;
+            // return expr;
         } catch(const std::out_of_range & e) {
             /* Do nothing, just go to next step */
         }
@@ -178,7 +178,7 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
             
             
             expr.value = funName;
-            return expr;
+            // return expr;
         } catch(const std::out_of_range & e) {
             /* Do nothing, just go to next step */
         }
@@ -216,17 +216,18 @@ parameter Parser::parseSexp(unsigned long long sexpBeginning) {
         expr.value = ss.str();
     }
     
-    return expr;
+    // return expr;
 
 }
 
-void Parser::parseSexps(unsigned long long firstSexp, std::function<parameter(Parser*, unsigned long long)> & fun) {
+void Parser::parseSexps(unsigned long long firstSexp) {
 
     const unsigned long long tokensLen = _tokens.size();
     
-    /* If anyone manages to have 2**31 - 1 nested s-expressions, they are doing something wrong */
     int parenCounter = 0;
     unsigned long long iter = firstSexp;
+    
+    /* Holds indices of sexps */
     std::vector<unsigned long long> sexps;
     token tok;
     
@@ -239,17 +240,24 @@ void Parser::parseSexps(unsigned long long firstSexp, std::function<parameter(Pa
         
         tok = _tokens[iter];
         
-        if (tok == tokType::openingPar) { ++parenCounter; }
-        else if (tok == tokType::closingPar) { --parenCounter; }
+        if (tok == tokType::openingPar) {
+            ++parenCounter;
+        }
+        else if (tok == tokType::closingPar) {
+            --parenCounter;
+        }
         
         if (parenCounter == 1 and tok == tokType::openingPar) {
-            sexps.emplace_back(iter); }
+            sexps.emplace_back(iter);
+        }
         
         ++iter;
         
     } while (parenCounter >= 0);
     
-    parameter expr;
+    for (const auto sexp : sexps) {
+        parseSexp(sexp);
+    }
     
 }
 
@@ -273,15 +281,22 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
         p.name = p.name;
     }
     
+    /* Emplace function into ast                                                 */
+    /* EmplaceFunction also changes current scope to the newly emplaced function */
+    _ast.emplaceFunction(name, type, params);
+    
     unsigned long long sexp = 0;
     
     /* funBeginning = (; funBeginning + 1 = data type; funBeginning + 2 = name; funBeginning + 3 = ( */
-    /* Find location of first s-expression */
+    /* Find closing paren */
     for (sexp = funBeginning + 3; _tokens[sexp] != tokType::closingPar; ++sexp);
+    /* Next position is the opening paren of the first s-expression */
+    ++sexp;
     
-    std::function<parameter(Parser*, unsigned long long)> fun = &Parser::parseSexp;
+    parseSexps(sexp);
     
-    parseSexps(sexp + 1, fun);
+    /* Exit the function scope and enter the global scope */
+    _ast.exitScope();
     
     
 }

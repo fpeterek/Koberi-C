@@ -209,6 +209,18 @@ const char * redefinition_of_attribute::what() const throw() {
     
 }
 
+redefinition_of_variable::redefinition_of_variable(const std::string & varName) {
+
+    _message = "Redefinition of variable " + varName;
+    
+}
+
+const char * redefinition_of_variable::what() const throw() {
+    
+    return _message.c_str();
+    
+}
+
 no_such_member::no_such_member(const std::string && memberName, const std::string && className) {
     
     _message = className + " has no member " + memberName;

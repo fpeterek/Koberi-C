@@ -61,7 +61,14 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
     _currentScope = (ASTScope*)_globalScope.childNodes.back();
     
     for (const auto & param : params) {
+        
+        /* Check if parameter doesn't already exist */
+        if (_currentScope->vars[param.name] != "") {
+            throw redefinition_of_variable(param.name);
+        }
+        
         _currentScope->vars.emplace(param.name, param.type);
+        
     }
     
     _functions.emplace(mangleName(functionName, params), returnType);
@@ -96,6 +103,11 @@ void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
     
     ASTDeclaration * declaration = new ASTDeclaration(_currentScope, type, name, value);
     _currentScope -> childNodes.emplace_back(declaration);
+    
+    /* Check if variable doesn't already exist */
+    if (_currentScope->vars[name] != "") {
+        throw redefinition_of_variable(name);
+    }
     
     _currentScope->vars.emplace(name, type);
     

@@ -46,9 +46,8 @@ class Parser {
     /* Gets type of a variable or literal */
     std::string getType(token & tok);
     
-    /* parseSexp() parses an s-expression and returns a parameter where type is the data type returned by the s-exp and value
-       is the s-exp translated to C */
-    parameter parseSexp(unsigned long long sexpBeginning);
+    /* parseSexp() parses a single s-expression and emplaces it into the AST */
+    void parseSexp(unsigned long long sexpBeginning);
     
     /* Similar to parseSexps(), but adjusted to work properly on classes */
     std::vector<parameter> parseClassMembers(unsigned long long firstSexp, std::string & className);
@@ -58,7 +57,7 @@ class Parser {
     
     /* Parse sexps finds s-expressions and passes them to another method, that parses single s-expressions  */
     /* That method is passed to parseSexps() via an std::function object, so I can reuse parseSexps()       */
-    void parseSexps(unsigned long long firstSexp, std::function<parameter(Parser*, unsigned long long)> & fun);
+    void parseSexps(unsigned long long firstSexp);
     
     /* Calls varDeclaration() or funDeclaration(), */
     /* exists to increase code readability and     */
