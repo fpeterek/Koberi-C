@@ -20,6 +20,7 @@
 #include "exceptions.hpp"
 #include "print.hpp"
 #include "parameter.hpp"
+#include "contains.hpp"
 
 
 namespace expr {
@@ -29,6 +30,15 @@ namespace expr {
     const std::array<std::string, 6> unary_operators = { "return", "size_of", "inc", "dec", "not", "compl" };
     const std::array<std::string, 19> binary_operators = { "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
     "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"};
+    
+    const std::array<std::string, 27> operators = {
+        "return", "break", "continue",
+        "size_of", "inc", "dec", "not", "compl",
+        "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
+        "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"
+    };
+    
+    const std::array<std::string, 4> constructs = { "if", "elsif", "else", "while" };
     
     const std::unordered_map<std::string /* Kobeři-C function */, std::string /* C operator */ > unary_operators_map = {
     
@@ -48,6 +58,14 @@ namespace expr {
         {"bit_or", "|"}, {"xor", "^"}, {"lshift", "<<"}, {"rshift", ">>"}, {"mod", "%"}
         
     };
+    
+    bool isConstruct(const std::string & construct);
+    
+    bool isOperator(const std::string & op);
+    
+    bool isParameterlessOperator(const std::string & op);
+    bool isUnaryOperator(const std::string & op);
+    bool isBinaryOperator(const std::string & op);
     
     /* Can't use an std::map for these functions, because they accept different parameters */
     

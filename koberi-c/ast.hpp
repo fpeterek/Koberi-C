@@ -29,7 +29,7 @@ protected:
     std::unordered_map<std::string, std::string> _functions;
     
     /* Keeps track of all data types, whether native types or user defined types */
-    std::vector<std::string> _dataTypes;
+    std::vector<std::string> _dataTypes = { "num", "int", "str", "void" };
     
     void checkType(const std::string & type);
     
@@ -64,7 +64,7 @@ public:
     
     void emplaceDeclaration(const std::string & type,
                             const std::string & name,
-                            const std::string & value = "");
+                            ASTNode * value = nullptr);
     
     void leaveScope();
     

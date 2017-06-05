@@ -96,7 +96,7 @@ struct ASTLiteral : public ASTNode {
     std::string value;
     
     ASTLiteral(const parameter & literal);
-    ASTLiteral(const std::string & type, const std::string value);
+    ASTLiteral(const std::string & type, const std::string & value);
     
     static ASTLiteral * createLiteral(const std::string & type,
                                       const std::string & value);
@@ -137,12 +137,12 @@ struct ASTDeclaration : public ASTNode {
     
     std::string type;
     std::string name;
-    std::string value;
+    ASTNode * value;
     
     ASTDeclaration(ASTScope * parent,
                    const std::string & paramType,
                    const std::string & paramName,
-                   const std::string & paramValue = "");
+                   ASTNode * paramValue);
     
 };
 

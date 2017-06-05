@@ -35,19 +35,25 @@ class Parser {
     
     TraversableAbstractSyntaxTree & _ast;
     
-    /* --------------------------------------------------------------------------------------------------------- */
-    /*                                                                                                           */
-    /* std::unordered_map<std::string, _class> _classes; // Keeping this here as a reminder of my stupid mistake */
-    /*                                                                                                           */
-    /* --------------------------------------------------------------------------------------------------------- */
-    
     std::vector<token> & _tokens;
 
-    /* Gets type of a variable or literal */
+    /* Gets type of a literal */
     std::string getType(token & tok);
+    
+    /* Checks if token at index is a literal */
+    bool isLiteral(unsigned long long tokenIndex);
+    
+    /* Creates a new literal from a token                                             */
+    /* The code appears multiple times in the parser, so I'm turning it into a method */
+    ASTLiteral createLiteral(unsigned long long literalIndex);
     
     /* parseSexp() parses a single s-expression and emplaces it into the AST */
     void parseSexp(unsigned long long sexpBeginning);
+    
+    void parseConstruct(unsigned long long constructBeginning, unsigned long long constructEnd);
+    ASTFunCall parseFunCall(unsigned long long callBeginning, unsigned long long callEnd);
+    
+    unsigned long long findSexpEnd(unsigned long long sexpBeginning);
     
     /* Similar to parseSexps(), but adjusted to work properly on classes */
     std::vector<parameter> parseClassMembers(unsigned long long firstSexp, std::string & className);
@@ -66,6 +72,9 @@ class Parser {
     
     void varDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a global variable,
                                                                                              called from parseDeclarations() */
+    
+    /* Declares a local variable */
+    void localVarDeclaration(unsigned long long declBeginning, unsigned long long declEnd);
 
     void classDefinition(unsigned long long defBeginning, unsigned long long defEnd);
     

@@ -102,3 +102,9 @@ std::string TraversableAbstractSyntaxTree::getVarType(const std::string & varNam
     
 }
 
+bool TraversableAbstractSyntaxTree::isDataType(const std::string & param) {
+    
+    return contains(_dataTypes, param);
+    
+}
+

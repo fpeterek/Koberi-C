@@ -8,6 +8,35 @@
 
 #include "expressions.hpp"
 
+bool expr::isConstruct(const std::string & construct) {
+    
+    return contains(constructs, construct);
+    
+}
+
+bool expr::isOperator(const std::string & op) {
+    
+    return contains(operators, op);
+    
+}
+
+bool expr::isParameterlessOperator(const std::string & op) {
+    
+    return contains(parameterless_operators, op);
+
+}
+
+bool expr::isUnaryOperator(const std::string & op) {
+    
+    return contains(unary_operators, op);
+
+}
+
+bool expr::isBinaryOperator(const std::string & op) {
+    
+    return contains(binary_operators, op);
+
+}
 
 parameter expr::variableDeclaration(std::string & type, std::string & name, std::string & value) {
     

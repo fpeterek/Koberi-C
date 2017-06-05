@@ -12,8 +12,6 @@ AbstractSyntaxTree::AbstractSyntaxTree() : _globalScope(nullptr) {
     
     _currentScope = &_globalScope;
     
-    _dataTypes = { "num", "int", "str", "void" };
-    
 }
 
 void AbstractSyntaxTree::checkType(const std::string & type) {
@@ -97,7 +95,7 @@ void AbstractSyntaxTree::emplaceFunCall(const std::string & name,
 
 void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
                                             const std::string & name,
-                                            const std::string & value) {
+                                            ASTNode * value) {
     
     checkType(type);
     

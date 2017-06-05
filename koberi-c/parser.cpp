@@ -32,6 +32,18 @@ std::string Parser::getType(token & tok) {
     
 }
 
+bool Parser::isLiteral(unsigned long long tokenIndex) {
+    
+    return false;
+    
+}
+
+ASTLiteral createLiteral(unsigned long long literalIndex) {
+    
+    return ASTLiteral("str", "str");
+    
+}
+
 void Parser::parseParams(unsigned long long beginning, std::vector<parameter> & params) {
     
     for (unsigned long long i = beginning + 1; _tokens[i] != tokType::closingPar and _tokens[i+1] != tokType::closingPar; i += 2) {
@@ -53,171 +65,162 @@ void Parser::parseParams(unsigned long long beginning, std::vector<parameter> & 
 
 void Parser::parseSexp(unsigned long long sexpBeginning) {
     
-    unsigned long long tokensLen = _tokens.size();
+    // unsigned long long tokensLen = _tokens.size();
     
-    parameter expr;
+    const unsigned long long sexpEnd = findSexpEnd(sexpBeginning);
     
-    std::vector<parameter> params;
-    std::string funName = _tokens[sexpBeginning + 1].value;
+    /* If first token is data type, sexp is a variable declaration               */
+    /* Functions can't be defined inside functions (unless you compile with GCC) */
+    if (  _ast.isDataType(_tokens[sexpBeginning + 1].value) ) {
+        
+    }
+
+}
+
+void Parser::localVarDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
-    if (_tokens[sexpBeginning + 1].type == tokType::intLit) {
-        expr.value = _tokens[sexpBeginning + 1].value;
-        expr.type = "int";
-        // return expr;
-    } else if (_tokens[sexpBeginning + 1].type == tokType::numLit) {
-        expr.value = _tokens[sexpBeginning + 1].value;
-        expr.type = "num";
-        // return expr;
-    } else if (_tokens[sexpBeginning + 1].type == tokType::strLit) {
-        expr.value = _tokens[sexpBeginning + 1].value;
-        expr.type = "str";
-        // return expr;
+    const std::string type = _tokens[declBeginning + 1].value;
+    
+    if ( not _ast.isDataType(type) ) {
+        throw invalid_declaration("Unknown data type " + type);
     }
     
-    unsigned long long iter = sexpBeginning + 2; /* sexpBeginning is parenthesis, sexpBeginning + 1 is function name,
-                                                    sexpBeginning + 2 is the first param */
+    const std::string name = _tokens[declBeginning + 2].value;
     
-    for (unsigned int parenCounter = 1; parenCounter != 0; ++iter ) {
     
+    ASTNode * node = nullptr;
+    
+    /* If token is opening par, parameter is a funcall */
+    if (_tokens[declBeginning + 3] == tokType::openingPar) {
+        
+        unsigned long long funcallEnd = findSexpEnd(declBeginning + 3);
+        ASTFunCall funcall = parseFunCall(declBeginning + 3, funcallEnd);
+        
+        node = new ASTFunCall(funcall);
+        
+    } else if (_tokens[declBeginning + 3] == tokType::closingPar) {
+        
+        node = nullptr;
+        
+    }
+    
+    else if (_tokens[declBeginning + 3] == tokType::id) {
+        
+        node = new ASTVariable( _tokens[declBeginning + 3].value );
+        
+    } else if (_tokens[declBeginning + 3] == tokType::strLit) {
+        
+        node = new ASTLiteral("str", _tokens[declBeginning + 3].value);
+        
+    } else if (_tokens[declBeginning + 3] == tokType::intLit) {
+        
+        node = new ASTLiteral("int", _tokens[declBeginning + 3].value);
+        
+    } else if (_tokens[declBeginning + 3] == tokType::numLit) {
+        
+        node = new ASTLiteral("num", _tokens[declBeginning + 3].value);
+        
+    }
+    
+    _ast.emplaceDeclaration(type, name, node);
+    
+}
+
+void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long long constructEnd) {
+    
+    std::string construct = _tokens[constructBeginning + 1].value;
+    
+    unsigned long long condEnd = findSexpEnd(constructBeginning + 2);
+    
+    ASTFunCall condition = parseFunCall(constructBeginning + 2, condEnd);
+    
+    _ast.emplaceConstruct(construct, condition);
+    
+    /* Recurse and parse all sexps inside construct body */
+    /* All sexps will be emplaced into construct body because emplaceConstruct changes current scope */
+    parseSexps(condEnd + 1);
+    
+    /* Exit the scope of the construct */
+    _ast.exitScope();
+    
+}
+
+ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long long callEnd) {
+
+    std::string name;
+    std::vector<ASTNode *> params;
+    
+    name = _tokens[callBeginning + 1].value;
+    
+    for (unsigned long long iter = callBeginning + 2; iter < callEnd; ++iter) {
+    
+        if (_tokens[iter] == tokType::openingPar) {
+            
+            unsigned long long sexpEnd = findSexpEnd(iter);
+            ASTFunCall * funcall = new ASTFunCall(parseFunCall(iter, sexpEnd));
+            
+            params.emplace_back(funcall);
+            iter = sexpEnd;
+            
+        } else if (_tokens[iter] == tokType::id) {
+            
+            ASTVariable * var = new ASTVariable(_tokens[iter].value);
+            params.emplace_back(var);
+            
+        } else if (_tokens[iter] == tokType::strLit) {
+            
+            ASTLiteral * lit = new ASTLiteral("str", _tokens[iter].value);
+            params.emplace_back(lit);
+            
+        } else if (_tokens[iter] == tokType::intLit) {
+            
+            ASTLiteral * lit = new ASTLiteral("int", _tokens[iter].value);
+            params.emplace_back(lit);
+            
+        } else if (_tokens[iter] == tokType::numLit) {
+            
+            ASTLiteral * lit = new ASTLiteral("num", _tokens[iter].value);
+            params.emplace_back(lit);
+            
+        }
+        
+    }
+    
+    return ASTFunCall(_ast.getCurrentScopePtr(), name, params);
+
+}
+
+unsigned long long Parser::findSexpEnd(unsigned long long sexpBeginning) {
+    
+    unsigned long long sexpEnd = sexpBeginning;
+    
+    const unsigned long long tokensLen = _tokens.size();
+    int parenCounter = 0;
+    
+    while (true) {
         
         /* Prevent the compiler from trying to access outside memory bounds */
-        if (iter == tokensLen) {
+        if (sexpEnd == tokensLen) {
             throw missing_token(')');
         }
         
-        /* Recursively parse sexps nested in other sexps */
-        /* if (parenCounter == 1 and token == '(') {} so only the first expression is parsed in this function call,
-           expressions nested in other expressions will be parsed recursively */
+        token & tok = _tokens[sexpEnd];
         
-        if (_tokens[iter] == tokType::openingPar and parenCounter == 1) {
-            
+        if (tok == tokType::openingPar) {
             ++parenCounter;
-            // params.emplace_back(parseSexp(iter));
-            
-        } else if (_tokens[iter] == tokType::openingBra) {
-            
-
-            
-            while (_tokens[iter] != tokType::closingBra) {
-                ++iter;
-            }
-            
-            
         }
-        else if (_tokens[iter] == tokType::closingBra) {
-            throw unexpected_token(']');
+        else if (tok == tokType::closingPar) {
+            --parenCounter;
         }
-        else if (_tokens[iter] == tokType::openingPar) { ++parenCounter; }
-        else if (_tokens[iter] == tokType::closingPar) { --parenCounter; }
-        else if (parenCounter == 1) {
-            params.emplace_back( _tokens[iter] == tokType::strLit ? ("\"" + _tokens[iter].value + "\"") : _tokens[iter].value,
-                                getType(_tokens[iter]));
+        
+        if (not parenCounter) {
+            return sexpEnd;
         }
+        
+        ++sexpEnd;
         
     }
     
-    if (params.size()) {
-        if (params.size() == 1) {
-            expr = expr::variableDeclaration(funName, params[0].value);
-        }
-        else {
-            expr = expr::variableDeclaration(funName, params[0].value, params[1].value);
-        }
-
-        
-    } else if (funName == "toNum" and params.size() == 1 and expr::native_types >> params[0].type) {
-        expr = expr::conversionToNum(params[0]);
-    } else if (funName == "toInt" and params.size() == 1 and expr::native_types >> params[0].type) {
-        expr = expr::conversionToInt(params[0]);
-    } else if (expr::unary_operators >> funName and params.size() == 1) {
-        expr = expr::unaryOperator(params[0], funName);
-        expr.value.insert(0, "\t");
-    } else if (expr::binary_operators >> funName /*and (params[0].type == "int" or params[0].type == "num")*/) {
-        expr = expr::binaryOperator(params, funName);
-        expr.value.insert(0, "\t");
-    } else if (expr::parameterless_operators >> funName and not params.size()) {
-        expr = expr::parameterless_operator(funName);
-    } else if ((funName == "while" or funName == "if" or funName == "elif") and params.size() > 1) {
-        expr.value = "\t" + (funName == "elif" ? "else if": funName) + " ( " + params[0].value + " ) {\n";
-        expr.type = ".cf";
-        for (size_t i = 1; i < params.size(); ++i) {
-            expr.value += "\t\t" + params[i].value + ";\n";
-        }
-        expr.value += "\t}";
-    } else if (funName == "else") {
-        expr.value = "\telse {\n";
-        expr.type = ".cf";
-        for (auto & i : params) {
-            expr.value += "\t\t" + i.value + ";\n";
-        }
-        expr.value += "\t}";
-    }
-    else if (funName == "print") {
-        expr = expr::print(params);
-    } else if (funName == "c") {
-        expr = expr::inlineC(params);
-    }
-    else {
-        
-        if (params.size()) {
-            goto x; /* Eww, but is there a better, readable way? */
-        }
-        
-        /* Check if it's a variable, otherwise call a function */
-        
-        try {
-            
-            
-            expr.value = funName;
-            // return expr;
-        } catch(const std::out_of_range & e) {
-            /* Do nothing, just go to next step */
-        }
-        
-        try {
-            
-            
-            expr.value = funName;
-            // return expr;
-        } catch(const std::out_of_range & e) {
-            /* Do nothing, just go to next step */
-        }
-        
-    x:
-        
-        for (auto & i : params) {
-            
-            if (i.type == "") {
-                
-                
-            }
-            else if (i.type == ".cf") {
-                throw invalid_syntax("Invalid syntax. A control flow statement as a function parameter is not allowed");
-            }
-            
-        }
-        
-        
-        try {
-            
-        } catch (const std::exception & e) {
-            throw undeclared_function_call("Invalid call to function " + funName);
-        }
-        
-        std::stringstream ss;
-        
-        ss << "\t" << funName << "(";
-        
-        size_t size = params.size();
-        for (size_t i = 0; i < size; ++i) {
-            ss << " " << params[i].value << ((i != size - 1) ? "," : " ");
-        }
-        ss << ")";
-        expr.value = ss.str();
-    }
-    
-    // return expr;
-
 }
 
 void Parser::parseSexps(unsigned long long firstSexp) {
@@ -238,7 +241,7 @@ void Parser::parseSexps(unsigned long long firstSexp) {
             throw missing_token(')');
         }
         
-        tok = _tokens[iter];
+        token & tok = _tokens[iter];
         
         if (tok == tokType::openingPar) {
             ++parenCounter;
@@ -381,6 +384,10 @@ parameter Parser::parseVariable(unsigned long long sexpBeginning) {
     
     param.type = _tokens[sexpBeginning + 1].value;
     param.name = _tokens[sexpBeginning + 2].value;
+    
+    if ( not _ast.isDataType(param.type) ) {
+        throw invalid_declaration("Unknown data type " + param.type);
+    }
     
     if (_tokens[sexpBeginning + 3] != tokType::closingPar) {
         

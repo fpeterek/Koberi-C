@@ -11,7 +11,7 @@
 ASTDeclaration::ASTDeclaration(ASTScope * parent,
                                const std::string & paramType,
                                const std::string & paramName,
-                               const std::string & paramValue) {
+                               ASTNode * paramValue) {
     
     nodeType    = NodeType::Declaration;
     parentScope = parent;
@@ -162,7 +162,7 @@ ASTLiteral::ASTLiteral(const parameter & literal) {
     
 }
 
-ASTLiteral::ASTLiteral(const std::string & literalType, const std::string literalValue) {
+ASTLiteral::ASTLiteral(const std::string & literalType, const std::string & literalValue) {
     
     nodeType = NodeType::Literal;
     type     = literalType;

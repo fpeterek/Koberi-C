@@ -33,6 +33,8 @@ public:
     
     std::string getVarType(const std::string & varName);
     
+    bool isDataType(const std::string & param);
+    
 };
 
 #endif /* traversable_ast_hpp */
