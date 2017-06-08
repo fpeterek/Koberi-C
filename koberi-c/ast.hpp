@@ -62,6 +62,8 @@ public:
     void emplaceFunCall(const std::string & name,
                         const std::vector<ASTNode *> & params);
     
+    void emplaceFunCall(const ASTFunCall & fcall);
+    
     void emplaceDeclaration(const std::string & type,
                             const std::string & name,
                             ASTNode * value = nullptr);

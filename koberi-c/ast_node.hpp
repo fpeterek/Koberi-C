@@ -69,6 +69,7 @@ struct ASTFunCall : public ASTNode {
     std::vector<ASTNode *> parameters;
     
     ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<ASTNode *> & params);
+    ASTFunCall(const ASTFunCall & orig);
     ~ASTFunCall();
     
     static ASTFunCall * createFunCall(const std::string & name,

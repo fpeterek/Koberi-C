@@ -230,4 +230,15 @@ public:
     
 };
 
+class compiler_error : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    compiler_error(const std::string & message);
+    const char * what() const throw();
+    
+};
+
 #endif /* exceptions_hpp */

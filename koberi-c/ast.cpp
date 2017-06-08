@@ -93,6 +93,14 @@ void AbstractSyntaxTree::emplaceFunCall(const std::string & name,
 
 }
 
+void AbstractSyntaxTree::emplaceFunCall(const ASTFunCall & fcall) {
+    
+    ASTFunCall * funcall = new ASTFunCall(fcall);
+    
+    _currentScope -> childNodes.emplace_back(funcall);
+    
+}
+
 void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
                                             const std::string & name,
                                             ASTNode * value) {

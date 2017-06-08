@@ -101,7 +101,98 @@ ASTFunCall::ASTFunCall(ASTScope * parent, const std::string & name, const std::v
     nodeType    = NodeType::FunCall;
     parentScope = parent;
     function    = name;
-    parameters  = params;
+
+    for (ASTNode * param : params) {
+        
+        switch (param -> nodeType) {
+                
+            case NodeType::Variable:
+                parameters.emplace_back( new ASTVariable( *( (ASTVariable*)param ) ) );
+                break;
+                
+            case NodeType::Literal:
+                parameters.emplace_back( new ASTLiteral( *( (ASTLiteral*)param ) ) );
+                break;
+                
+            case NodeType::FunCall:
+                parameters.emplace_back( new ASTFunCall( *( (ASTFunCall*)param ) ) );
+                break;
+                
+                /* These cases should never occur, but I'd rather be safe than sorry */
+                
+            case NodeType::Scope:
+                parameters.emplace_back( new ASTScope( *( (ASTScope*)param ) ) );
+                break;
+                
+            case NodeType::Declaration:
+                parameters.emplace_back( new ASTDeclaration( *( (ASTDeclaration*)param ) ) );
+                break;
+                
+            case NodeType::Function:
+                parameters.emplace_back( new ASTFunction( *( (ASTFunction*)param ) ) );
+                break;
+                
+            case NodeType::Construct:
+                parameters.emplace_back( new ASTConstruct( *( (ASTConstruct*)param ) ) );
+                break;
+                
+            default:
+                delete param;
+                break;
+                
+        }
+        
+    }
+    
+}
+
+ASTFunCall::ASTFunCall(const ASTFunCall & orig) {
+    
+    nodeType = NodeType::FunCall;
+    parentScope = orig.parentScope;
+    function = orig.function;
+    
+    for (ASTNode * param : orig.parameters) {
+        
+        switch (param -> nodeType) {
+                
+            case NodeType::Variable:
+                parameters.emplace_back( new ASTVariable( *( (ASTVariable*)param ) ) );
+                break;
+                
+            case NodeType::Literal:
+                parameters.emplace_back( new ASTLiteral( *( (ASTLiteral*)param ) ) );
+                break;
+                
+            case NodeType::FunCall:
+                parameters.emplace_back( new ASTFunCall( *( (ASTFunCall*)param ) ) );
+                break;
+                
+                /* These cases should never occur, but I'd rather be safe than sorry */
+                
+            case NodeType::Scope:
+                parameters.emplace_back( new ASTScope( *( (ASTScope*)param ) ) );
+                break;
+                
+            case NodeType::Declaration:
+                parameters.emplace_back( new ASTDeclaration( *( (ASTDeclaration*)param ) ) );
+                break;
+                
+            case NodeType::Function:
+                parameters.emplace_back( new ASTFunction( *( (ASTFunction*)param ) ) );
+                break;
+                
+            case NodeType::Construct:
+                parameters.emplace_back( new ASTConstruct( *( (ASTConstruct*)param ) ) );
+                break;
+                
+            default:
+                delete param;
+                break;
+                
+        }
+        
+    }
     
 }
 
@@ -119,7 +210,7 @@ ASTFunCall::~ASTFunCall() {
                 delete (ASTLiteral*)param;
                 break;
                 
-            /* These cases should never occur, but I'd rather be safe than sorry */
+                /* These cases should never occur, but I'd rather be safe than sorry */
                 
             case NodeType::Scope:
                 delete (ASTScope*)param;

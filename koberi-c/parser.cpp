@@ -34,13 +34,31 @@ std::string Parser::getType(token & tok) {
 
 bool Parser::isLiteral(unsigned long long tokenIndex) {
     
-    return false;
+    tokType t = _tokens[tokenIndex].type;
+    
+    bool result = t == tokType::strLit or t == tokType::intLit or t == tokType::numLit;
+    
+    return result;
     
 }
 
-ASTLiteral createLiteral(unsigned long long literalIndex) {
+ASTLiteral Parser::createLiteral(unsigned long long literalIndex) {
     
-    return ASTLiteral("str", "str");
+    if (_tokens[literalIndex] == tokType::strLit) {
+        
+        return ASTLiteral("str", _tokens[literalIndex].value);
+        
+    } else if (_tokens[literalIndex] == tokType::intLit) {
+        
+        return ASTLiteral("int", _tokens[literalIndex].value);
+        
+    } else if (_tokens[literalIndex] == tokType::numLit) {
+        
+        return ASTLiteral("num", _tokens[literalIndex].value);
+        
+    }
+    
+    throw compiler_error("Compiler error: Attempting to create a literal from a non-literal token");
     
 }
 
@@ -72,6 +90,25 @@ void Parser::parseSexp(unsigned long long sexpBeginning) {
     /* If first token is data type, sexp is a variable declaration               */
     /* Functions can't be defined inside functions (unless you compile with GCC) */
     if (  _ast.isDataType(_tokens[sexpBeginning + 1].value) ) {
+        
+        localVarDeclaration(sexpBeginning, sexpEnd);
+    
+    }
+    else if (expr::isConstruct(_tokens[sexpBeginning + 1].value)) {
+        
+        parseConstruct(sexpBeginning, sexpEnd);
+        
+    }
+    /* If sexp is neither var declaration, nor construct, it's either a function call */
+    /* or an operator                                                                 */
+    /* Both function calls and operators are the same thing at this point             */
+    /* They will be treated differently during translation, but they are one and      */
+    /* the same to the parser/AST during parsing                                      */
+    else {
+        
+        ASTFunCall fcall = parseFunCall(sexpBeginning, sexpEnd);
+        
+        _ast.emplaceFunCall(fcall);
         
     }
 
@@ -108,17 +145,9 @@ void Parser::localVarDeclaration(unsigned long long declBeginning, unsigned long
         
         node = new ASTVariable( _tokens[declBeginning + 3].value );
         
-    } else if (_tokens[declBeginning + 3] == tokType::strLit) {
+    } else if (isLiteral(declBeginning + 3)) {
         
-        node = new ASTLiteral("str", _tokens[declBeginning + 3].value);
-        
-    } else if (_tokens[declBeginning + 3] == tokType::intLit) {
-        
-        node = new ASTLiteral("int", _tokens[declBeginning + 3].value);
-        
-    } else if (_tokens[declBeginning + 3] == tokType::numLit) {
-        
-        node = new ASTLiteral("num", _tokens[declBeginning + 3].value);
+        node = new ASTLiteral(createLiteral(declBeginning + 3));
         
     }
     
@@ -167,20 +196,9 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
             ASTVariable * var = new ASTVariable(_tokens[iter].value);
             params.emplace_back(var);
             
-        } else if (_tokens[iter] == tokType::strLit) {
+        } else if (isLiteral(iter)) {
             
-            ASTLiteral * lit = new ASTLiteral("str", _tokens[iter].value);
-            params.emplace_back(lit);
-            
-        } else if (_tokens[iter] == tokType::intLit) {
-            
-            ASTLiteral * lit = new ASTLiteral("int", _tokens[iter].value);
-            params.emplace_back(lit);
-            
-        } else if (_tokens[iter] == tokType::numLit) {
-            
-            ASTLiteral * lit = new ASTLiteral("num", _tokens[iter].value);
-            params.emplace_back(lit);
+            params.emplace_back(createLiteral(iter));
             
         }
         

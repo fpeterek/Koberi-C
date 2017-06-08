@@ -274,3 +274,14 @@ const char * not_a_scope::what() const throw() {
     return not_a_scope::message.c_str();
     
 }
+
+compiler_error::compiler_error(const std::string & newMessage)
+    : message(newMessage) {
+        
+}
+
+const char * compiler_error::what() const throw() {
+    
+    return message.c_str();
+    
+}
