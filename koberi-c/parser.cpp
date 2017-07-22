@@ -68,6 +68,12 @@ void Parser::parseParams(unsigned long long beginning, std::vector<parameter> & 
         
         if (_tokens[i] == tokType::closingPar or _tokens[i+1] == tokType::closingPar) { break; }
         params.emplace_back();
+        
+        /* Check if parameter type is a valid type */
+        if (not _ast.isDataType(_tokens[i].value) ) {
+            throw bad_type("Invalid data type: " + _tokens[i].value);
+        }
+        
         params.back().type = _tokens[i].value;
         params.back().name = _tokens[i+1].value;
         
@@ -84,7 +90,7 @@ void Parser::parseSexp(unsigned long long sexpBeginning) {
     
     /* If first token is data type, sexp is a variable declaration               */
     /* Functions can't be defined inside functions (unless you compile with GCC) */
-    if (  _ast.isDataType(_tokens[sexpBeginning + 1].value) ) {
+    if ( _ast.isDataType(_tokens[sexpBeginning + 1].value) ) {
         
         localVarDeclaration(sexpBeginning, sexpEnd);
     
@@ -156,11 +162,23 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
     
     unsigned long long condEnd = findSexpEnd(constructBeginning + 2);
     
-    ASTFunCall condition = parseFunCall(constructBeginning + 2, condEnd);
+    
+    /* If constructs isn't else, find condition */
+    /* If construct isn't else, there is no condition to find */
+    ASTFunCall condition =
+        (construct != "else") ?
+            parseFunCall(constructBeginning + 2, condEnd) :
+            (
+                /* I'm using the comma operator so I don't have to split this into mulitple statements */
+                condEnd = constructBeginning + 1,
+                ASTFunCall(nullptr, "", std::vector<ASTNode *>())
+             );
+    
+    
     
     _ast.emplaceConstruct(construct, condition);
     
-    /* Recurse and parse all sexps inside construct body */
+    /* Parse all sexps inside construct body */
     /* All sexps will be emplaced into construct body because emplaceConstruct changes current scope */
     parseSexps(condEnd + 1);
     
@@ -293,10 +311,6 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     std::vector<parameter> params;
     
     parseParams(funBeginning + 3, params);
-    
-    for (parameter & p : params) {
-        p.name = p.name;
-    }
     
     /* Emplace function into ast                                                 */
     /* EmplaceFunction also changes current scope to the newly emplaced function */
