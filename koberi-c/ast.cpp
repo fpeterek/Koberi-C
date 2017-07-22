@@ -140,7 +140,7 @@ void AbstractSyntaxTree::emplaceClass(const std::string & className,
     
     _class c;
     
-    if (className != "") {
+    if (superClass != "") {
         
         try {
             c.attributes = _classes.at(superClass).attributes;

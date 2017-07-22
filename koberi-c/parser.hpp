@@ -70,7 +70,7 @@ class Parser {
     /* modularity                                  */
     void declaration(unsigned long long declBeginning, unsigned long long declEnd);
     
-    void varDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a global variable,
+    void globalVarDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a global variable,
                                                                                              called from parseDeclarations() */
     
     /* Declares a local variable */

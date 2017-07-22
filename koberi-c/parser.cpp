@@ -318,7 +318,7 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     
 }
 
-void Parser::varDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
+void Parser::globalVarDeclaration(unsigned long long declBeginning, unsigned long long declEnd) {
     
     parameter var = parseVariable(declBeginning);
 
@@ -405,8 +405,7 @@ parameter Parser::parseVariable(unsigned long long sexpBeginning) {
     
     if (_tokens[sexpBeginning + 3] != tokType::closingPar) {
         
-        throw invalid_declaration("Class attributes and global variables can't be initialized with default values. Initialze \
-                                  them using a function. ");
+        throw invalid_declaration("Class attributes and global variables can't be initialized with default values. Initialize them using a function. ");
     }
     
     return param;
@@ -504,7 +503,7 @@ void Parser::parseDefinitions() {
 
 void Parser::definition(unsigned long long defBeginning, unsigned long long defEnd) {
     
-    /* Nothing to do here, not now, anyway */
+    
     if (_tokens[defBeginning + 1].value == "class") {
         
         classDefinition(defBeginning, defEnd);
@@ -515,7 +514,8 @@ void Parser::definition(unsigned long long defBeginning, unsigned long long defE
     
     } else {
         
-        varDeclaration(defBeginning, defEnd);
+        /* Global variable declaration */
+        globalVarDeclaration(defBeginning, defEnd);
         
     }
     
