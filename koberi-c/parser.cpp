@@ -75,11 +75,6 @@ void Parser::parseParams(unsigned long long beginning, std::vector<parameter> & 
     
 }
 
-/* Pretend this method does what is says it does and ignore it  */
-/* Seriously                                                    */
-/* For your own well-being                                      */
-
-/* Code is being rewritten, this monstrosity will hopefully be removed soon™ */
 
 void Parser::parseSexp(unsigned long long sexpBeginning) {
     
@@ -198,7 +193,8 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
             
         } else if (isLiteral(iter)) {
             
-            params.emplace_back(createLiteral(iter));
+            ASTLiteral * lit = new ASTLiteral(createLiteral(iter));
+            params.emplace_back(lit);
             
         }
         
