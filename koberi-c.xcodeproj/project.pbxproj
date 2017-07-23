@@ -20,6 +20,7 @@
 		4E425D421E91719D0090F591 /* ast_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E425D401E91719D0090F591 /* ast_node.cpp */; };
 		4E425D461E9176F10090F591 /* parameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E425D441E9176F10090F591 /* parameter.cpp */; };
 		4E425D4C1E91897A0090F591 /* class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E425D4A1E91897A0090F591 /* class.cpp */; };
+		4EFEFD851F23E78C003AF308 /* translator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4EFEFD831F23E78C003AF308 /* translator.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -64,6 +65,8 @@
 		4E425D451E9176F10090F591 /* parameter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = parameter.hpp; sourceTree = "<group>"; };
 		4E425D4A1E91897A0090F591 /* class.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = class.cpp; sourceTree = "<group>"; };
 		4E425D4B1E91897A0090F591 /* class.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = class.hpp; sourceTree = "<group>"; };
+		4EFEFD831F23E78C003AF308 /* translator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = translator.cpp; sourceTree = "<group>"; };
+		4EFEFD841F23E78C003AF308 /* translator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = translator.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +108,7 @@
 				4E425D3C1E916F020090F591 /* Abstract Syntax Tree */,
 				4E2B3AA91DC79CEF00700208 /* Syntax */,
 				4E2B3AAA1DC79CF600700208 /* Parser */,
+				4EFEFD861F23E795003AF308 /* Translator */,
 				4E2B3AAB1DC79D0300700208 /* Tokenizer */,
 				4E2B3AAC1DC79D0B00700208 /* Token */,
 				4E2B3AAD1DC79D1000700208 /* Exceptions */,
@@ -216,6 +220,15 @@
 			name = Class;
 			sourceTree = "<group>";
 		};
+		4EFEFD861F23E795003AF308 /* Translator */ = {
+			isa = PBXGroup;
+			children = (
+				4EFEFD831F23E78C003AF308 /* translator.cpp */,
+				4EFEFD841F23E78C003AF308 /* translator.hpp */,
+			);
+			name = Translator;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -285,6 +298,7 @@
 				4E2B3AA71DC79C7900700208 /* expressions.cpp in Sources */,
 				4E425D461E9176F10090F591 /* parameter.cpp in Sources */,
 				4E2B3A951DC79B3500700208 /* syntax.cpp in Sources */,
+				4EFEFD851F23E78C003AF308 /* translator.cpp in Sources */,
 				4E2B3AA11DC79C0500700208 /* exceptions.cpp in Sources */,
 				4E2B3A9E1DC79BDA00700208 /* token.cpp in Sources */,
 			);

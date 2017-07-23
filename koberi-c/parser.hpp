@@ -1,13 +1,13 @@
 //
-//  translator.hpp
+//  parser
 //  koberi-c
 //
 //  Created by Filip Peterek on 31/10/2016.
 //  Copyright © 2016 Filip Peterek. All rights reserved.
 //
 
-#ifndef translator_hpp
-#define translator_hpp
+#ifndef parser_hpp
+#define parser_hpp
 
 #include <stdio.h>
 #include <iostream>
@@ -92,4 +92,4 @@ public:
 };
 
 
-#endif /* translator_hpp */
+#endif /* parser_hpp */
