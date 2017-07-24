@@ -36,6 +36,10 @@ protected:
     
     /* Stores classes */
     std::unordered_map<std::string, _class> _classes;
+    /* Keeps classes ordered in the order they were defined                                                      */
+    /* This is necessary because C doesn't allow declaration of variables of incomplete (forward declared) types */
+    /* Another option would be storing the classes in an ordered collection(vector, ast global scope nodes)      */
+    std::vector<std::string> _classOrder;
     
     /* Defines the global scope, since the global scope has no parent, parentScope points to 0 */
     ASTScope _globalScope;

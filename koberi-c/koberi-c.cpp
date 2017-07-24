@@ -37,7 +37,9 @@ void KoberiC::parseInputFileName(const std::string & filename) {
     
     size_t extensionIndex = filename.rfind(".");
     
-    _filename = filename.substr(0, extensionIndex) + ".koberice";
+    _filename = filename.substr(0, extensionIndex) + ".c";
+    
+    _translator.setOutputFile(_filename);
     
 }
 

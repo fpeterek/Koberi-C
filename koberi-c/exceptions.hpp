@@ -65,6 +65,18 @@ public:
     
 };
 
+class file_not_created : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    const char * what() const throw();
+    
+    file_not_created(const std::string & filename);
+    
+};
+
 class invalid_declaration : public std::exception {
   
     std::string _message;
@@ -237,6 +249,28 @@ class compiler_error : public std::exception {
 public:
     
     compiler_error(const std::string & message);
+    const char * what() const throw();
+    
+};
+
+class invalid_main : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_main();
+    const char * what() const throw();
+    
+};
+
+class missing_main : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    missing_main();
     const char * what() const throw();
     
 };

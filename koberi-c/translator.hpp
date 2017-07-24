@@ -9,6 +9,10 @@
 #ifndef translator_hpp
 #define translator_hpp
 
+#include <fstream>
+#include <iostream>
+#include <vector>
+
 #include "traversable_ast.hpp"
 #include "name_mangler.hpp"
 
@@ -18,11 +22,27 @@ class Translator {
     
     TraversableAbstractSyntaxTree & _ast;
     
+    std::ofstream _output;
+    
+    void typedefs();
+    void translateClasses();
+    void translateGlobalVars();
+    void forwardFunctionDeclarations();
+    
+    void main();
+    
+    /* Checks whether main function exists and follows Kobeři-C rules for (int main ()) */
+    void kobericMainCheck();
+    
 public:
     
     Translator(TraversableAbstractSyntaxTree & ast);
     
+    void setOutputFile(const std::string & filename);
+    
     void translate();
+    
+    void test();
     
 };
 

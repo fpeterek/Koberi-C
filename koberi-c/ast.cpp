@@ -157,6 +157,7 @@ void AbstractSyntaxTree::emplaceClass(const std::string & className,
     }
 
     _dataTypes.emplace_back(className);
+    _classOrder.emplace_back(className);
     _classes.emplace(className, c);
 
 }

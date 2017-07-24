@@ -23,6 +23,7 @@ public:
     void exitScope();
     
     ASTNode & getNode(size_t nodeIndex);
+    ASTNode * getNodePtr(size_t nodeIndex);
     size_t getNodeCount();
     
     ASTScope & getCurrentScope();
@@ -32,6 +33,10 @@ public:
     ASTScope * getGlobalScopePtr();
     
     std::string getVarType(const std::string & varName);
+    std::string getFunctionReturnType(const std::string & funName);
+    
+    const std::unordered_map<std::string, _class> & getClasses();
+    const std::vector<std::string> & getClassOrder();
     
     bool isDataType(const std::string & param);
     

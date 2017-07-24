@@ -18,6 +18,6 @@
 // #define PRINT_FUNCTION // Print function to stdout
 #define OUTPUT_FUNCTION_DECLARATION // Print function declaration to stdout
 // #define OUTPUT_GLOBAL_VARIABLE_DECLARATION // Print global variable declaration to stdout
-
+#define OUTPUT_GLOBAL_SCOPE_NODES // Print information about nodes from the global scopes to stdout
 
 #endif /* debug_macro_definitions_hpp */

@@ -45,6 +45,12 @@ ASTNode & TraversableAbstractSyntaxTree::getNode(size_t nodeIndex) {
     
 }
 
+ASTNode * TraversableAbstractSyntaxTree::getNodePtr(size_t nodeIndex) {
+    
+    return _currentScope->childNodes[nodeIndex];
+    
+}
+
 size_t TraversableAbstractSyntaxTree::getNodeCount() {
     
     return _currentScope->childNodes.size();
@@ -100,6 +106,20 @@ std::string TraversableAbstractSyntaxTree::getVarType(const std::string & varNam
     
     return getVarTypeRecursive(varName, _currentScope);
     
+}
+
+std::string TraversableAbstractSyntaxTree::getFunctionReturnType(const std::string & funName) {
+    
+    return _functions.at(funName);
+    
+}
+
+const std::unordered_map<std::string, _class> & TraversableAbstractSyntaxTree::getClasses() {
+    return _classes;
+}
+
+const std::vector<std::string> & TraversableAbstractSyntaxTree::getClassOrder() {
+    return _classOrder;
 }
 
 bool TraversableAbstractSyntaxTree::isDataType(const std::string & param) {

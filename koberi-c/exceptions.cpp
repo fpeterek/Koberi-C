@@ -67,6 +67,18 @@ const char * file_not_opened::what() const throw() {
     
 }
 
+const char * file_not_created::what() const throw() {
+    
+    return _message.c_str();
+    
+}
+
+file_not_created::file_not_created(const std::string & filename) {
+    
+    _message = "File " + filename + " could not be created. ";
+    
+}
+
 const char * invalid_declaration::what() const throw() {
     return _message.c_str();
 }
@@ -281,6 +293,22 @@ compiler_error::compiler_error(const std::string & newMessage)
 }
 
 const char * compiler_error::what() const throw() {
+    
+    return message.c_str();
+    
+}
+
+invalid_main::invalid_main() : message("Error: (main ()) must return int. ") { }
+
+const char * invalid_main::what() const throw() {
+    
+    return message.c_str();
+    
+}
+
+missing_main::missing_main() : message("Error: Missing (int main ()). ") { }
+
+const char * missing_main::what() const throw() {
     
     return message.c_str();
     
