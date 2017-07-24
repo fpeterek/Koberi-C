@@ -225,6 +225,11 @@ void Translator::test() {
                 break;
             }
                 
+            case NodeType::Attribute: {
+                std::cout << "Attribute access: " << "too lazy" << std::endl;
+                break;
+            }
+                
             default:
                 
                 break;

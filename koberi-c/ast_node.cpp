@@ -54,6 +54,10 @@ ASTScope::~ASTScope() {
                 delete (ASTConstruct*)childNode;
                 break;
                 
+            case NodeType::Attribute:
+                delete (ASTAttribute*)childNode;
+                break;
+                
             /* These two cases should never occur, but I'm putting them here just to be sure */
             /* Can't risk creating memory leaks if someone emplaces these somewhere          */
             case NodeType::Variable:
@@ -118,6 +122,10 @@ ASTFunCall::ASTFunCall(ASTScope * parent, const std::string & name, const std::v
                 parameters.emplace_back( new ASTFunCall( *( (ASTFunCall*)param ) ) );
                 break;
                 
+            case NodeType::Attribute:
+                parameters.emplace_back( new ASTAttribute ( *( (ASTAttribute*)param ) ) );
+                break;
+                
                 /* These cases should never occur, but I'd rather be safe than sorry */
                 
             case NodeType::Scope:
@@ -166,6 +174,10 @@ ASTFunCall::ASTFunCall(const ASTFunCall & orig) {
                 
             case NodeType::FunCall:
                 parameters.emplace_back( new ASTFunCall( *( (ASTFunCall*)param ) ) );
+                break;
+                
+            case NodeType::Attribute:
+                parameters.emplace_back( new ASTAttribute ( *( (ASTAttribute*)param ) ) );
                 break;
                 
                 /* These cases should never occur, but I'd rather be safe than sorry */
@@ -232,6 +244,10 @@ ASTFunCall::~ASTFunCall() {
                 delete (ASTConstruct*)param;
                 break;
                 
+            case NodeType::Attribute:
+                delete (ASTAttribute*)param;
+                break;
+                
             default:
                 delete param;
                 break;
@@ -279,6 +295,12 @@ ASTVariable * ASTVariable::createVariable(const std::string & variableName) {
     ASTVariable * var = new ASTVariable(variableName);
     
     return var;
+    
+}
+
+ASTAttribute::ASTAttribute(const std::vector<std::string> & accessOrder) {
+    
+    this->accessOrder = accessOrder;
     
 }
 

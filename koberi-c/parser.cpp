@@ -209,6 +209,19 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
             ASTVariable * var = new ASTVariable(_tokens[iter].value);
             params.emplace_back(var);
             
+        } else if (_tokens[iter] == tokType::openingBra) {
+          
+            std::vector<std::string> attributes;
+            
+            while (_tokens[++iter] != tokType::closingBra) {
+                
+                attributes.emplace_back(_tokens[iter].value);
+                
+            }
+            
+            ASTAttribute * attr = new ASTAttribute(attributes);
+            params.emplace_back(attr);
+            
         } else if (isLiteral(iter)) {
             
             ASTLiteral * lit = new ASTLiteral(createLiteral(iter));
