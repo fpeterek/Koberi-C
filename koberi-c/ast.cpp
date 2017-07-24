@@ -23,19 +23,6 @@ void AbstractSyntaxTree::checkType(const std::string & type) {
     
 }
 
-std::string AbstractSyntaxTree::mangleName(const std::string & name, const std::vector<parameter> & parameters) {
-
-    std::string mangledName = "_" + name;
-    
-    for (auto & param : parameters) {
-        mangledName.append("_" + param.type);
-    }
-    
-    return mangledName;
-
-}
-
-
 void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
                                          const std::string & returnType,
                                          const std::vector<parameter> & params) {
@@ -54,8 +41,7 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
     ASTFunction * function = new ASTFunction(&_globalScope, functionName, returnType, params);
     
     _globalScope.childNodes.emplace_back(function);
-    /* Somehow I don't believe this is gonna work */
-    /* Edit: It should work now that I fixed it   */
+    
     _currentScope = (ASTScope*)_globalScope.childNodes.back();
     
     for (const auto & param : params) {
@@ -69,7 +55,7 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
         
     }
     
-    _functions.emplace(mangleName(functionName, params), returnType);
+    _functions.emplace(NameMangler::mangleName(functionName, params), returnType);
     
 }
 

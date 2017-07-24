@@ -19,6 +19,7 @@
 #include "exceptions.hpp"
 #include "class.hpp"
 #include "contains.hpp"
+#include "name_mangler.hpp"
 
 class AbstractSyntaxTree {
     
@@ -43,7 +44,6 @@ protected:
     /* I could also use an std::reference_wrapper, but that would probably create even more cluttered code than a pointer */
     ASTScope * _currentScope;
     
-    std::string mangleName(const std::string & name, const std::vector<parameter> & parameters);
     
 public:
     AbstractSyntaxTree();

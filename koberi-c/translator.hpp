@@ -10,6 +10,9 @@
 #define translator_hpp
 
 #include "traversable_ast.hpp"
+#include "name_mangler.hpp"
+
+#include "debug_macro_definitions.hpp"
 
 class Translator {
     
