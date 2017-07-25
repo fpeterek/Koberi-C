@@ -11,8 +11,14 @@
 
 unexpected_token::unexpected_token(char tok) {
     
-    _message = "Unexpected token ";
+    _message = "Unexpected token: ";
     _message += std::to_string(tok);
+    
+}
+
+unexpected_token::unexpected_token(const std::string & tok) {
+    
+    _message = "Unexpected token: " + tok;
     
 }
 

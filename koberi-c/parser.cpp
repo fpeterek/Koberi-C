@@ -500,6 +500,12 @@ void Parser::parseDefinitions() {
     
     for (int i = 0; i < _tokens.size(); ++i) {
         
+        if (_tokens[i].type != tokType::openingPar and not parens) {
+            
+            throw unexpected_token(_tokens[i].value);
+            
+        }
+        
         if (_tokens[i].type == tokType::openingPar) {
             
             ++parens;

@@ -25,6 +25,7 @@ public:
     const char * what() const throw();
     
     unexpected_token(char tok);
+    unexpected_token(const std::string & tok);
     
 };
 
