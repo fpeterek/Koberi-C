@@ -300,6 +300,9 @@ ASTVariable * ASTVariable::createVariable(const std::string & variableName) {
 
 ASTAttribute::ASTAttribute(const std::vector<std::string> & accessOrder) {
     
+    nodeType = NodeType::Attribute;
+    
+    
     this->accessOrder = accessOrder;
     
 }

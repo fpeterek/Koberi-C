@@ -28,11 +28,16 @@ class Translator {
     void translateClasses();
     void translateGlobalVars();
     void forwardFunctionDeclarations();
+    /* Iterates over nodes and calls translateFunction() on each function */
+    void translateFunctions();
     
     void main();
     
     /* Checks whether main function exists and follows Kobeři-C rules for (int main ()) */
     void kobericMainCheck();
+    
+    /* Translates a Kobeři-C function into a C function. */
+    void translateFunction(ASTFunction & function);
     
 public:
     

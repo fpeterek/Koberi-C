@@ -109,7 +109,24 @@ void Translator::forwardFunctionDeclarations() {
     
 }
 
-
+void Translator::translateFunctions() {
+    
+    ASTNode * node;
+    
+    for (size_t i = 0; i < _ast.getNodeCount(); ++i) {
+        
+        node = _ast.getNodePtr(i);
+        
+        if (node->nodeType == NodeType::Function) {
+            
+            ASTFunction & function = *((ASTFunction*)node);
+            translateFunction(function);
+            
+        }
+        
+    }
+    
+}
 
 void Translator::main() {
     
@@ -143,7 +160,7 @@ void Translator::translate() {
     translateClasses();
     translateGlobalVars();
     forwardFunctionDeclarations();
-    
+    translateFunctions();
     
     main();
     
@@ -168,6 +185,25 @@ void Translator::kobericMainCheck() {
     
 }
 
+void Translator::translateFunction(ASTFunction & function) {
+    
+    const std::vector<parameter> & params = function.parameters;
+    
+    _output << "\n" << (function.type == "int" ? "ll" : function.type) << " "
+            << NameMangler::mangleName(function.name, params) << "(";
+    
+    for (size_t i = 0; i < params.size(); ++i) {
+        
+        _output << (params[i].type == "int" ? "ll" : params[i].type) << " " << params[i].name
+                << (i == params.size() - 1 ? "" : ", ");
+        
+    }
+    
+    _output << ") {" << "\n";
+    
+    _output << "}" << "\n" << std::endl;
+    
+}
 
 void Translator::test() {
     

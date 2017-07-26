@@ -192,6 +192,8 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
     std::string name;
     std::vector<ASTNode *> params;
     
+    const size_t tokSize = _tokens.size();
+    
     name = _tokens[callBeginning + 1].value;
     
     for (unsigned long long iter = callBeginning + 2; iter < callEnd; ++iter) {
@@ -214,6 +216,14 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
             std::vector<std::string> attributes;
             
             while (_tokens[++iter] != tokType::closingBra) {
+                
+                if (iter >= tokSize) {
+                    throw missing_token(']');
+                }
+                
+                if (_tokens[iter] != tokType::id) {
+                    throw unexpected_token(_tokens[iter].value);
+                }
                 
                 attributes.emplace_back(_tokens[iter].value);
                 
