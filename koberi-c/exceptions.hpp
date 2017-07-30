@@ -276,4 +276,15 @@ public:
     
 };
 
+class invalid_statement : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_statement(const std::string & functionName);
+    const char * what() const throw();
+    
+};
+
 #endif /* exceptions_hpp */

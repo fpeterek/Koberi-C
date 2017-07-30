@@ -35,7 +35,7 @@ void Translator::translateClasses() {
         _output << "\n" << "typedef struct " << cls.className << "{\n";
         
         for (const auto & attr : cls.attributes) {
-            _output << "\t" << (attr.type == "int" ? "ll" : attr.type) << " " << attr.name << ";\n";
+            _output << INDENT << (attr.type == "int" ? "ll" : attr.type) << " " << attr.name << ";\n";
         }
         
         _output << "} " << cls.className << ";\n" << std::endl;
@@ -133,7 +133,7 @@ void Translator::main() {
     _output << "\n" << "/* C Main Function */" << "\n" << "\n";
     
     _output << "int main(int argc, const char * argv[]) {" << "\n";
-    _output << "\t" << "return " << NameMangler::mangleName("main", std::vector<parameter>()) << "();" << "\n";
+    _output << INDENT << "return " << NameMangler::mangleName("main", std::vector<parameter>()) << "();" << "\n";
     _output << "}" << std::endl;
     
 }
@@ -187,6 +187,8 @@ void Translator::kobericMainCheck() {
 
 void Translator::translateFunction(ASTFunction & function) {
     
+    _functionName = function.name;
+    
     const std::vector<parameter> & params = function.parameters;
     
     _output << "\n" << (function.type == "int" ? "ll" : function.type) << " "
@@ -200,8 +202,49 @@ void Translator::translateFunction(ASTFunction & function) {
     }
     
     _output << ") {" << "\n";
+    ++_indentLevel;
+    
+    for (ASTNode * node : function.childNodes) {
+        
+        if (node->nodeType == NodeType::FunCall) {
+            
+            ASTFunCall * funcall = (ASTFunCall*)node;
+            Translator::translateFunCall(*funcall);
+            
+        } else if (node->nodeType == NodeType::Construct) {
+            
+            ASTConstruct * construct = (ASTConstruct*)node;
+            Translator::translateConstruct(*construct);
+            
+        } else {
+            
+            throw invalid_statement(_functionName);
+            
+        }
+        
+    }
     
     _output << "}" << "\n" << std::endl;
+    --_indentLevel;
+}
+
+parameter Translator::translateFunCall(ASTFunCall & funcall) {
+    
+    parameter functionCall;
+    
+    return functionCall;
+    
+}
+
+void Translator::translateConstruct(ASTConstruct & construct) {
+    
+}
+
+void Translator::indent() {
+    
+    for (unsigned short i = 0; i < _indentLevel; ++i) {
+        _output << INDENT << std::endl;
+    }
     
 }
 

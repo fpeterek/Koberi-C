@@ -319,3 +319,12 @@ const char * missing_main::what() const throw() {
     return message.c_str();
     
 }
+
+invalid_statement::invalid_statement(const std::string & functionName) :
+    message("Error: Invalid statment in function " + functionName + ". ") { }
+
+const char * invalid_statement::what() const throw() {
+    
+    return message.c_str();
+    
+}

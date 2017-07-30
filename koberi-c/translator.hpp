@@ -18,11 +18,20 @@
 
 #include "debug_macro_definitions.hpp"
 
+#define INDENT "    " /* Uses four spaces to indent */
+
 class Translator {
     
     TraversableAbstractSyntaxTree & _ast;
     
     std::ofstream _output;
+    
+    /* This could be a char, but people might use software-generated code                */
+    /* If someone manages to make this overflow, they don't deserve to use this compiler */
+    unsigned short _indentLevel;
+    
+    /* Used to store name of current function to make error messages slightly more useful */
+    std::string _functionName;
     
     void typedefs();
     void translateClasses();
@@ -38,6 +47,17 @@ class Translator {
     
     /* Translates a Kobeři-C function into a C function. */
     void translateFunction(ASTFunction & function);
+    
+    /* Translates a Kobeři-C function into a C function and returns it as a parameter */
+    /* Type is the return type of the function and value is a C funcall as a string   */
+    parameter translateFunCall(ASTFunCall & funcall);
+    
+    /* Translates constructs and outputs them to _output */
+    void translateConstruct(ASTConstruct & construct);
+    
+    
+    /* Indents code */
+    void indent();
     
 public:
     
