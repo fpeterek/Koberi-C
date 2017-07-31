@@ -33,6 +33,7 @@ public:
     ASTScope * getGlobalScopePtr();
     
     std::string getVarType(const std::string & varName);
+    std::string getVarType(const std::string & varName, ASTScope * scope);
     std::string getFunctionReturnType(const std::string & funName);
     
     const std::unordered_map<std::string, _class> & getClasses();

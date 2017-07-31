@@ -287,4 +287,15 @@ public:
     
 };
 
+class type_mismatch : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    type_mismatch(const std::string & msg);
+    const char * what() const throw();
+    
+};
+
 #endif /* exceptions_hpp */

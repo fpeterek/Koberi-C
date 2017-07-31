@@ -328,3 +328,11 @@ const char * invalid_statement::what() const throw() {
     return message.c_str();
     
 }
+
+type_mismatch::type_mismatch(const std::string & msg) : message(msg) { }
+
+const char * type_mismatch::what() const throw() {
+    
+    return message.c_str();
+    
+}

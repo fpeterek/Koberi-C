@@ -144,7 +144,7 @@ void Parser::localVarDeclaration(unsigned long long declBeginning, unsigned long
     
     else if (_tokens[declBeginning + 3] == tokType::id) {
         
-        node = new ASTVariable( _tokens[declBeginning + 3].value );
+        node = new ASTVariable( _tokens[declBeginning + 3].value, _ast.getCurrentScopePtr() );
         
     } else if (isLiteral(declBeginning + 3)) {
         
@@ -208,7 +208,7 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
             
         } else if (_tokens[iter] == tokType::id) {
             
-            ASTVariable * var = new ASTVariable(_tokens[iter].value);
+            ASTVariable * var = new ASTVariable(_tokens[iter].value, _ast.getCurrentScopePtr());
             params.emplace_back(var);
             
         } else if (_tokens[iter] == tokType::openingBra) {

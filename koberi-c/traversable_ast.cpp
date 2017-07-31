@@ -108,6 +108,12 @@ std::string TraversableAbstractSyntaxTree::getVarType(const std::string & varNam
     
 }
 
+std::string TraversableAbstractSyntaxTree::getVarType(const std::string & varName, ASTScope * scope) {
+    
+    return getVarTypeRecursive(varName, scope);
+    
+}
+
 std::string TraversableAbstractSyntaxTree::getFunctionReturnType(const std::string & funName) {
     
     return _functions.at(funName);

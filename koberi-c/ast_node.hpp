@@ -78,15 +78,16 @@ struct ASTFunCall : public ASTNode {
     
 };
 
-/* Used to pass variables as funcall values                 */
-/* Shouldn't be used anywhere outside ASTFunCall parameters */
+/* Used to pass variables as funcall values                                    */
+/* Shouldn't be used anywhere outside ASTFunCall parameters                    */
+/* ParentScope holds pointer to the scope from which the variable was accessed */
 struct ASTVariable : public ASTNode {
     
     std::string name;
     
-    ASTVariable(const std::string & name);
+    ASTVariable(const std::string & name, const ASTScope * parentScope);
     
-    static ASTVariable * createVariable(const std::string & variableName);
+    static ASTVariable * createVariable(const std::string & variableName, const ASTScope * parentScope);
     
 };
 

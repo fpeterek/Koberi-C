@@ -216,6 +216,15 @@ void Translator::translateFunction(ASTFunction & function) {
             ASTConstruct * construct = (ASTConstruct*)node;
             Translator::translateConstruct(*construct);
             
+        } else if (node->nodeType == NodeType::Declaration) {
+            
+            ASTDeclaration * declaration = (ASTDeclaration*)node;
+            std::string declAsStr = Translator::translateDeclaration(*declaration);
+            
+            indent();
+            _output << declAsStr << "\n";
+        
+        
         } else {
             
             throw invalid_statement(_functionName);
@@ -226,11 +235,14 @@ void Translator::translateFunction(ASTFunction & function) {
     
     _output << "}" << "\n" << std::endl;
     --_indentLevel;
+    
 }
 
 parameter Translator::translateFunCall(ASTFunCall & funcall) {
     
     parameter functionCall;
+    
+    std::cout << "Translate fun call: " << funcall.function << std::endl;
     
     return functionCall;
     
@@ -240,10 +252,71 @@ void Translator::translateConstruct(ASTConstruct & construct) {
     
 }
 
+std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
+    
+    std::string decl;
+    
+    decl = (declaration.type == "int" ? "ll" : declaration.type) + " " + declaration.name;
+    
+    if (declaration.value != nullptr) {
+        
+        if (declaration.value->nodeType == NodeType::FunCall) {
+            
+            ASTFunCall * funcall = (ASTFunCall*)declaration.value;
+            translateFunCall(*funcall);
+            
+        } else if (declaration.value->nodeType == NodeType::Variable) {
+            
+            ASTVariable & variable = *((ASTVariable*)declaration.value);
+            
+            parameter var = getVariable(variable);
+            
+            if (declaration.type != var.type) {
+                throw type_mismatch("Error: Type mismatch in declaration of variable ("
+                                    + decl + "). Expected: " + declaration.type +
+                                    " Got: " + var.type);
+            }
+            
+            decl += " = " + var.name;
+            
+        } else if (declaration.value->nodeType == NodeType::Literal) {
+            
+            ASTLiteral & literal = *((ASTLiteral*)declaration.value);
+            
+            if (declaration.type != literal.type) {
+                throw type_mismatch("Error: Type mismatch in declaration of variable ("
+                                    + decl + "). Expected: " + declaration.type +
+                                    " Got: " + literal.type);
+            }
+            
+            decl += " = " + literal.value;
+            
+        }
+        
+    }
+    
+    decl += ";";
+    
+    return decl;
+    
+}
+
+parameter Translator::getVariable(ASTVariable & variable) {
+    
+    parameter var;
+    
+    var.name = variable.name;
+    var.type = _ast.getVarType(variable.name, variable.parentScope);
+    
+    return var;
+    
+}
+
+
 void Translator::indent() {
     
     for (unsigned short i = 0; i < _indentLevel; ++i) {
-        _output << INDENT << std::endl;
+        _output << INDENT;
     }
     
 }

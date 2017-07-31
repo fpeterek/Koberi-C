@@ -28,7 +28,7 @@ class Translator {
     
     /* This could be a char, but people might use software-generated code                */
     /* If someone manages to make this overflow, they don't deserve to use this compiler */
-    unsigned short _indentLevel;
+    unsigned short _indentLevel = 0;
     
     /* Used to store name of current function to make error messages slightly more useful */
     std::string _functionName;
@@ -55,6 +55,9 @@ class Translator {
     /* Translates constructs and outputs them to _output */
     void translateConstruct(ASTConstruct & construct);
     
+    std::string translateDeclaration(ASTDeclaration & declaration);
+    
+    parameter getVariable(ASTVariable & variable);
     
     /* Indents code */
     void indent();
