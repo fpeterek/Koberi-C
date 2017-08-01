@@ -273,7 +273,8 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             if (declaration.type != var.type) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
-                                    + decl + "). Expected: " + declaration.type +
+                                    + declaration.type + " " + declaration.name + "). Expected: "
+                                    + declaration.type +
                                     " Got: " + var.type);
             }
             
@@ -285,7 +286,8 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             if (declaration.type != literal.type) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
-                                    + decl + "). Expected: " + declaration.type +
+                                    + declaration.type + " " + declaration.name + "). Expected: "
+                                    + declaration.type +
                                     " Got: " + literal.type);
             }
             

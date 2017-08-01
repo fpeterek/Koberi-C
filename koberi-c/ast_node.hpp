@@ -85,9 +85,9 @@ struct ASTVariable : public ASTNode {
     
     std::string name;
     
-    ASTVariable(const std::string & name, const ASTScope * parentScope);
+    ASTVariable(const std::string & name, ASTScope * parentScope);
     
-    static ASTVariable * createVariable(const std::string & variableName, const ASTScope * parentScope);
+    static ASTVariable * createVariable(const std::string & variableName, ASTScope * parentScope);
     
 };
 

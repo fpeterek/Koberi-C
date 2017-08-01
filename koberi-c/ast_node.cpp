@@ -280,17 +280,17 @@ ASTLiteral::ASTLiteral(const std::string & literalType, const std::string & lite
     
 }
 
-ASTVariable::ASTVariable(const std::string & variableName, const ASTScope * parent) {
+ASTVariable::ASTVariable(const std::string & variableName, ASTScope * parent) {
 
     nodeType = NodeType::Variable;
     name     = variableName;
     
     /* Holds pointer to the scope in which the variable was accessed */
-    parentScope = nullptr;
+    parentScope = parent;
     
 }
 
-ASTVariable * ASTVariable::createVariable(const std::string & variableName, const ASTScope * parent) {
+ASTVariable * ASTVariable::createVariable(const std::string & variableName, ASTScope * parent) {
     
     ASTVariable * var = new ASTVariable(variableName, parent);
     
