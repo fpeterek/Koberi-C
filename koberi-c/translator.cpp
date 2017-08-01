@@ -242,7 +242,62 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     
     parameter functionCall;
     
-    std::cout << "Translate fun call: " << funcall.function << std::endl;
+    std::vector<parameter> params;
+    
+    for (auto param : funcall.parameters) {
+        
+        if (param->nodeType == NodeType::FunCall) {
+            
+            ASTFunCall * funcall = (ASTFunCall*)param;
+            
+            /* Recurse if funcall is passed as a parameter to a funcall */
+            parameter fcall = translateFunCall(*funcall);
+            
+            params.emplace_back(fcall);
+            
+        } else if (param->nodeType == NodeType::Variable) {
+            
+            ASTVariable & variable = *((ASTVariable*)param);
+            
+            /* Get var name and type */
+            parameter var = getVariable(variable);
+            
+            params.emplace_back(var);
+            
+        } else if (param->nodeType == NodeType::Literal) {
+            
+            ASTLiteral & literal = *((ASTLiteral*)param);
+            
+            /* Get literal type and value */
+            
+            parameter lit;
+            
+            lit.type = literal.type;
+            lit.value = literal.value;
+            
+            params.emplace_back(lit);
+            
+        }
+        
+    }
+    
+    /* Mangle name and get return type, if function doesn't exist, and exception should be thrown */
+    /* If function exists, create valid C function call from provided parameters                  */
+    std::string name = NameMangler::mangleName(funcall.function, params);
+    
+    functionCall.type = _ast.getFunctionReturnType(functionCall.name);
+    
+    functionCall.value = name + "(";
+    
+    for (size_t i = 0; i < params.size(); ++i) {
+        
+        functionCall.value += params[i].value + (i == params.size() - 1 ? "" : ", ");
+        
+    }
+    
+    functionCall.value += ")";
+    
+    // std::cout << "Translate fun call: " << funcall.function << std::endl;
     
     return functionCall;
     
@@ -263,7 +318,17 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
         if (declaration.value->nodeType == NodeType::FunCall) {
             
             ASTFunCall * funcall = (ASTFunCall*)declaration.value;
-            translateFunCall(*funcall);
+            
+            parameter fcall = translateFunCall(*funcall);
+            
+            if (declaration.type != fcall.type) {
+                throw type_mismatch("Error: Type mismatch in declaration of variable ("
+                                    + declaration.type + " " + declaration.name + "). Expected: "
+                                    + declaration.type +
+                                    " Got: " + fcall.type);
+            }
+            
+            decl += " = " + fcall.value;
             
         } else if (declaration.value->nodeType == NodeType::Variable) {
             
