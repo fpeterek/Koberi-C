@@ -101,7 +101,7 @@ void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
         throw redefinition_of_variable(name);
     }
     
-    _currentScope->vars.emplace(name, type);
+    _currentScope->vars[name] = type;
     
 }
 

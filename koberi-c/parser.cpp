@@ -171,7 +171,7 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
             (
                 /* I'm using the comma operator so I don't have to split this into mulitple statements */
                 condEnd = constructBeginning + 1,
-                ASTFunCall(nullptr, "", std::vector<ASTNode *>())
+                ASTFunCall(_ast.getCurrentScopePtr(), "", std::vector<ASTNode *>())
              );
     
     

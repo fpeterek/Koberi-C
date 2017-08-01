@@ -316,10 +316,11 @@ ASTLiteral * ASTLiteral::createLiteral(const std::string & type,
     
 }
 
-ASTFunCall * ASTFunCall::createFunCall(const std::string & name,
+ASTFunCall * ASTFunCall::createFunCall(ASTScope * parent,
+                                       const std::string & name,
                                        const std::vector<ASTNode *> & params) {
     
-    ASTFunCall * funcall = new ASTFunCall(nullptr, name, params);
+    ASTFunCall * funcall = new ASTFunCall(parent, name, params);
     
     return funcall;
     
