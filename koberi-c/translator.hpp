@@ -15,6 +15,7 @@
 
 #include "traversable_ast.hpp"
 #include "name_mangler.hpp"
+#include "expressions.hpp"
 
 #include "debug_macro_definitions.hpp"
 
@@ -51,6 +52,11 @@ class Translator {
     /* Translates a Kobeři-C function into a C function and returns it as a parameter */
     /* Type is the return type of the function and value is a C funcall as a string   */
     parameter translateFunCall(ASTFunCall & funcall);
+    
+    parameter translateOperator(std::string & op, std::vector<parameter> & params);
+    parameter translatePrint(std::vector<parameter> parameters);
+    
+    parameter getFuncallParameter(ASTNode * node);
     
     /* Translates constructs and outputs them to _output */
     void translateConstruct(ASTConstruct & construct);

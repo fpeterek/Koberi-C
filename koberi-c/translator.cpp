@@ -209,17 +209,20 @@ void Translator::translateFunction(ASTFunction & function) {
         if (node->nodeType == NodeType::FunCall) {
             
             ASTFunCall * funcall = (ASTFunCall*)node;
-            Translator::translateFunCall(*funcall);
+            parameter fcall = translateFunCall(*funcall);
+            
+            indent();
+            _output << fcall.value << ";\n";
             
         } else if (node->nodeType == NodeType::Construct) {
             
             ASTConstruct * construct = (ASTConstruct*)node;
-            Translator::translateConstruct(*construct);
+            translateConstruct(*construct);
             
         } else if (node->nodeType == NodeType::Declaration) {
             
             ASTDeclaration * declaration = (ASTDeclaration*)node;
-            std::string declAsStr = Translator::translateDeclaration(*declaration);
+            std::string declAsStr = translateDeclaration(*declaration);
             
             indent();
             _output << declAsStr << "\n";
@@ -245,45 +248,29 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     std::vector<parameter> params;
     
     for (auto param : funcall.parameters) {
-        
-        if (param->nodeType == NodeType::FunCall) {
-            
-            ASTFunCall * funcall = (ASTFunCall*)param;
-            
-            /* Recurse if funcall is passed as a parameter to a funcall */
-            parameter fcall = translateFunCall(*funcall);
-            
-            params.emplace_back(fcall);
-            
-        } else if (param->nodeType == NodeType::Variable) {
-            
-            ASTVariable & variable = *((ASTVariable*)param);
-            
-            /* Get var name and type */
-            parameter var = getVariable(variable);
-            
-            params.emplace_back(var);
-            
-        } else if (param->nodeType == NodeType::Literal) {
-            
-            ASTLiteral & literal = *((ASTLiteral*)param);
-            
-            /* Get literal type and value */
-            
-            parameter lit;
-            
-            lit.type = literal.type;
-            lit.value = literal.value;
-            
-            params.emplace_back(lit);
-            
+        params.emplace_back(getFuncallParameter(param));
+    }
+    
+    for (auto & param : params) {
+        if (param.type == "") {
+            throw invalid_parameter(_functionName, funcall.function, param.value);
         }
+    }
+    
+    std::string name = funcall.function;
+    
+    if (expr::isOperator(name)) {
+        return translateOperator(name, params);
+    }
+    if (name == "print") {
+        
+        return translatePrint(params);
         
     }
     
     /* Mangle name and get return type, if function doesn't exist, and exception should be thrown */
     /* If function exists, create valid C function call from provided parameters                  */
-    std::string name = NameMangler::mangleName(funcall.function, params);
+    name = NameMangler::mangleName(funcall.function, params);
     
     functionCall.type = _ast.getFunctionReturnType(functionCall.name);
     
@@ -300,6 +287,128 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     // std::cout << "Translate fun call: " << funcall.function << std::endl;
     
     return functionCall;
+    
+}
+
+parameter Translator::translatePrint(std::vector<parameter> parameters) {
+    
+    parameter print;
+    
+    std::vector<std::string> printStatements = expr::print(parameters);
+    
+    /* If no parameters are passed print \n */
+    if (not printStatements.size()) {
+        return parameter("puts("")", "");;
+    }
+    
+    for (size_t i = 0; i < parameters.size(); ++i) {
+        
+        const parameter & statement = printStatements[i];
+        
+        if (not i++) {
+            
+            print.value += statement.value;
+            
+        } else {
+            
+            for (unsigned short il = 0; il < _indentLevel; ++il) {
+                print.value += INDENT;
+            }
+            
+            print.value += statement.value;
+            
+        }
+        
+        if (i == parameters.size() - 1) {
+            print.value += ";\n";
+        }
+        
+    }
+    
+    return print;
+    
+}
+
+parameter Translator::translateOperator(std::string & op, std::vector<parameter> & params) {
+    
+    const bool isParamless  = expr::isParameterlessOperator(op);
+    const bool isUnary      = expr::isUnaryOperator(op);
+    const bool isBinary     = expr::isBinaryOperator(op);
+    
+    if (isParamless) {
+        
+        if (params.size() and not (isUnary or isBinary)) {
+            throw invalid_call(op, _functionName, " Too many parameters");
+        }
+        
+        return expr::parameterless_operator(op);
+        
+    }
+    
+    if (isUnary) {
+        
+        if (not params.size()) {
+            throw invalid_call(op, _functionName, " Too few parameters");
+        } else if (params.size() > 1 and not isBinary) {
+            throw invalid_call(op, _functionName, " Too many parameters");
+        }
+        
+        return expr::unaryOperator(params[0], op);
+        
+    }
+    
+    if (isBinary) {
+        
+        if (params.size() < 2) {
+            throw invalid_call(op, _functionName, " Too few parameters");
+        }
+        
+        return expr::binaryOperator(params, op);
+        
+    }
+    
+    /* Should never occur */
+    return parameter(op, "");
+    
+}
+
+parameter Translator::getFuncallParameter(ASTNode * node) {
+    
+    if (node->nodeType == NodeType::FunCall) {
+        
+        ASTFunCall * funcall = (ASTFunCall*)node;
+        
+        /* Recurse if funcall is passed as a parameter to a funcall */
+        parameter fcall = translateFunCall(*funcall);
+        
+        return fcall;
+        
+    } else if (node->nodeType == NodeType::Variable) {
+        
+        ASTVariable & variable = *((ASTVariable*)node);
+        
+        /* Get var name and type */
+        parameter var = getVariable(variable);
+        
+        return var;
+        
+    } else if (node->nodeType == NodeType::Literal) {
+        
+        ASTLiteral & literal = *((ASTLiteral*)node);
+        
+        /* Get literal type and value */
+        
+        parameter lit;
+        
+        lit.type = literal.type;
+        lit.value = literal.value;
+        
+        return lit;
+        
+    }
+    
+    /* A lazy solution, it will throw but display no useful info */
+    return parameter();
     
 }
 
@@ -363,6 +472,8 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     }
     
     decl += ";";
+    
+    _ast.emplaceVariableIntoScope(parameter(declaration.name, declaration.type), declaration.parentScope);
     
     return decl;
     

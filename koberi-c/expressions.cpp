@@ -191,27 +191,28 @@ parameter expr::numMod(std::vector<parameter> & nums) {
     
 }
 
-parameter expr::print(std::vector<parameter> & params) {
+std::vector<std::string> expr::print(std::vector<parameter> & params) {
     
-    parameter string;
-    /* It's not really control flow, which is what .cf originally stood for */
-    /* It serves it's purpose but I may want to change this in the future   */
-    string.type = ".cf";
+    std::vector<std::string> statements;
     
     for (auto & i : params) {
         
         if (i.type == "num") {
-            string.value += "\tprintf(\"%f\", " + i.value + ");\n";
+            statements.emplace_back("printf(\"%f\", " + i.value + ")");
         }
         else if (i.type == "int") {
-            string.value += "\tprintf(\"%lld\", " + i.value + ");\n";
-        } else {
-            string.value += "\tfputs(" + i.value + ", stdout);\n";
+            statements.emplace_back("printf(\"%lld\", " + i.value + ")");
+        }
+        else if (i.type == "str") {
+            statements.emplace_back("fputs(" + i.value + ", stdout)");
+        }
+        else {
+            throw invalid_syntax("(print) can only print primitive types to stdout. ");
         }
         
     }
     
-    return string;
+    return statements;
     
 }
 

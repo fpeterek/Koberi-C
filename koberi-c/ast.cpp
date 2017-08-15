@@ -101,8 +101,6 @@ void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
         throw redefinition_of_variable(name);
     }
     
-    _currentScope->vars[name] = type;
-    
 }
 
 void AbstractSyntaxTree::emplaceClass(const std::string & className,
@@ -171,3 +169,10 @@ void AbstractSyntaxTree::leaveScope() {
     _currentScope = _currentScope -> parentScope;
 
 }
+
+void AbstractSyntaxTree::emplaceVariableIntoScope(const parameter & var, ASTScope * scope) {
+
+    scope->vars[var.name] = var.type;
+    
+}
+

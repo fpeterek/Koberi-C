@@ -298,4 +298,26 @@ public:
     
 };
 
+class invalid_parameter : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_parameter(const std::string & functionName, const std::string & funcall, const std::string & parameter);
+    const char * what() const throw();
+    
+};
+
+class invalid_call : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_call(const std::string & funcall, const std::string & functionName, const std::string & msg);
+    const char * what() const throw();
+    
+};
+
 #endif /* exceptions_hpp */

@@ -73,7 +73,7 @@ namespace expr {
     parameter variableDeclaration(std::string & type, std::string & name);
     parameter setNumValue(std::string & var, std::string & value);
     
-    parameter print(std::vector<parameter> & params); /* Print string to stdout */
+    std::vector<std::string> print(std::vector<parameter> & params); /* Print string to stdout */
     parameter inlineC(std::vector<parameter> & params);
     
     /* + - * / mod on ints, + - * / on nums */

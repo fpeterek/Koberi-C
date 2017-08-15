@@ -74,6 +74,7 @@ public:
     
     void leaveScope();
     
+    void emplaceVariableIntoScope(const parameter & var, ASTScope * scope);
     
 };
 

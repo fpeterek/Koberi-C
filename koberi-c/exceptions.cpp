@@ -336,3 +336,31 @@ const char * type_mismatch::what() const throw() {
     return message.c_str();
     
 }
+
+/* Beautiful */
+invalid_parameter::invalid_parameter(const std::string & functionName,
+                                     const std::string & funcall,
+                                     const std::string & parameter)
+                                    : message("Invalid parameter " + parameter +
+                                              " in call to " + funcall +
+                                              " in function " + functionName) { }
+
+const char * invalid_parameter::what() const throw() {
+    
+    return message.c_str();
+    
+}
+
+/* Beautiful */
+invalid_call::invalid_call(const std::string & funcall,
+                           const std::string & functionName,
+                           const std::string & msg)
+                            : message("Invalid call to " + funcall +
+                                      " in function " + functionName +
+                                      ": " + msg) { }
+
+const char * invalid_call::what() const throw() {
+    
+    return message.c_str();
+    
+}
