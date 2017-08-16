@@ -140,11 +140,13 @@ struct ASTFunction : public ASTScope {
 struct ASTConstruct : public ASTScope {
     
     std::string construct;
-    ASTFunCall condition;
+    ASTNode * condition;
     
     ASTConstruct(ASTScope * parent,
-                const std::string & construct,
-                const ASTFunCall & condition);
+                 const std::string & construct,
+                 ASTNode * condition);
+    
+    ~ASTConstruct();
     
 };
 

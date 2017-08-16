@@ -92,11 +92,59 @@ ASTFunction::ASTFunction(ASTScope * parent,
 
 ASTConstruct::ASTConstruct(ASTScope * parent,
                            const std::string & construct,
-                           const ASTFunCall & newCondition) : ASTScope(parent), condition(newCondition) {
+                           ASTNode * newCondition) : ASTScope(parent) {
 
     nodeType = NodeType::Construct;
     this->construct = construct;
-    this->condition = condition;
+    this->condition = newCondition;
+    
+}
+
+ASTConstruct::~ASTConstruct() {
+    
+    switch (condition -> nodeType) {
+            
+        case NodeType::Variable:
+            delete (ASTVariable*)condition;
+            break;
+            
+        case NodeType::Literal:
+            delete (ASTLiteral*)condition;
+            break;
+            
+        case NodeType::FunCall:
+            delete (ASTFunCall*)condition;
+            break;
+            
+            /* These cases should never occur, but I'm putting them here just to be sure     */
+            /* Can't risk creating memory leaks if someone emplaces these somewhere          */
+
+            
+        case NodeType::Scope:
+            delete (ASTScope*)condition;
+            break;
+            
+        case NodeType::Declaration:
+            delete (ASTDeclaration*)condition;
+            break;
+            
+        case NodeType::Function:
+            delete (ASTFunction*)condition;
+            break;
+            
+        case NodeType::Construct:
+            delete (ASTConstruct*)condition;
+            break;
+            
+        case NodeType::Attribute:
+            delete (ASTAttribute*)condition;
+            break;
+            
+        default:
+            delete condition;
+            break;
+            
+    }
     
 }
 

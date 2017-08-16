@@ -163,16 +163,26 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
     unsigned long long condEnd = findSexpEnd(constructBeginning + 2);
     
     
-    /* If constructs isn't else, find condition */
-    /* If construct isn't else, there is no condition to find */
-    ASTFunCall condition =
-        (construct != "else") ?
-            parseFunCall(constructBeginning + 2, condEnd) :
-            (
-                /* I'm using the comma operator so I don't have to split this into mulitple statements */
-                condEnd = constructBeginning + 1,
-                ASTFunCall(_ast.getCurrentScopePtr(), "", std::vector<ASTNode *>())
-             );
+    ASTNode * condition;
+    
+    if (construct != "else") {
+        
+        if (_tokens[constructBeginning + 3].type == tokType::intLit or
+            _tokens[constructBeginning + 3].type == tokType::numLit) {
+            
+            std::string type = _tokens[constructBeginning + 3].type == tokType::intLit ? "int" : "num";
+            
+            condition = new ASTLiteral(type, _tokens[constructBeginning + 3].value);
+            
+        }
+        else {
+            condition = new ASTFunCall(parseFunCall(constructBeginning + 2, condEnd));
+        }
+    }
+    else {
+        condition = new ASTFunCall(_ast.getCurrentScopePtr(), "", std::vector<ASTNode *>());
+        condEnd = constructBeginning + 1;
+    }
     
     
     

@@ -201,43 +201,7 @@ void Translator::translateFunction(ASTFunction & function) {
         
     }
     
-    _output << ") {" << "\n";
-    ++_indentLevel;
-    
-    for (ASTNode * node : function.childNodes) {
-        
-        if (node->nodeType == NodeType::FunCall) {
-            
-            ASTFunCall * funcall = (ASTFunCall*)node;
-            parameter fcall = translateFunCall(*funcall);
-            
-            indent();
-            _output << fcall.value << ";\n";
-            
-        } else if (node->nodeType == NodeType::Construct) {
-            
-            ASTConstruct * construct = (ASTConstruct*)node;
-            translateConstruct(*construct);
-            
-        } else if (node->nodeType == NodeType::Declaration) {
-            
-            ASTDeclaration * declaration = (ASTDeclaration*)node;
-            std::string declAsStr = translateDeclaration(*declaration);
-            
-            indent();
-            _output << declAsStr << "\n";
-        
-        
-        } else {
-            
-            throw invalid_statement(_functionName);
-            
-        }
-        
-    }
-    
-    _output << "}" << "\n" << std::endl;
-    --_indentLevel;
+    translateScope(function.childNodes);
     
 }
 
@@ -412,7 +376,107 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
     
 }
 
+void Translator::translateScope(std::vector<ASTNode *> scopeNodes) {
+    
+    _output << ") {" << "\n";
+    ++_indentLevel;
+    
+    for (ASTNode * node : scopeNodes) {
+        translateFunctionNode(node);
+    }
+    
+    _output << "}" << "\n" << std::endl;
+    --_indentLevel;
+    
+}
+
+void Translator::translateFunctionNode(ASTNode * node) {
+    
+    if (node->nodeType == NodeType::FunCall) {
+        
+        ASTFunCall * funcall = (ASTFunCall*)node;
+        parameter fcall = translateFunCall(*funcall);
+        
+        indent();
+        _output << fcall.value << ";\n";
+        
+    } else if (node->nodeType == NodeType::Construct) {
+        
+        ASTConstruct * construct = (ASTConstruct*)node;
+        translateConstruct(*construct);
+        
+    } else if (node->nodeType == NodeType::Declaration) {
+        
+        ASTDeclaration * declaration = (ASTDeclaration*)node;
+        std::string declAsStr = translateDeclaration(*declaration);
+        
+        indent();
+        _output << declAsStr << "\n";
+        
+        
+    } else {
+        
+        throw invalid_statement(_functionName);
+        
+    }
+    
+}
+
 void Translator::translateConstruct(ASTConstruct & construct) {
+    
+    std::string constructStr;
+    
+    if (construct.construct == "if" or construct.construct == "elif" or construct.construct == "while") {
+        constructStr = translateIfWhile(construct);
+    }
+    else if (construct.construct == "else") {
+        constructStr = translateElse(construct);
+    }
+    
+    translateScope(construct.childNodes);
+    
+    
+}
+
+std::string Translator::translateIfWhile(ASTConstruct & construct) {
+    
+    std::string _if = construct.construct + " (";
+    
+    
+    // parameter condition = translateFunCall(construct.condition);
+    
+    parameter condition;
+    
+    if (construct.condition->nodeType == NodeType::Literal) {
+        
+        ASTLiteral & lit = *((ASTLiteral*)construct.condition);
+        condition = parameter(lit.value, lit.type);
+        
+    }
+    else {
+        
+        ASTFunCall & fcall = *((ASTFunCall*)construct.condition);
+        condition = translateFunCall(fcall);
+        
+    }
+    
+    if (condition.type != "int" or condition.type != "num") {
+        throw bad_type("Error: Construct conditions must be of type int or num. ");
+    }
+    
+    _if += condition.value;
+    
+    _if += ") ";
+    
+    return _if;
+    
+}
+
+std::string Translator::translateElse(ASTConstruct & construct) {
+    
+    /* Well, nothing more complicated is really needed, the function only exists to keep things consistent */
+    std::string _else = "else ";
+    return _else;
     
 }
 

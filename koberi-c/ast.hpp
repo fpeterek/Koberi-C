@@ -57,7 +57,7 @@ public:
                          const std::vector<parameter> & params);
     
     void emplaceConstruct(const std::string & construct,
-                          const ASTFunCall & condition);
+                          ASTNode * condition);
     
     void emplaceClass(const std::string & className,
                       const std::string & superClass,

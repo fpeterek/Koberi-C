@@ -58,8 +58,17 @@ class Translator {
     
     parameter getFuncallParameter(ASTNode * node);
     
+    /* Translates a scope ( {...} ) */
+    void translateScope(std::vector<ASTNode *> scopeNodes);
+    /* Translates node found inside function bodies (constructs, declarations, funcalls) */
+    void translateFunctionNode(ASTNode * node);
+    
     /* Translates constructs and outputs them to _output */
     void translateConstruct(ASTConstruct & construct);
+    
+    /* If, else if, while are syntactically the same, only the keyword is different */
+    std::string translateIfWhile(ASTConstruct & construct);
+    std::string translateElse(ASTConstruct & construct);
     
     std::string translateDeclaration(ASTDeclaration & declaration);
     

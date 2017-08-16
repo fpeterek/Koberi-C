@@ -60,7 +60,7 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
 }
 
 void AbstractSyntaxTree::emplaceConstruct(const std::string & construct,
-                                          const ASTFunCall & condition) {
+                                          ASTNode * condition) {
 
     ASTConstruct * constructPtr = new ASTConstruct(_currentScope, construct, condition);
     
