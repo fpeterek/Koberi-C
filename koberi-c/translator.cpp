@@ -305,7 +305,7 @@ parameter Translator::translatePrint(std::vector<parameter> parameters) {
         
         const parameter & statement = printStatements[i];
         
-        if (not i++) {
+        if (not i) {
             
             print.value += statement.value;
             
@@ -319,7 +319,7 @@ parameter Translator::translatePrint(std::vector<parameter> parameters) {
             
         }
         
-        if (i == parameters.size() - 1) {
+        if (i != parameters.size() - 1) {
             print.value += ";\n";
         }
         
