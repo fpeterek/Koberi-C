@@ -51,7 +51,8 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
             throw redefinition_of_variable(param.name);
         }
         
-        _currentScope->vars.emplace(param.name, param.type);
+        _currentScope->vars[param.name] = param.type;
+        // _currentScope->vars.emplace(param.name, param.type);
         
     }
     

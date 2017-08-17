@@ -72,7 +72,7 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
         
     }
     
-    if (op == ">" or op == "<" or op == "equals") {
+    if (op == ">" or op == "<" or op == "equals" or op == "not_eq") {
         return comparison(op, params);
     }
     
@@ -124,7 +124,7 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
 /* ----------------------------------------------------- Don't use ----------------------------------------------------- */
 /* - */                                                                                                             /* - */
 /* - */ void equals(parameter & expr, const std::string & op, std::vector<parameter> & params, const size_t iter) { /* - */
-/* - */     expr.value += " " + params[0].value + " == " + params[iter].value + " &&";                              /* - */
+/* - */     expr.value += " " + params[0].value + " " + op + " " + params[iter].value + " &&";                              /* - */
 /* - */ }                                                                                                           /* - */
 /* - */                                                                                                             /* - */
 /* - */ void ltOrGt(parameter & expr, const std::string & op, std::vector<parameter> & params, const size_t iter) { /* - */
@@ -154,7 +154,7 @@ parameter expr::comparison(std::string & op, std::vector<parameter> & params) {
     expr.value = "(";
     
     /* Can't use a lambda expressions because different lambdas have different types, so I'm using an std::function */
-    auto fun = (op == "equals") ? equals : ltOrGt;
+    auto fun = (op == "equals" or op == "not_eq") ? equals : ltOrGt;
     
     for (size_t i = 1; i < paramsSize; ++i) {
         

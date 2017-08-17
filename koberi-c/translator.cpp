@@ -201,6 +201,8 @@ void Translator::translateFunction(ASTFunction & function) {
         
     }
     
+    _output << ")";
+    
     translateScope(function.childNodes);
     
 }
@@ -236,7 +238,7 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     /* If function exists, create valid C function call from provided parameters                  */
     name = NameMangler::mangleName(funcall.function, params);
     
-    functionCall.type = _ast.getFunctionReturnType(functionCall.name);
+    functionCall.type = _ast.getFunctionReturnType(name);
     
     functionCall.value = name + "(";
     
@@ -305,7 +307,9 @@ parameter Translator::translateOperator(std::string & op, std::vector<parameter>
             throw invalid_call(op, _functionName, " Too many parameters");
         }
         
-        return expr::parameterless_operator(op);
+        if (not params.size()) {
+            return expr::parameterless_operator(op);
+        }
         
     }
     
@@ -317,7 +321,9 @@ parameter Translator::translateOperator(std::string & op, std::vector<parameter>
             throw invalid_call(op, _functionName, " Too many parameters");
         }
         
-        return expr::unaryOperator(params[0], op);
+        if (params.size() == 1) {
+            return expr::unaryOperator(params[0], op);
+        }
         
     }
     
@@ -378,15 +384,17 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
 
 void Translator::translateScope(std::vector<ASTNode *> scopeNodes) {
     
-    _output << ") {" << "\n";
+    _output << " {" << "\n";
     ++_indentLevel;
     
     for (ASTNode * node : scopeNodes) {
         translateFunctionNode(node);
     }
     
-    _output << "}" << "\n" << std::endl;
     --_indentLevel;
+    indent();
+    _output << "}" << "\n" << std::endl;
+    
     
 }
 
@@ -433,6 +441,9 @@ void Translator::translateConstruct(ASTConstruct & construct) {
         constructStr = translateElse(construct);
     }
     
+    indent();
+    _output << constructStr;
+    
     translateScope(construct.childNodes);
     
     
@@ -460,7 +471,7 @@ std::string Translator::translateIfWhile(ASTConstruct & construct) {
         
     }
     
-    if (condition.type != "int" or condition.type != "num") {
+    if (condition.type != "int" and condition.type != "num") {
         throw bad_type("Error: Construct conditions must be of type int or num. ");
     }
     
