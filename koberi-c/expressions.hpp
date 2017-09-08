@@ -74,7 +74,7 @@ namespace expr {
     parameter setNumValue(std::string & var, std::string & value);
     
     std::vector<std::string> print(std::vector<parameter> & params); /* Print string to stdout */
-    parameter inlineC(std::vector<parameter> & params);
+    std::vector<std::string> inlineC(std::vector<parameter> & params);
     
     /* + - * / mod on ints, + - * / on nums */
     parameter binaryOperator(std::vector<parameter> & params, std::string & op);

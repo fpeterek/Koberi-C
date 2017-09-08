@@ -39,6 +39,8 @@ public:
     const std::unordered_map<std::string, _class> & getClasses();
     const std::vector<std::string> & getClassOrder();
     
+    const _class & getClass(std::string & className);
+    
     bool isDataType(const std::string & param);
     bool isClass(const std::string & param);
     

@@ -120,6 +120,12 @@ std::string TraversableAbstractSyntaxTree::getFunctionReturnType(const std::stri
     
 }
 
+const _class & TraversableAbstractSyntaxTree::getClass(std::string & className) {
+    
+    return _classes.at(className);
+    
+}
+
 const std::unordered_map<std::string, _class> & TraversableAbstractSyntaxTree::getClasses() {
     return _classes;
 }

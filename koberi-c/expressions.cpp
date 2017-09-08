@@ -158,7 +158,7 @@ parameter expr::comparison(std::string & op, std::vector<parameter> & params) {
     
     for (size_t i = 1; i < paramsSize; ++i) {
         
-        fun(expr, op, params, i);
+        fun(expr, binary_operators_map.at(op), params, i);
         
     }
     
@@ -227,10 +227,10 @@ void replaceEscapeSequence(std::string & str) {
     
 }
 
-parameter expr::inlineC(std::vector<parameter> &params) {
+std::vector<std::string> expr::inlineC(std::vector<parameter> &params) {
     
-    parameter c;
-    c.type = ".cf";
+    std::vector<std::string> c;
+    
     std::string temp;
     for (auto & i : params) {
         
@@ -238,11 +238,9 @@ parameter expr::inlineC(std::vector<parameter> &params) {
             throw bad_type("Inline C requires a string literal. ");
         }
         
-        temp = i.value.substr(1, i.value.length() - 2);
+        temp = i.value;
         replaceEscapeSequence(temp);
-        c.value += "\t";
-        c.value += temp;
-        c.value += "\n";
+        c.emplace_back(temp);
         
     }
     

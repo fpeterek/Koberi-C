@@ -116,10 +116,13 @@ ASTConstruct::~ASTConstruct() {
             delete (ASTFunCall*)condition;
             break;
             
+        case NodeType::Attribute:
+            delete (ASTAttribute*)condition;
+            break;
+            
             /* These cases should never occur, but I'm putting them here just to be sure     */
             /* Can't risk creating memory leaks if someone emplaces these somewhere          */
 
-            
         case NodeType::Scope:
             delete (ASTScope*)condition;
             break;
@@ -134,10 +137,6 @@ ASTConstruct::~ASTConstruct() {
             
         case NodeType::Construct:
             delete (ASTConstruct*)condition;
-            break;
-            
-        case NodeType::Attribute:
-            delete (ASTAttribute*)condition;
             break;
             
         default:
@@ -270,14 +269,18 @@ ASTFunCall::~ASTFunCall() {
                 delete (ASTLiteral*)param;
                 break;
                 
-                /* These cases should never occur, but I'd rather be safe than sorry */
-                
-            case NodeType::Scope:
-                delete (ASTScope*)param;
+            case NodeType::Attribute:
+                delete (ASTAttribute*)param;
                 break;
                 
             case NodeType::FunCall:
                 delete (ASTFunCall*)param;
+                break;
+                
+                /* These cases should never occur, but I'd rather be safe than sorry */
+                
+            case NodeType::Scope:
+                delete (ASTScope*)param;
                 break;
                 
             case NodeType::Declaration:
@@ -290,10 +293,6 @@ ASTFunCall::~ASTFunCall() {
                 
             case NodeType::Construct:
                 delete (ASTConstruct*)param;
-                break;
-                
-            case NodeType::Attribute:
-                delete (ASTAttribute*)param;
                 break;
                 
             default:
@@ -346,10 +345,10 @@ ASTVariable * ASTVariable::createVariable(const std::string & variableName, ASTS
     
 }
 
-ASTAttribute::ASTAttribute(const std::vector<std::string> & accessOrder) {
+ASTAttribute::ASTAttribute(const std::vector<std::string> & accessOrder, ASTScope * parent) {
     
     nodeType = NodeType::Attribute;
-    
+    parentScope = parent;
     
     this->accessOrder = accessOrder;
     

@@ -175,6 +175,30 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
             condition = new ASTLiteral(type, _tokens[constructBeginning + 3].value);
             
         }
+        else if (_tokens[constructBeginning + 3].type == tokType::openingBra) {
+            
+            std::vector<std::string> attributes;
+            
+            unsigned long long iter = constructBeginning + 3;
+            size_t tokSize = _tokens.size();
+            
+            while (_tokens[++iter] != tokType::closingBra) {
+                
+                if (iter >= tokSize) {
+                    throw missing_token(']');
+                }
+                
+                if (_tokens[iter] != tokType::id) {
+                    throw unexpected_token(_tokens[iter].value);
+                }
+                
+                attributes.emplace_back(_tokens[iter].value);
+                
+            }
+            
+            condition = new ASTAttribute(attributes, _ast.getCurrentScopePtr());
+            
+        }
         else {
             condition = new ASTFunCall(parseFunCall(constructBeginning + 2, condEnd));
         }
@@ -239,7 +263,7 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
                 
             }
             
-            ASTAttribute * attr = new ASTAttribute(attributes);
+            ASTAttribute * attr = new ASTAttribute(attributes, _ast.getCurrentScopePtr());
             params.emplace_back(attr);
             
         } else if (isLiteral(iter)) {

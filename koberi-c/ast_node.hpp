@@ -100,7 +100,7 @@ struct ASTAttribute : public ASTNode {
     /* Which translates to object.attributeObject.number                                 */
     std::vector<std::string> accessOrder;
     
-    ASTAttribute(const std::vector<std::string> & accessOrder);
+    ASTAttribute(const std::vector<std::string> & accessOrder, ASTScope * parentScope);
     
 };
 

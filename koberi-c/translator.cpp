@@ -231,6 +231,9 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     if (name == "print") {
         return translatePrint(params);
     }
+    if (name == "c") {
+        return inlineC(params);
+    }
     
     /* Mangle name and get return type, if function doesn't exist, and exception should be thrown */
     /* If function exists, create valid C function call from provided parameters                  */
@@ -254,7 +257,7 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     
 }
 
-parameter Translator::translatePrint(std::vector<parameter> parameters) {
+parameter Translator::translatePrint(std::vector<parameter> & parameters) {
     
     parameter print;
     
@@ -290,6 +293,45 @@ parameter Translator::translatePrint(std::vector<parameter> parameters) {
     }
     
     return print;
+    
+}
+
+parameter Translator::inlineC(std::vector<parameter> & params) {
+    
+    parameter c;
+    
+    std::vector<std::string> cStatements = expr::inlineC(params);
+    
+    /* If no parameters are passed print \n */
+    if (not cStatements.size()) {
+        return parameter("", "");
+    }
+    
+    for (size_t i = 0; i < cStatements.size(); ++i) {
+        
+        const std::string & statement = cStatements[i];
+        
+        if (not i) {
+            
+            c.value += statement;
+            
+        } else {
+            
+            for (unsigned short il = 0; il < _indentLevel; ++il) {
+                c.value += INDENT;
+            }
+            
+            c.value += statement;
+            
+        }
+        
+        if (i != params.size() - 1) {
+            c.value += "\n";
+        }
+        
+    }
+    
+    return c;
     
 }
 
@@ -467,6 +509,12 @@ std::string Translator::translateIfWhile(ASTConstruct & construct) {
         condition = parameter(lit.value, lit.type);
         
     }
+    else if (construct.condition->nodeType == NodeType::Attribute) {
+    
+        ASTAttribute & attr = *((ASTAttribute*)construct.condition);
+        condition = translateAttributeAccess(attr);
+        
+    }
     else {
         
         ASTFunCall & fcall = *((ASTFunCall*)construct.condition);
@@ -545,6 +593,11 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             decl += " = " + literal.value;
             
+        } else if (declaration.value->nodeType == NodeType::Attribute) {
+            
+            ASTAttribute & attribute = *((ASTAttribute*)declaration.value);
+            decl += " = " + translateAttributeAccess(attribute).value;
+            
         }
         
     }
@@ -564,14 +617,50 @@ parameter Translator::translateAttributeAccess(ASTAttribute & attribute) {
     }
     
     parameter attr;
-    parameter baseVar;
-    baseVar.name = attribute.accessOrder[0];
     
+    parameter baseVar;
+    
+    baseVar.name = attribute.accessOrder[0];
     baseVar.type = _ast.getVarType(baseVar.name, attribute.parentScope);
     
-    parameter getAttributeRecursive(std::string & var, std::vector<std::string> & attributes, unsigned int iter = 0);
+    attr.type = checkAttributesAndReturnType(baseVar, attribute.accessOrder);
+    
+    for (auto & i : attribute.accessOrder) {
+        attr.value += i + ".";
+    }
+    
+    attr.value.pop_back();
     
     return attr;
+    
+}
+
+std::string Translator::checkAttributesAndReturnType(parameter & var, std::vector<std::string> & attributes, unsigned int iter) {
+    
+    /* Probably unnecessary */
+    /* if (iter != attributes.size() - 1) {
+        checkIsClass(var.type);
+    } */
+    
+    checkIsClass(var.type);
+    
+    std::string & attribute = attributes[iter];
+    
+    const _class & cls = _ast.getClass(var.type);
+    
+    if (not cls.hasVar(attribute)) {
+        throw invalid_attribute_access(_functionName, "Class " + cls.className + " has no attribute " + attribute);
+    }
+    
+    std::string type = cls.getVarType(attribute);
+    
+    if (iter == attributes.size() - 1) {
+        return type;
+    }
+    
+    parameter baseVar(attribute, type);
+    
+    return checkAttributesAndReturnType(baseVar, attributes, iter + 1);
     
 }
 
@@ -583,6 +672,14 @@ parameter Translator::getVariable(ASTVariable & variable) {
     var.type = _ast.getVarType(variable.name, variable.parentScope);
     
     return var;
+    
+}
+
+void Translator::checkIsClass(std::string & className) {
+    
+    if (not _ast.isClass(className)) {
+        throw invalid_attribute_access(_functionName, className + " is not a class.");
+    }
     
 }
 

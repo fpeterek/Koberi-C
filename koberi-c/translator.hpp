@@ -54,7 +54,8 @@ class Translator {
     parameter translateFunCall(ASTFunCall & funcall);
     
     parameter translateOperator(std::string & op, std::vector<parameter> & params);
-    parameter translatePrint(std::vector<parameter> parameters);
+    parameter translatePrint(std::vector<parameter> & parameters);
+    parameter inlineC(std::vector<parameter> & parameters);
     
     parameter getFuncallParameter(ASTNode * node);
     
@@ -73,8 +74,11 @@ class Translator {
     std::string translateDeclaration(ASTDeclaration & declaration);
     
     parameter translateAttributeAccess(ASTAttribute & attribute);
-    parameter getAttributeRecursive(parameter & var, std::vector<std::string> & attributes, unsigned int iter = 0);
+    std::string checkAttributesAndReturnType(parameter & var, std::vector<std::string> & attributes, unsigned int iter = 1);
     parameter getVariable(ASTVariable & variable);
+    
+    /* Checks if parameter is an existing class, throws invalid_attribute_access exception if parameter isn't a class */
+    void checkIsClass(std::string & className);
     
     /* Indents code */
     void indent();
