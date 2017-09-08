@@ -320,4 +320,15 @@ public:
     
 };
 
+class invalid_attribute_access : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_attribute_access(const std::string & functionName, const std::string & msg);
+    const char * what() const throw();
+    
+};
+
 #endif /* exceptions_hpp */

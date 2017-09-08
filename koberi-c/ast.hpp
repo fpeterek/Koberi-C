@@ -32,6 +32,8 @@ protected:
     /* Keeps track of all data types, whether native types or user defined types */
     std::vector<std::string> _dataTypes = { "num", "int", "str", "void" };
     
+    const std::vector<std::string> _primitiveTypes = { "num", "int", "str", "void" };
+    
     void checkType(const std::string & type);
     
     /* Stores classes */

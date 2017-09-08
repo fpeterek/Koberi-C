@@ -134,3 +134,9 @@ bool TraversableAbstractSyntaxTree::isDataType(const std::string & param) {
     
 }
 
+bool TraversableAbstractSyntaxTree::isClass(const std::string & param) {
+    
+    /* Check if param is an existing data type. If yes, check if it isn't a primitive type. */
+    return isDataType(param) and not contains(_primitiveTypes, param);
+    
+}

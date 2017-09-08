@@ -72,6 +72,8 @@ class Translator {
     
     std::string translateDeclaration(ASTDeclaration & declaration);
     
+    parameter translateAttributeAccess(ASTAttribute & attribute);
+    parameter getAttributeRecursive(parameter & var, std::vector<std::string> & attributes, unsigned int iter = 0);
     parameter getVariable(ASTVariable & variable);
     
     /* Indents code */

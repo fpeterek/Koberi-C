@@ -40,6 +40,7 @@ public:
     const std::vector<std::string> & getClassOrder();
     
     bool isDataType(const std::string & param);
+    bool isClass(const std::string & param);
     
 };
 

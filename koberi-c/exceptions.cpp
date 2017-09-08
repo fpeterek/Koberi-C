@@ -364,3 +364,17 @@ const char * invalid_call::what() const throw() {
     return message.c_str();
     
 }
+
+invalid_attribute_access::invalid_attribute_access(const std::string & functionName,
+                                                   const std::string & msg)
+                                                    : message("Invalid attribute access in function "
+                                                               + functionName + ". " + msg) {
+    
+}
+
+
+const char * invalid_attribute_access::what() const throw() {
+    
+    return message.c_str();
+    
+}

@@ -229,9 +229,7 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
         return translateOperator(name, params);
     }
     if (name == "print") {
-        
         return translatePrint(params);
-        
     }
     
     /* Mangle name and get return type, if function doesn't exist, and exception should be thrown */
@@ -374,6 +372,11 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
         lit.value = literal.value;
         
         return lit;
+        
+    } else if (node->nodeType == NodeType::Attribute) {
+        
+        ASTAttribute & attribute = *((ASTAttribute*)node);
+        return translateAttributeAccess(attribute);
         
     }
     
@@ -551,6 +554,24 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     _ast.emplaceVariableIntoScope(parameter(declaration.name, declaration.type), declaration.parentScope);
     
     return decl;
+    
+}
+
+parameter Translator::translateAttributeAccess(ASTAttribute & attribute) {
+    
+    if (attribute.accessOrder.size() < 2) {
+        throw invalid_attribute_access(_functionName, "Not enough parameters.");
+    }
+    
+    parameter attr;
+    parameter baseVar;
+    baseVar.name = attribute.accessOrder[0];
+    
+    baseVar.type = _ast.getVarType(baseVar.name, attribute.parentScope);
+    
+    parameter getAttributeRecursive(std::string & var, std::vector<std::string> & attributes, unsigned int iter = 0);
+    
+    return attr;
     
 }
 
