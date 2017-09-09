@@ -160,26 +160,26 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
     
     std::string construct = _tokens[constructBeginning + 1].value;
     
-    unsigned long long condEnd = findSexpEnd(constructBeginning + 2);
+    unsigned long long condEnd = constructBeginning + 2;
     
     
     ASTNode * condition;
     
     if (construct != "else") {
         
-        if (_tokens[constructBeginning + 3].type == tokType::intLit or
-            _tokens[constructBeginning + 3].type == tokType::numLit) {
+        if (_tokens[constructBeginning + 2].type == tokType::intLit or
+            _tokens[constructBeginning + 2].type == tokType::numLit) {
             
-            std::string type = _tokens[constructBeginning + 3].type == tokType::intLit ? "int" : "num";
+            std::string type = _tokens[constructBeginning + 2].type == tokType::intLit ? "int" : "num";
             
-            condition = new ASTLiteral(type, _tokens[constructBeginning + 3].value);
+            condition = new ASTLiteral(type, _tokens[constructBeginning + 2].value);
             
         }
-        else if (_tokens[constructBeginning + 3].type == tokType::openingBra) {
+        else if (_tokens[constructBeginning + 2].type == tokType::openingBra) {
             
             std::vector<std::string> attributes;
             
-            unsigned long long iter = constructBeginning + 3;
+            unsigned long long iter = constructBeginning + 2;
             size_t tokSize = _tokens.size();
             
             while (_tokens[++iter] != tokType::closingBra) {
@@ -197,11 +197,23 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
             }
             
             condition = new ASTAttribute(attributes, _ast.getCurrentScopePtr());
+            condEnd = constructBeginning + 2;
+            while (_tokens[condEnd].type != tokType::closingBra) {
+                ++condEnd;
+                if (condEnd == _tokens.size()) {
+                    throw missing_token(']');
+                }
+            }
             
         }
+        else if (_tokens[constructBeginning + 2].type == tokType::id){
+            condition = new ASTVariable(_tokens[constructBeginning + 2].value, _ast.getCurrentScopePtr());
+        }
         else {
+            condEnd = findSexpEnd(constructBeginning + 2);
             condition = new ASTFunCall(parseFunCall(constructBeginning + 2, condEnd));
         }
+        
     }
     else {
         condition = new ASTFunCall(_ast.getCurrentScopePtr(), "", std::vector<ASTNode *>());

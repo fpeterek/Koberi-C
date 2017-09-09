@@ -302,7 +302,7 @@ parameter Translator::inlineC(std::vector<parameter> & params) {
     
     std::vector<std::string> cStatements = expr::inlineC(params);
     
-    /* If no parameters are passed print \n */
+    /* If no parameters are passed do nothing */
     if (not cStatements.size()) {
         return parameter("", "");
     }
@@ -513,6 +513,12 @@ std::string Translator::translateIfWhile(ASTConstruct & construct) {
     
         ASTAttribute & attr = *((ASTAttribute*)construct.condition);
         condition = translateAttributeAccess(attr);
+        
+    }
+    else if (construct.condition->nodeType == NodeType::Variable) {
+        
+        ASTVariable & var = *((ASTVariable*)construct.condition);
+        condition = parameter(var.name, _ast.getVarType(var.name, var.parentScope));
         
     }
     else {
