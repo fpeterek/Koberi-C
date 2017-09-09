@@ -265,7 +265,7 @@ parameter Translator::translatePrint(std::vector<parameter> & parameters) {
     
     /* If no parameters are passed print \n */
     if (not printStatements.size()) {
-        return parameter("puts("")", "");;
+        return parameter("puts(\"\")", "");
     }
     
     for (size_t i = 0; i < parameters.size(); ++i) {
