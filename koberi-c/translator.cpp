@@ -12,6 +12,18 @@ Translator::Translator(TraversableAbstractSyntaxTree & ast) : _ast(ast) {
     
 }
 
+void Translator::libraries() {
+    
+    _output << "/* Libraries */" << "\n\n";
+    
+    _output << "#include <stdio.h>" << "\n";
+    _output << "#include <stdlib.h>" << "\n";
+    _output << "#include <time.h>" << "\n";
+    _output << "#include <math.h>" << "\n";
+    _output << "#include <string.h>" << "\n";
+    
+}
+
 void Translator::typedefs() {
     
     _output << "\n" << "/* Typedefs */" << "\n";
@@ -132,7 +144,7 @@ void Translator::main() {
     
     _output << "\n" << "/* C Main Function */" << "\n" << "\n";
     
-    _output << "int main(int argc, const char * argv[]) {" << "\n";
+    _output << "int main(int argc, const char * argv[]) {" << "\n";
     _output << INDENT << "return " << NameMangler::mangleName("main", std::vector<parameter>()) << "();" << "\n";
     _output << "}" << std::endl;
     
@@ -156,6 +168,7 @@ void Translator::translate() {
     
     kobericMainCheck();
     
+    libraries();
     typedefs();
     translateClasses();
     translateGlobalVars();

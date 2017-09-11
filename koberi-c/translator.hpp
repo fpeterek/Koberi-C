@@ -34,6 +34,7 @@ class Translator {
     /* Used to store name of current function to make error messages slightly more useful */
     std::string _functionName;
     
+    void libraries();
     void typedefs();
     void translateClasses();
     void translateGlobalVars();
