@@ -8,6 +8,35 @@
 
 #include "expressions.hpp"
 
+bool expr::isConstruct(const std::string & construct) {
+    
+    return contains(constructs, construct);
+    
+}
+
+bool expr::isOperator(const std::string & op) {
+    
+    return contains(operators, op);
+    
+}
+
+bool expr::isParameterlessOperator(const std::string & op) {
+    
+    return contains(parameterless_operators, op);
+
+}
+
+bool expr::isUnaryOperator(const std::string & op) {
+    
+    return contains(unary_operators, op);
+
+}
+
+bool expr::isBinaryOperator(const std::string & op) {
+    
+    return contains(binary_operators, op);
+
+}
 
 parameter expr::variableDeclaration(std::string & type, std::string & name, std::string & value) {
     
@@ -43,7 +72,7 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
         
     }
     
-    if (op == ">" or op == "<" or op == "equals") {
+    if (op == ">" or op == "<" or op == "equals" or op == "not_eq") {
         return comparison(op, params);
     }
     
@@ -95,7 +124,7 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
 /* ----------------------------------------------------- Don't use ----------------------------------------------------- */
 /* - */                                                                                                             /* - */
 /* - */ void equals(parameter & expr, const std::string & op, std::vector<parameter> & params, const size_t iter) { /* - */
-/* - */     expr.value += " " + params[0].value + " == " + params[iter].value + " &&";                              /* - */
+/* - */     expr.value += " " + params[0].value + " " + op + " " + params[iter].value + " &&";                              /* - */
 /* - */ }                                                                                                           /* - */
 /* - */                                                                                                             /* - */
 /* - */ void ltOrGt(parameter & expr, const std::string & op, std::vector<parameter> & params, const size_t iter) { /* - */
@@ -125,11 +154,11 @@ parameter expr::comparison(std::string & op, std::vector<parameter> & params) {
     expr.value = "(";
     
     /* Can't use a lambda expressions because different lambdas have different types, so I'm using an std::function */
-    auto fun = (op == "equals") ? equals : ltOrGt;
+    auto fun = (op == "equals" or op == "not_eq") ? equals : ltOrGt;
     
     for (size_t i = 1; i < paramsSize; ++i) {
         
-        fun(expr, op, params, i);
+        fun(expr, binary_operators_map.at(op), params, i);
         
     }
     
@@ -162,27 +191,28 @@ parameter expr::numMod(std::vector<parameter> & nums) {
     
 }
 
-parameter expr::print(std::vector<parameter> & params) {
+std::vector<std::string> expr::print(std::vector<parameter> & params) {
     
-    parameter string;
-    /* It's not really control flow, which is what .cf originally stood for */
-    /* It serves it's purpose but I may want to change this in the future   */
-    string.type = ".cf";
+    std::vector<std::string> statements;
     
     for (auto & i : params) {
         
         if (i.type == "num") {
-            string.value += "\tprintf(\"%f\", " + i.value + ");\n";
+            statements.emplace_back("printf(\"%f\", " + i.value + ")");
         }
         else if (i.type == "int") {
-            string.value += "\tprintf(\"%lld\", " + i.value + ");\n";
-        } else {
-            string.value += "\tfputs(" + i.value + ", stdout);\n";
+            statements.emplace_back("printf(\"%lld\", " + i.value + ")");
+        }
+        else if (i.type == "str") {
+            statements.emplace_back("fputs(\"" + i.value + "\", stdout)");
+        }
+        else {
+            throw invalid_syntax("(print) can only print primitive types to stdout. ");
         }
         
     }
     
-    return string;
+    return statements;
     
 }
 
@@ -197,10 +227,10 @@ void replaceEscapeSequence(std::string & str) {
     
 }
 
-parameter expr::inlineC(std::vector<parameter> &params) {
+std::vector<std::string> expr::inlineC(std::vector<parameter> &params) {
     
-    parameter c;
-    c.type = ".cf";
+    std::vector<std::string> c;
+    
     std::string temp;
     for (auto & i : params) {
         
@@ -208,11 +238,9 @@ parameter expr::inlineC(std::vector<parameter> &params) {
             throw bad_type("Inline C requires a string literal. ");
         }
         
-        temp = i.value.substr(1, i.value.length() - 2);
+        temp = i.value;
         replaceEscapeSequence(temp);
-        c.value += "\t";
-        c.value += temp;
-        c.value += "\n";
+        c.emplace_back(temp);
         
     }
     

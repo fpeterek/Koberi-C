@@ -8,22 +8,38 @@
 
 #include "parameter.hpp"
 
-parameter::parameter() {
+parameter::parameter() : name(value) {
     
     value = "";
     type = "";
     
 }
 
-parameter::parameter(const std::string & newValue) {
+parameter::parameter(const std::string & newValue) : name(value) {
     
     value = newValue;
     
 }
 
-parameter::parameter(const std::string & newValue, const std::string & newType) {
+parameter::parameter(const std::string & newValue, const std::string & newType) : name(value) {
     
     value = newValue;
     type = newType;
+    
+}
+
+parameter::parameter(const parameter & param) : name(this->value) {
+    
+    value = param.value;
+    type = param.type;
+    
+}
+
+parameter & parameter::operator= (const parameter & param) {
+    
+    value = param.value;
+    type = param.type;
+    
+    return *this;
     
 }

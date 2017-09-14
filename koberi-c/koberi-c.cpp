@@ -9,11 +9,13 @@
 #include "koberi-c.hpp"
 
 
-KoberiC::KoberiC() : _tokenizer(_tokens), _parser(_tokens) /* Call the constructors which accept references */ {
+KoberiC::KoberiC() : _tokenizer(_tokens), _parser(_tokens, _ast), _translator(_ast) {
     
 }
 
 void KoberiC::tokenize(const std::string & filename) {
+    
+    parseInputFileName(filename);
     
     _tokenizer.tokenizeFile(filename);
     
@@ -22,6 +24,22 @@ void KoberiC::tokenize(const std::string & filename) {
 void KoberiC::parse() {
     
     _parser.parse();
+    
+}
+
+void KoberiC::translate() {
+    
+    _translator.translate();
+    
+}
+
+void KoberiC::parseInputFileName(const std::string & filename) {
+    
+    size_t extensionIndex = filename.rfind(".");
+    
+    _filename = filename.substr(0, extensionIndex) + ".c";
+    
+    _translator.setOutputFile(_filename);
     
 }
 

@@ -1,13 +1,13 @@
 //
-//  debug_macro_definitions.h
+//  debug_macro_definitions.hpp
 //  koberi-c
 //
 //  Created by Filip Peterek on 31/10/2016.
 //  Copyright © 2016 Filip Peterek. All rights reserved.
 //
 
-#ifndef debug_macro_definitions_h
-#define debug_macro_definitions_h
+#ifndef debug_macro_definitions_hpp
+#define debug_macro_definitions_hpp
 
 
 /* This file includes macro definitions used for debugging */
@@ -18,6 +18,6 @@
 // #define PRINT_FUNCTION // Print function to stdout
 #define OUTPUT_FUNCTION_DECLARATION // Print function declaration to stdout
 // #define OUTPUT_GLOBAL_VARIABLE_DECLARATION // Print global variable declaration to stdout
+#define OUTPUT_GLOBAL_SCOPE_NODES // Print information about nodes from the global scopes to stdout
 
-
-#endif /* debug_macro_definitions_h */
+#endif /* debug_macro_definitions_hpp */

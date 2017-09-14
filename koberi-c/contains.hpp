@@ -30,4 +30,17 @@ bool operator >> (const Container & container, const Type & item) {
     
 }
 
+template <typename Container, typename Type>
+bool contains(const Container & container, const Type & item) {
+    
+    for (auto & i : container) {
+        
+        if (item == i) { return true; }
+        
+    }
+    
+    return false;
+    
+}
+
 #endif /* contains_hpp */

@@ -17,21 +17,66 @@
 
 #include "ast_node.hpp"
 #include "exceptions.hpp"
+#include "class.hpp"
+#include "contains.hpp"
+#include "name_mangler.hpp"
 
 class AbstractSyntaxTree {
     
+protected:
     /* Format: Name - Data Type */
-    /* Might not use this since globalScope keeps track of functions too */
-    /* Functions are found faster in a map than in an array              */
-    /* But doing this would result in storing duplicate data             */
-    std::unordered_map<std::string, std::string> _functions;  /* Keeps track of functions */
+    /* Keeps track of functions with mangled names, whereas globalScope holds names before mangling */
+    /* Less memory efficient, but look-up is faster and code looks better (maybe)                   */
+    std::unordered_map<std::string, std::string> _functions;
+    
+    /* Keeps track of all data types, whether native types or user defined types */
+    std::vector<std::string> _dataTypes = { "num", "int", "str", "void" };
+    
+    const std::vector<std::string> _primitiveTypes = { "num", "int", "str", "void" };
+    
+    void checkType(const std::string & type);
+    
+    /* Stores classes */
+    std::unordered_map<std::string, _class> _classes;
+    /* Keeps classes ordered in the order they were defined                                                      */
+    /* This is necessary because C doesn't allow declaration of variables of incomplete (forward declared) types */
+    /* Another option would be storing the classes in an ordered collection(vector, ast global scope nodes)      */
+    std::vector<std::string> _classOrder;
     
     /* Defines the global scope, since the global scope has no parent, parentScope points to 0 */
     ASTScope _globalScope;
     
+    /* Pointer to the current scope */
+    /* I could also use an std::reference_wrapper, but that would probably create even more cluttered code than a pointer */
+    ASTScope * _currentScope;
+    
+    
 public:
     AbstractSyntaxTree();
     
+    void emplaceFunction(const std::string & functionName,
+                         const std::string & returnType,
+                         const std::vector<parameter> & params);
+    
+    void emplaceConstruct(const std::string & construct,
+                          ASTNode * condition);
+    
+    void emplaceClass(const std::string & className,
+                      const std::string & superClass,
+                      const std::vector<parameter> & attributes);
+    
+    void emplaceFunCall(const std::string & name,
+                        const std::vector<ASTNode *> & params);
+    
+    void emplaceFunCall(const ASTFunCall & fcall);
+    
+    void emplaceDeclaration(const std::string & type,
+                            const std::string & name,
+                            ASTNode * value = nullptr);
+    
+    void leaveScope();
+    
+    void emplaceVariableIntoScope(const parameter & var, ASTScope * scope);
     
 };
 

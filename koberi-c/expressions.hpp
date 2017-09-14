@@ -20,6 +20,7 @@
 #include "exceptions.hpp"
 #include "print.hpp"
 #include "parameter.hpp"
+#include "contains.hpp"
 
 
 namespace expr {
@@ -29,6 +30,15 @@ namespace expr {
     const std::array<std::string, 6> unary_operators = { "return", "size_of", "inc", "dec", "not", "compl" };
     const std::array<std::string, 19> binary_operators = { "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
     "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"};
+    
+    const std::array<std::string, 27> operators = {
+        "return", "break", "continue",
+        "size_of", "inc", "dec", "not", "compl",
+        "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
+        "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"
+    };
+    
+    const std::array<std::string, 4> constructs = { "if", "elsif", "else", "while" };
     
     const std::unordered_map<std::string /* Kobeři-C function */, std::string /* C operator */ > unary_operators_map = {
     
@@ -49,14 +59,22 @@ namespace expr {
         
     };
     
+    bool isConstruct(const std::string & construct);
+    
+    bool isOperator(const std::string & op);
+    
+    bool isParameterlessOperator(const std::string & op);
+    bool isUnaryOperator(const std::string & op);
+    bool isBinaryOperator(const std::string & op);
+    
     /* Can't use an std::map for these functions, because they accept different parameters */
     
     parameter variableDeclaration(std::string & type, std::string & name, std::string & value);
     parameter variableDeclaration(std::string & type, std::string & name);
     parameter setNumValue(std::string & var, std::string & value);
     
-    parameter print(std::vector<parameter> & params); /* Print string to stdout */
-    parameter inlineC(std::vector<parameter> & params);
+    std::vector<std::string> print(std::vector<parameter> & params); /* Print string to stdout */
+    std::vector<std::string> inlineC(std::vector<parameter> & params);
     
     /* + - * / mod on ints, + - * / on nums */
     parameter binaryOperator(std::vector<parameter> & params, std::string & op);

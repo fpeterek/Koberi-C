@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include <sstream>
+
+/* TODO: Rewrite exceptions with unmodifiable error messages to use a static string to store their messages */
 
 class unexpected_token : public std::exception {
     
@@ -22,6 +25,7 @@ public:
     const char * what() const throw();
     
     unexpected_token(char tok);
+    unexpected_token(const std::string & tok);
     
 };
 
@@ -59,6 +63,18 @@ public:
     
     file_not_opened(const std::string & filename);
     file_not_opened(const std::string && filename);
+    
+};
+
+class file_not_created : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    const char * what() const throw();
+    
+    file_not_created(const std::string & filename);
     
 };
 
@@ -133,6 +149,17 @@ public:
     
 };
 
+class redefinition_of_class : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    const char * what() const throw();
+    redefinition_of_class(const std::string & className);
+    
+};
+
 class not_a_class : public std::exception {
     
     std::string _message;
@@ -158,6 +185,18 @@ public:
     
 };
 
+class redefinition_of_variable : public std::exception {
+    
+    std::string _message;
+    
+public:
+    
+    redefinition_of_variable(const std::string & varName);
+    
+    const char * what() const throw();
+    
+};
+
 class no_such_member : public std::exception {
     
     std::string _message;
@@ -167,6 +206,127 @@ public:
     no_such_member(const std::string && memberName, const std::string && className);
     no_such_member(const std::string & memberName, const std::string & className);
     
+    const char * what() const throw();
+    
+};
+
+class exiting_global_scope : public std::exception {
+
+    std::string _message;
+    
+public:
+    
+    exiting_global_scope();
+    
+    const char * what() const throw();
+
+};
+
+class wrong_scope : public std::exception {
+
+    std::string _message;
+    
+public:
+    
+    wrong_scope(const std::string & message);
+    
+    const char * what() const throw();
+    
+};
+
+class not_a_scope : public std::exception {
+    
+    static const std::string message;
+    
+public:
+    const char * what() const throw();
+    
+};
+
+class compiler_error : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    compiler_error(const std::string & message);
+    const char * what() const throw();
+    
+};
+
+class invalid_main : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_main();
+    const char * what() const throw();
+    
+};
+
+class missing_main : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    missing_main();
+    const char * what() const throw();
+    
+};
+
+class invalid_statement : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_statement(const std::string & functionName);
+    const char * what() const throw();
+    
+};
+
+class type_mismatch : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    type_mismatch(const std::string & msg);
+    const char * what() const throw();
+    
+};
+
+class invalid_parameter : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_parameter(const std::string & functionName, const std::string & funcall, const std::string & parameter);
+    const char * what() const throw();
+    
+};
+
+class invalid_call : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_call(const std::string & funcall, const std::string & functionName, const std::string & msg);
+    const char * what() const throw();
+    
+};
+
+class invalid_attribute_access : public std::exception {
+    
+    const std::string message;
+    
+public:
+    
+    invalid_attribute_access(const std::string & functionName, const std::string & msg);
     const char * what() const throw();
     
 };

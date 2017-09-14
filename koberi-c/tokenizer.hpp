@@ -19,7 +19,7 @@
 #include "exceptions.hpp"
 #include "token.hpp"
 
-#include "debug_macro_definitions.h"
+#include "debug_macro_definitions.hpp"
 
 
 class Tokenizer {

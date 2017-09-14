@@ -24,6 +24,7 @@ int main(int argc, const char * argv[]) {
     try {
         ks.tokenize(TEST);
         ks.parse();
+        ks.translate();
     } catch (unexpected_token & e) {
         print(e.what());
     } catch (missing_token & e) {
