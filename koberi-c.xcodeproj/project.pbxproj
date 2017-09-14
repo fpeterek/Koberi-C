@@ -21,6 +21,7 @@
 		4E425D421E91719D0090F591 /* ast_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E425D401E91719D0090F591 /* ast_node.cpp */; };
 		4E425D461E9176F10090F591 /* parameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E425D441E9176F10090F591 /* parameter.cpp */; };
 		4E425D4C1E91897A0090F591 /* class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E425D4A1E91897A0090F591 /* class.cpp */; };
+		4E54D5D41F6AE19900339786 /* import_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E54D5D21F6AE19900339786 /* import_system.cpp */; };
 		4EFEFD851F23E78C003AF308 /* translator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4EFEFD831F23E78C003AF308 /* translator.cpp */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +69,8 @@
 		4E425D451E9176F10090F591 /* parameter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = parameter.hpp; sourceTree = "<group>"; };
 		4E425D4A1E91897A0090F591 /* class.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = class.cpp; sourceTree = "<group>"; };
 		4E425D4B1E91897A0090F591 /* class.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = class.hpp; sourceTree = "<group>"; };
+		4E54D5D21F6AE19900339786 /* import_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = import_system.cpp; sourceTree = "<group>"; };
+		4E54D5D31F6AE19900339786 /* import_system.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = import_system.hpp; sourceTree = "<group>"; };
 		4EFEFD831F23E78C003AF308 /* translator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = translator.cpp; sourceTree = "<group>"; };
 		4EFEFD841F23E78C003AF308 /* translator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = translator.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -107,6 +110,7 @@
 				4E425D491E9189630090F591 /* Class */,
 				4E425D471E91821E0090F591 /* Helpers */,
 				4E425D481E91822B0090F591 /* Kobeři-C */,
+				4E54D5D51F6AE1A100339786 /* Import System */,
 				4E425D431E9176D60090F591 /* Parameter */,
 				4E3E613C1F24ACAD00FBE7A1 /* Name Mangler */,
 				4E425D3C1E916F020090F591 /* Abstract Syntax Tree */,
@@ -233,6 +237,15 @@
 			name = Class;
 			sourceTree = "<group>";
 		};
+		4E54D5D51F6AE1A100339786 /* Import System */ = {
+			isa = PBXGroup;
+			children = (
+				4E54D5D21F6AE19900339786 /* import_system.cpp */,
+				4E54D5D31F6AE19900339786 /* import_system.hpp */,
+			);
+			name = "Import System";
+			sourceTree = "<group>";
+		};
 		4EFEFD861F23E795003AF308 /* Translator */ = {
 			isa = PBXGroup;
 			children = (
@@ -301,6 +314,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E425D4C1E91897A0090F591 /* class.cpp in Sources */,
+				4E54D5D41F6AE19900339786 /* import_system.cpp in Sources */,
 				4E2B3A9B1DC79BA600700208 /* tokenizer.cpp in Sources */,
 				4E3E613B1F24ACA600FBE7A1 /* name_mangler.cpp in Sources */,
 				4E2B3A8A1DC79ADB00700208 /* main.cpp in Sources */,
