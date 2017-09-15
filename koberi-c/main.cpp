@@ -22,9 +22,7 @@ int main(int argc, const char * argv[]) {
     KoberiC ks;
     
     try {
-        ks.tokenize(TEST);
-        ks.parse();
-        ks.translate();
+        ks.compile(TEST);
     } catch (unexpected_token & e) {
         print(e.what());
     } catch (missing_token & e) {

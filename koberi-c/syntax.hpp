@@ -16,6 +16,8 @@
 
 namespace syntax {
     
+    const std::string fileExtension = ".koberice";
+    
     const std::array<char, 8> operatorChar = {
         
         '=', '+', '-', '*', '/', '%', '<', '>'

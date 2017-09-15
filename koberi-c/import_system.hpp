@@ -17,6 +17,7 @@
 
 #include "contains.hpp"
 #include "exceptions.hpp"
+#include "syntax.hpp"
 
 class ImportSystem {
     
@@ -27,6 +28,8 @@ class ImportSystem {
 public:
     
     void parseImports(const std::string & filename);
+    
+    void appendExtensions();
     
     const std::vector<std::string> & getImportedFiles();
     

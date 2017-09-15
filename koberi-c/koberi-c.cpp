@@ -13,11 +13,33 @@ KoberiC::KoberiC() : _tokenizer(_tokens), _parser(_tokens, _ast), _translator(_a
     
 }
 
-void KoberiC::tokenize(const std::string & filename) {
+void KoberiC::compile(const std::string & filename) {
     
     parseInputFileName(filename);
     
-    _tokenizer.tokenizeFile(filename);
+    handleImports(filename);
+    tokenize(filename);
+    parse();
+    translate();
+    
+}
+
+void KoberiC::handleImports(const std::string & file) {
+    
+    std::string filename = file.substr(0, file.rfind(".koberice"));
+    
+    _importSystem.parseImports(filename);
+    _importSystem.appendExtensions();
+    
+}
+
+void KoberiC::tokenize(const std::string & filename) {
+    
+    std::vector<std::string> files = _importSystem.getImportedFiles();
+    
+    for (long i = files.size() - 1; i >= 0; --i) {
+        _tokenizer.tokenizeFile(files[i]);
+    }
     
 }
 

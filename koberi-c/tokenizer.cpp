@@ -15,6 +15,10 @@ Tokenizer::Tokenizer(std::vector<token> & vectorRef) : _tokens(vectorRef) /* Cal
 
 void Tokenizer::openFile(const std::string & filename) {
     
+    if (_input.is_open()) {
+        _input.close();
+    }
+    
     _input.open(filename);
     if (not _input) { throw file_not_opened(filename); }
     
@@ -137,7 +141,7 @@ void Tokenizer::parseLine() {
         /* Check for single line comment, if found, break out of loop  */
         /* The content of a comment is none of the compiler's bussines */
         
-        if ( _line[_iter] == ';' ) {  break;  }
+        if ( _line[_iter] == ';' or _line[_iter] == '#') {  break;  }
         
         /* Ignore whitespace, it's not important anymore, just increment iterator */
         

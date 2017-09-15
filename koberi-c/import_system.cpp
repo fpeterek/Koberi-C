@@ -65,23 +65,38 @@ bool ImportSystem::isImported(const std::string & filename) {
     
 }
 
-void ImportSystem::parseImports(const std::string & filename) {
+void ImportSystem::appendExtensions() {
     
-    std::ifstream file(filename);
-    
-    if (not file) {
-        throw file_not_opened(filename);
+    for (auto & i : _importedFiles) {
+        i += syntax::fileExtension;
     }
     
+}
+
+void ImportSystem::parseImports(const std::string & filename) {
+    
+    std::ifstream file(filename + syntax::fileExtension);
+    
+    if (not file) {
+        throw file_not_opened(filename + syntax::fileExtension);
+    }
+    
+    _importedFiles.emplace_back(filename);
+    
     std::string line;
+    std::vector<std::string> imports;
     
     while (not file.eof()) {
         
         std::getline(file, line);
+        
+        if (not line.size()) {
+            continue;
+        }
+        
         trimStr(line);
         
-        /* If line is empty or comment */
-        if (not line.size() or line[0] == ';') {
+        if (line[0] == ';') {
             continue;
         }
         
@@ -89,10 +104,27 @@ void ImportSystem::parseImports(const std::string & filename) {
             
             std::vector<std::string> split = splitStr(line);
             
-        } else {
+            if (split[0] != "#import") {
+                continue;
+            }
             
+            for (size_t i = 1; i < split.size(); ++i) {
+                if (split[i][0] == ';' or split[i][0] == '#') {
+                    break;
+                }
+                imports.emplace_back(split[i]);
+            }
+            
+        } else {
+            break;
         }
         
+    }
+    
+    for (auto & i : imports) {
+        if (not isImported(i)) {
+            parseImports(i);
+        }
     }
     
 }

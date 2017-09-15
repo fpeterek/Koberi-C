@@ -32,6 +32,7 @@
 #include "parser.hpp"
 #include "traversable_ast.hpp"
 #include "translator.hpp"
+#include "import_system.hpp"
 
 #include "debug_macro_definitions.hpp"
 
@@ -40,22 +41,29 @@ class KoberiC {
     
     std::vector<token> _tokens;
     
+    ImportSystem _importSystem;
     Tokenizer _tokenizer;
     Parser _parser;
     TraversableAbstractSyntaxTree _ast;
     Translator _translator;
     
+    
     std::string _filename;
     
+    std::vector<std::string> files;
+    
     void parseInputFileName(const std::string & filename);
+    
+    void handleImports(const std::string & file);
+    void tokenize(const std::string & filename);
+    void parse();
+    void translate();
     
 public:
     
     KoberiC();
     
-    void tokenize(const std::string & filename);
-    void parse();
-    void translate();
+    void compile(const std::string & filename);
     
     void test();
     
