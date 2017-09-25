@@ -12,7 +12,9 @@ The syntax of Kobeři-C is simplified. Lisp-like syntax may be confusing for peo
 Kobeři-C finally introduces this well-known feature from languages like C++. While function overloading isn't such an important feature, it certainly allows the programmer to use more readable names for their functions. No more abs, fabs, fabsf.
 ### Classes with methods and inheritance
 Yet another feature introduced in Kobeři-C is also well known from other languages. Classes. With methods, which accept a reference to an object. And although Kobeři-C doesn't support polymorphism, it does support inheritance. Create a new class and inherit all attributes and methods from an already existing class.
-### Syntactic sugar for operations such as printing to stdout or comparing numbers
-Printing to stdout has gotten much easier and readable. No more %d's and %f's. No more puts() vs. printf(). Just call (print) and pass in everything you want to write to stdout as a parameter.  
-
+### Syntactic sugar
+#### Print
+Printing to stdout has gotten much easier and readable. No more %d's and %f's. No more puts() vs. printf(). Just call (print) and pass in everything you want to write to stdout as a parameter. Eg.: (print "2 + 2 = " (+ 2 2) "\n" "x! = " (factorial x) "\n" "x = " x "\n") 
+#### Comparison operators
+Comparing numbers has also been simplified. No more (a == b && a == c && c == d). No more (a < b && b < c). Chain them together. Type (equals a b c d) or (< a b c) and get the exact same result.
 
