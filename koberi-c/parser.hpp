@@ -79,6 +79,8 @@ class Parser {
     void classDefinition(unsigned long long defBeginning, unsigned long long defEnd);
     
     void parseFun(unsigned long long funBeginning, unsigned long long funEnd);
+    /* Here I am, here I am, the Method Man */
+    void parseMethod(const unsigned long long methodBeginning, const std::string & methodName);
     void parseParams(unsigned long long beginning, std::vector<parameter> & params);
     
     void parseDefinitions(); /* Parse definitions */

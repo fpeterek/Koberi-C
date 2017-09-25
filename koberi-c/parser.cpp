@@ -445,8 +445,8 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
         if (parenCounter == 1 and tok == tokType::openingPar) {
             sexps.emplace_back(iter);
         }
-        else if (parenCounter > 1) {
-            throw unexpected_token(')');
+        else if (iter == tokensLen and parenCounter >= 0) {
+            throw missing_token(')');
         }
         
         ++iter;
@@ -455,9 +455,17 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
     
     parameter param;
     std::vector<parameter> members;
-    for (auto attribute : sexps) {
+    for (auto sexp : sexps) {
         
-        param = parseVariable(attribute);
+        /* If token isn't closing paren, it must be an opening parenthesis, which means s-exp is a method */
+        if (_tokens[sexp + 3] != tokType::closingPar) {
+            
+            if (_tokens[sexp + 3] != tokType::openingPar) {
+                throw unexpected_token(_tokens[sexp + 3].value);
+            }
+            
+        }
+        param = parseVariable(sexp);
         
         /* Check if attribute isn't being redefined twice in one class definition */
         
@@ -472,6 +480,14 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
     }
     
     return members;
+    
+}
+
+void Parser::parseMethod(unsigned long long methodBeginning, const std::string & methodName) {
+    
+    const unsigned long long methodEnd = findSexpEnd(methodBeginning);
+    
+    
     
 }
 
