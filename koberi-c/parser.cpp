@@ -353,7 +353,7 @@ void Parser::parseSexps(unsigned long long firstSexp) {
     
 }
 
-void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd) {
+void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd, const std::string className) {
     
     
 #if PRINT_FUNCTIONS_TOKENS
@@ -376,14 +376,14 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     unsigned long long sexp = 0;
     
     /* funBeginning = (; funBeginning + 1 = data type; funBeginning + 2 = name; funBeginning + 3 = ( */
-    /* Find closing paren */
+    /* Find closing paren                                                                            */
     for (sexp = funBeginning + 3; _tokens[sexp] != tokType::closingPar; ++sexp);
     /* Next position is the opening paren of the first s-expression */
     ++sexp;
     
     parseSexps(sexp);
     
-    /* Exit the function scope and enter the global scope */
+    /* Exit the function scope and return to the global scope */
     _ast.exitScope();
     
     
@@ -452,6 +452,8 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
                 throw unexpected_token(_tokens[sexp + 3].value);
             }
             
+            parseMethod(sexp, className);
+            
         }
         param = parseVariable(sexp);
         
@@ -471,7 +473,7 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
     
 }
 
-void Parser::parseMethod(unsigned long long methodBeginning, const std::string & methodName) {
+void Parser::parseMethod(unsigned long long methodBeginning, const std::string & className) {
     
     const unsigned long long methodEnd = findSexpEnd(methodBeginning);
     

@@ -63,8 +63,7 @@ class Parser {
     /* Similar to parseSexp(), but only parses class attributes and global variables */
     parameter parseVariable(unsigned long long sexpBeginning);
     
-    /* Parse sexps finds s-expressions and passes them to another method, that parses single s-expressions  */
-    /* That method is passed to parseSexps() via an std::function object, so I can reuse parseSexps()       */
+    /* Parse sexps finds s-expressions and passes them to parseSexp(), a method which parses single s-expressions  */
     void parseSexps(unsigned long long firstSexp);
     
     /* Calls varDeclaration() or funDeclaration(), */
@@ -80,9 +79,12 @@ class Parser {
 
     void classDefinition(unsigned long long defBeginning, unsigned long long defEnd);
     
-    void parseFun(unsigned long long funBeginning, unsigned long long funEnd);
+    /* parseFun() is capable of parsing normal functions, as well as member functions */
+    /* If className is an empty string, function will be treated as a normal function */
+    /* Otherwise the function will be treated as a member function of class className */
+    void parseFun(unsigned long long funBeginning, unsigned long long funEnd, const std::string className = "");
     /* Here I am, here I am, the Method Man */
-    void parseMethod(const unsigned long long methodBeginning, const std::string & methodName);
+    void parseMethod(const unsigned long long methodBeginning, const std::string & className);
     void parseParams(unsigned long long beginning, std::vector<parameter> & params);
     
     void parseDefinitions(); /* Parse definitions */
