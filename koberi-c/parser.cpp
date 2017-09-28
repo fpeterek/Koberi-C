@@ -177,26 +177,7 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
         }
         else if (_tokens[constructBeginning + 2].type == tokType::openingBra) {
             
-            std::vector<std::string> attributes;
-            
-            unsigned long long iter = constructBeginning + 2;
-            size_t tokSize = _tokens.size();
-            
-            while (_tokens[++iter] != tokType::closingBra) {
-                
-                if (iter >= tokSize) {
-                    throw missing_token(']');
-                }
-                
-                if (_tokens[iter] != tokType::id) {
-                    throw unexpected_token(_tokens[iter].value);
-                }
-                
-                attributes.emplace_back(_tokens[iter].value);
-                
-            }
-            
-            condition = new ASTAttribute(attributes, _ast.getCurrentScopePtr());
+            condition = new ASTMemberAccess(parseMemberAccess(constructBeginning + 2));
             condEnd = constructBeginning + 2;
             while (_tokens[condEnd].type != tokType::closingBra) {
                 ++condEnd;
@@ -238,8 +219,6 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
     std::string name;
     std::vector<ASTNode *> params;
     
-    const size_t tokSize = _tokens.size();
-    
     name = _tokens[callBeginning + 1].value;
     
     for (unsigned long long iter = callBeginning + 2; iter < callEnd; ++iter) {
@@ -259,23 +238,7 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
             
         } else if (_tokens[iter] == tokType::openingBra) {
           
-            std::vector<std::string> attributes;
-            
-            while (_tokens[++iter] != tokType::closingBra) {
-                
-                if (iter >= tokSize) {
-                    throw missing_token(']');
-                }
-                
-                if (_tokens[iter] != tokType::id) {
-                    throw unexpected_token(_tokens[iter].value);
-                }
-                
-                attributes.emplace_back(_tokens[iter].value);
-                
-            }
-            
-            ASTAttribute * attr = new ASTAttribute(attributes, _ast.getCurrentScopePtr());
+            ASTMemberAccess * attr = new ASTMemberAccess(parseMemberAccess(iter));
             params.emplace_back(attr);
             
         } else if (isLiteral(iter)) {
@@ -289,6 +252,31 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
     
     return ASTFunCall(_ast.getCurrentScopePtr(), name, params);
 
+}
+
+ASTMemberAccess Parser::parseMemberAccess(unsigned long long exprBeginning) {
+    
+    std::vector<std::string> accessedMembers;
+    
+    unsigned long long iter = exprBeginning + 2;
+    const size_t tokSize = _tokens.size();
+    
+    while (_tokens[++iter] != tokType::closingBra) {
+        
+        if (iter >= tokSize) {
+            throw missing_token(']');
+        }
+        
+        if (_tokens[iter] != tokType::id) {
+            throw unexpected_token(_tokens[iter].value);
+        }
+        
+        accessedMembers.emplace_back(_tokens[iter].value);
+        
+    }
+    
+    return ASTMemberAccess(accessedMembers, _ast.getCurrentScopePtr());
+    
 }
 
 unsigned long long Parser::findSexpEnd(unsigned long long sexpBeginning) {

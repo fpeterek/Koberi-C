@@ -54,8 +54,8 @@ ASTScope::~ASTScope() {
                 delete (ASTConstruct*)childNode;
                 break;
                 
-            case NodeType::Attribute:
-                delete (ASTAttribute*)childNode;
+            case NodeType::MemberAccess:
+                delete (ASTMemberAccess*)childNode;
                 break;
                 
             /* These two cases should never occur, but I'm putting them here just to be sure */
@@ -116,8 +116,8 @@ ASTConstruct::~ASTConstruct() {
             delete (ASTFunCall*)condition;
             break;
             
-        case NodeType::Attribute:
-            delete (ASTAttribute*)condition;
+        case NodeType::MemberAccess:
+            delete (ASTMemberAccess*)condition;
             break;
             
             /* These cases should never occur, but I'm putting them here just to be sure     */
@@ -169,8 +169,8 @@ ASTFunCall::ASTFunCall(ASTScope * parent, const std::string & name, const std::v
                 parameters.emplace_back( new ASTFunCall( *( (ASTFunCall*)param ) ) );
                 break;
                 
-            case NodeType::Attribute:
-                parameters.emplace_back( new ASTAttribute ( *( (ASTAttribute*)param ) ) );
+            case NodeType::MemberAccess:
+                parameters.emplace_back( new ASTMemberAccess ( *( (ASTMemberAccess*)param ) ) );
                 break;
                 
                 /* These cases should never occur, but I'd rather be safe than sorry */
@@ -223,8 +223,8 @@ ASTFunCall::ASTFunCall(const ASTFunCall & orig) {
                 parameters.emplace_back( new ASTFunCall( *( (ASTFunCall*)param ) ) );
                 break;
                 
-            case NodeType::Attribute:
-                parameters.emplace_back( new ASTAttribute ( *( (ASTAttribute*)param ) ) );
+            case NodeType::MemberAccess:
+                parameters.emplace_back( new ASTMemberAccess ( *( (ASTMemberAccess*)param ) ) );
                 break;
                 
                 /* These cases should never occur, but I'd rather be safe than sorry */
@@ -269,8 +269,8 @@ ASTFunCall::~ASTFunCall() {
                 delete (ASTLiteral*)param;
                 break;
                 
-            case NodeType::Attribute:
-                delete (ASTAttribute*)param;
+            case NodeType::MemberAccess:
+                delete (ASTMemberAccess*)param;
                 break;
                 
             case NodeType::FunCall:
@@ -345,9 +345,9 @@ ASTVariable * ASTVariable::createVariable(const std::string & variableName, ASTS
     
 }
 
-ASTAttribute::ASTAttribute(const std::vector<std::string> & accessOrder, ASTScope * parent) {
+ASTMemberAccess::ASTMemberAccess(const std::vector<std::string> & accessOrder, ASTScope * parent) {
     
-    nodeType = NodeType::Attribute;
+    nodeType = NodeType::MemberAccess;
     parentScope = parent;
     
     this->accessOrder = accessOrder;

@@ -53,6 +53,8 @@ class Parser {
     void parseConstruct(unsigned long long constructBeginning, unsigned long long constructEnd);
     ASTFunCall parseFunCall(unsigned long long callBeginning, unsigned long long callEnd);
     
+    ASTMemberAccess parseMemberAccess(unsigned long long exprBeginning);
+    
     unsigned long long findSexpEnd(unsigned long long sexpBeginning);
     
     /* Similar to parseSexps(), but adjusted to work properly on classes */

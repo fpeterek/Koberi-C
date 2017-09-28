@@ -27,7 +27,7 @@ enum class NodeType {
     Construct,
     Variable,
     Literal,
-    Attribute,
+    MemberAccess,
     None /* Used for construction of ASTNode, which should never be constructed and None should never be used */
     
 };
@@ -92,15 +92,15 @@ struct ASTVariable : public ASTNode {
     
 };
 
-/* Used to indicate access to object attributes */
-struct ASTAttribute : public ASTNode {
+/* Used to indicate access to object members */
+struct ASTMemberAccess : public ASTNode {
     
-    /* Just indicates how variables are accessed                                         */
+    /* Just indicates how members are accessed                                         */
     /* [object attributeObject number] translates to { object, attributeObject, number } */
     /* Which translates to object.attributeObject.number                                 */
     std::vector<std::string> accessOrder;
     
-    ASTAttribute(const std::vector<std::string> & accessOrder, ASTScope * parentScope);
+    ASTMemberAccess(const std::vector<std::string> & accessOrder, ASTScope * parentScope);
     
 };
 

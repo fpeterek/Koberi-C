@@ -74,7 +74,7 @@ class Translator {
     
     std::string translateDeclaration(ASTDeclaration & declaration);
     
-    parameter translateAttributeAccess(ASTAttribute & attribute);
+    parameter translateMemberAccess(ASTMemberAccess & attribute);
     std::string checkAttributesAndReturnType(parameter & var, std::vector<std::string> & attributes, unsigned int iter = 1);
     parameter getVariable(ASTVariable & variable);
     

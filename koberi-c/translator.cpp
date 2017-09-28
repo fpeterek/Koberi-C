@@ -428,10 +428,10 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
         
         return lit;
         
-    } else if (node->nodeType == NodeType::Attribute) {
+    } else if (node->nodeType == NodeType::MemberAccess) {
         
-        ASTAttribute & attribute = *((ASTAttribute*)node);
-        return translateAttributeAccess(attribute);
+        ASTMemberAccess & attribute = *((ASTMemberAccess*)node);
+        return translateMemberAccess(attribute);
         
     }
     
@@ -522,10 +522,10 @@ std::string Translator::translateIfWhile(ASTConstruct & construct) {
         condition = parameter(lit.value, lit.type);
         
     }
-    else if (construct.condition->nodeType == NodeType::Attribute) {
+    else if (construct.condition->nodeType == NodeType::MemberAccess) {
     
-        ASTAttribute & attr = *((ASTAttribute*)construct.condition);
-        condition = translateAttributeAccess(attr);
+        ASTMemberAccess & attr = *((ASTMemberAccess*)construct.condition);
+        condition = translateMemberAccess(attr);
         
     }
     else if (construct.condition->nodeType == NodeType::Variable) {
@@ -612,10 +612,10 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             decl += " = " + literal.value;
             
-        } else if (declaration.value->nodeType == NodeType::Attribute) {
+        } else if (declaration.value->nodeType == NodeType::MemberAccess) {
             
-            ASTAttribute & attribute = *((ASTAttribute*)declaration.value);
-            decl += " = " + translateAttributeAccess(attribute).value;
+            ASTMemberAccess & attribute = *((ASTMemberAccess*)declaration.value);
+            decl += " = " + translateMemberAccess(attribute).value;
             
         }
         
@@ -629,7 +629,7 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     
 }
 
-parameter Translator::translateAttributeAccess(ASTAttribute & attribute) {
+parameter Translator::translateMemberAccess(ASTMemberAccess & attribute) {
     
     if (attribute.accessOrder.size() < 2) {
         throw invalid_attribute_access(_functionName, "Not enough parameters.");
@@ -767,8 +767,8 @@ void Translator::test() {
                 break;
             }
                 
-            case NodeType::Attribute: {
-                std::cout << "Attribute access: " << "too lazy" << std::endl;
+            case NodeType::MemberAccess: {
+                std::cout << "Member access: " << "too lazy" << std::endl;
                 break;
             }
                 
