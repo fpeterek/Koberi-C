@@ -124,7 +124,7 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
 /* ----------------------------------------------------- Don't use ----------------------------------------------------- */
 /* - */                                                                                                             /* - */
 /* - */ void equals(parameter & expr, const std::string & op, std::vector<parameter> & params, const size_t iter) { /* - */
-/* - */     expr.value += " " + params[0].value + " " + op + " " + params[iter].value + " &&";                              /* - */
+/* - */     expr.value += " " + params[0].value + " " + op + " " + params[iter].value + " &&";                      /* - */
 /* - */ }                                                                                                           /* - */
 /* - */                                                                                                             /* - */
 /* - */ void ltOrGt(parameter & expr, const std::string & op, std::vector<parameter> & params, const size_t iter) { /* - */

@@ -56,7 +56,8 @@ public:
     
     void emplaceFunction(const std::string & functionName,
                          const std::string & returnType,
-                         const std::vector<parameter> & params);
+                         const std::vector<parameter> & params,
+                         const std::string & className);
     
     void emplaceConstruct(const std::string & construct,
                           ASTNode * condition);

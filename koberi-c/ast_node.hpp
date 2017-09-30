@@ -126,12 +126,14 @@ struct ASTFunction : public ASTScope {
     
     std::string name;
     std::string type;
+    std::string className;
     std::vector<parameter> parameters;
     
     ASTFunction(ASTScope * parent,
                 const std::string & functionName,
                 const std::string & returnType,
-                const std::vector<parameter> & params);
+                const std::vector<parameter> & params,
+                const std::string & className);
     
 };
 

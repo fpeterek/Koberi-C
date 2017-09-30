@@ -81,12 +81,14 @@ ASTScope::~ASTScope() {
 ASTFunction::ASTFunction(ASTScope * parent,
                          const std::string & functionName,
                          const std::string & returnType,
-                         const std::vector<parameter> & params) : ASTScope(parent) {
+                         const std::vector<parameter> & params,
+                         const std::string & className) : ASTScope(parent) {
     
     nodeType    = NodeType::Function;
     name        = functionName;
     type        = returnType;
     parameters  = params;
+    this->className = className;
     
 }
 

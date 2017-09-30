@@ -25,7 +25,8 @@ void AbstractSyntaxTree::checkType(const std::string & type) {
 
 void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
                                          const std::string & returnType,
-                                         const std::vector<parameter> & params) {
+                                         const std::vector<parameter> & params,
+                                         const std::string & className) {
     
     /* Functions must be defined in the global scope in C */
     if (_currentScope != &_globalScope) {
@@ -38,7 +39,7 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
     }
     checkType(returnType);
     
-    ASTFunction * function = new ASTFunction(&_globalScope, functionName, returnType, params);
+    ASTFunction * function = new ASTFunction(&_globalScope, functionName, returnType, params, className);
     
     _globalScope.childNodes.emplace_back(function);
     

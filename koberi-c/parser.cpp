@@ -376,7 +376,7 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     
     /* Emplace function into ast                                                 */
     /* EmplaceFunction also changes current scope to the newly emplaced function */
-    _ast.emplaceFunction(name, type, params);
+    _ast.emplaceFunction(name, type, params, className);
     /* If function is a member function, emplace self into ast. */
     if (className != "") {
         _ast.emplaceVariableIntoScope(parameter("self", className), _ast.getCurrentScopePtr());
@@ -453,16 +453,20 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
     std::vector<parameter> members;
     for (auto sexp : sexps) {
         
+        try {
         /* If token isn't closing paren, it must be an opening parenthesis, which means s-exp is a method */
-        if (_tokens[sexp + 3] != tokType::closingPar) {
-            
-            if (_tokens[sexp + 3] != tokType::openingPar) {
-                throw unexpected_token(_tokens[sexp + 3].value);
+            if (_tokens[sexp + 3] != tokType::closingPar) {
+                
+                if (_tokens[sexp + 3] != tokType::openingPar) {
+                    throw unexpected_token(_tokens[sexp + 3].value);
+                }
+                
+                parseMethod(sexp, className);
+                continue;
+                
             }
-            
-            parseMethod(sexp, className);
-            break;
-            
+        } catch (const std::out_of_range & e) {
+            throw invalid_syntax("Invalid member declaration in class " + className);
         }
         param = parseVariable(sexp);
         
@@ -485,7 +489,7 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
 void Parser::parseMethod(unsigned long long methodBeginning, const std::string & className) {
     
     const unsigned long long methodEnd = findSexpEnd(methodBeginning);
-    
+    parseFun(methodBeginning, methodEnd, className);
     
     
 }

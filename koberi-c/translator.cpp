@@ -96,6 +96,13 @@ void Translator::forwardFunctionDeclarations() {
             
             _output << (fun->type == "int" ? "ll" : fun->type) << " " << mangledName << "(";
             
+            if (fun->className != "") {
+                _output << fun->className << " * self";
+                if (fun->parameters.size()) {
+                    _output << ", ";
+                }
+            }
+            
             if (fun->parameters.size()) {
                 
                 for (size_t iter = 0; iter < fun->parameters.size(); ++iter) {
@@ -107,7 +114,7 @@ void Translator::forwardFunctionDeclarations() {
                 }
                 
             }
-            else {
+            else if (fun->className == ""){
                 _output << "void";
             }
             
@@ -206,6 +213,14 @@ void Translator::translateFunction(ASTFunction & function) {
     
     _output << "\n" << (function.type == "int" ? "ll" : function.type) << " "
             << NameMangler::mangleName(function.name, params) << "(";
+    
+    /* If function is a member function, pass pointer to self as first parameter */
+    if (function.className != "") {
+        _output << function.className << " * self";
+        if (params.size()) {
+            _output << ", ";
+        }
+    }
     
     for (size_t i = 0; i < params.size(); ++i) {
         

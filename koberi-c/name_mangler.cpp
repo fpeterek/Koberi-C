@@ -41,7 +41,7 @@ std::string NameMangler::mangleName(const std::string & name, const std::vector<
 
 std::string NameMangler::premangleMethodName(const std::string & name, const std::string & className) {
     
-    std::string premangledName = className + "_m_" + className;
+    std::string premangledName = className + "_m_" + name;
     return premangledName;
     
 }
