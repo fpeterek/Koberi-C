@@ -241,13 +241,16 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     
     std::vector<parameter> params;
     
-    for (auto param : funcall.parameters) {
+    for (auto & param : funcall.parameters) {
         params.emplace_back(getFuncallParameter(param));
     }
     
     for (auto & param : params) {
         if (param.type == "") {
             throw invalid_parameter(_functionName, funcall.function, param.value);
+        }
+        if (param.value == "self") {
+            param.value = "(*self)";
         }
     }
     
@@ -660,7 +663,7 @@ parameter Translator::translateMemberAccess(ASTMemberAccess & attribute) {
     attr.type = checkAttributesAndReturnType(baseVar, attribute.accessOrder);
     
     for (auto & i : attribute.accessOrder) {
-        attr.value += i + ".";
+        attr.value += (i == "self" ? "(*self)" : i) + ".";
     }
     
     attr.value.pop_back();

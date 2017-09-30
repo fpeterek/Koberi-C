@@ -54,6 +54,12 @@ protected:
 public:
     AbstractSyntaxTree();
     
+    void addMethod(const parameter & method, const std::string & className);
+    void addMethod(const std::string & methodType, const std::string & methodName, const std::string & className);
+    
+    void addClassAttribute(const parameter & attribute, const std::string & className);
+    void addClassAttribute(const std::string & type, const std::string & name, const std::string & className);
+    
     void emplaceFunction(const std::string & functionName,
                          const std::string & returnType,
                          const std::vector<parameter> & params,
@@ -63,8 +69,7 @@ public:
                           ASTNode * condition);
     
     void emplaceClass(const std::string & className,
-                      const std::string & superClass,
-                      const std::vector<parameter> & attributes);
+                      const std::string & superClass);
     
     void emplaceFunCall(const std::string & name,
                         const std::vector<ASTNode *> & params);

@@ -23,6 +23,21 @@ void AbstractSyntaxTree::checkType(const std::string & type) {
     
 }
 
+void AbstractSyntaxTree::addMethod(const parameter & method, const std::string & className) {
+    addMethod(method.type, method.name, className);
+}
+
+void AbstractSyntaxTree::addMethod(const std::string & methodType, const std::string & methodName, const std::string & className) {
+    
+    try {
+        _class & c = _classes.at(className);
+        c.methods.emplace(methodName, methodType);
+    } catch (const std::out_of_range & e) {
+        throw compiler_error("Compiler error: defining method for unexisting class. ");
+    }
+    
+}
+
 void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
                                          const std::string & returnType,
                                          const std::vector<parameter> & params,
@@ -105,9 +120,41 @@ void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
     
 }
 
+void AbstractSyntaxTree::addClassAttribute(const parameter & attribute, const std::string & className) {
+
+    addClassAttribute(attribute.type, attribute.name, className);
+    
+}
+
+void AbstractSyntaxTree::addClassAttribute(const std::string & type, const std::string & name, const std::string & className) {
+    
+    
+    /* Check if attribute has an existant data type */
+    checkType(type);
+    
+    try {
+    
+        _class & c = _classes.at(className);
+        
+        /* Check if attribute doesn't already exist */
+        for (const auto & i : c.attributes) {
+            if (i.name == name) {
+                throw redefinition_of_attribute(i.name, className);
+            }
+        }
+        
+        c.attributes.emplace_back(parameter(name, type));
+    
+    } catch (const std::out_of_range & e) {
+        
+        throw compiler_error("Compiler error: Adding class attribute to unexistant class. ");
+    
+    }
+
+}
+
 void AbstractSyntaxTree::emplaceClass(const std::string & className,
-                                      const std::string & superClass,
-                                      const std::vector<parameter> & attributes) {
+                                      const std::string & superClass) {
 
     /* Structs can be defined in local scopes in C, but functions can't    */
     /* This would make implementing methods difficult, so I'm only going   */
@@ -139,22 +186,6 @@ void AbstractSyntaxTree::emplaceClass(const std::string & className,
     
     c.className = className;
     c.superClass = superClass;
-    
-    for (const auto & attribute : attributes) {
-        
-        /* Check if attribute has an existant data type */
-        checkType(attribute.type);
-        
-        /* Check if attribute doesn't already exist */
-        for (const auto & i : c.attributes) {
-            if (i.name == attribute.name) {
-                throw redefinition_of_attribute(i.name, className);
-            }
-        }
-        
-        c.attributes.emplace_back(attribute);
-        
-    }
 
     _dataTypes.emplace_back(className);
     _classOrder.emplace_back(className);

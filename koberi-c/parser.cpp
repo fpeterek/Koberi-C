@@ -377,9 +377,15 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     /* Emplace function into ast                                                 */
     /* EmplaceFunction also changes current scope to the newly emplaced function */
     _ast.emplaceFunction(name, type, params, className);
-    /* If function is a member function, emplace self into ast. */
+    
+    /* If function is a member function, emplace self into ast and function into it's class */
     if (className != "") {
+        
+        std::string mangledName = NameMangler::mangleName(name, params);
+        _ast.addMethod(type, mangledName, className);
+        
         _ast.emplaceVariableIntoScope(parameter("self", className), _ast.getCurrentScopePtr());
+    
     }
     unsigned long long sexp = 0;
     
@@ -413,7 +419,7 @@ void Parser::globalVarDeclaration(unsigned long long declBeginning, unsigned lon
  
 */
 
-std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, std::string & className) {
+void Parser::parseClassMembers(unsigned long long firstSexp, std::string & className) {
     
     const unsigned long long tokensLen = _tokens.size();
     
@@ -472,17 +478,11 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
         
         /* Check if attribute isn't being redefined twice in one class definition */
         
-        for (auto & i : members) {
-            if (i.name == param.name) {
-                throw redefinition_of_attribute(param.name, className);
-            }
-        }
-
-        members.emplace_back(param);
+        _ast.addClassAttribute(param, className);
     
     }
     
-    return members;
+    
     
 }
 
@@ -517,7 +517,6 @@ parameter Parser::parseVariable(unsigned long long sexpBeginning) {
 void Parser::classDefinition(unsigned long long defBeginning, unsigned long long defEnd ) {
     
     std::string name = _tokens[defBeginning + 2].value;
-    std::vector<parameter> params;
     
     std::string superclass;
     
@@ -535,15 +534,15 @@ void Parser::classDefinition(unsigned long long defBeginning, unsigned long long
         
     }
     
+    _ast.emplaceClass(name, superclass);
+    
     if (_tokens[firstDeclaration - 1] != tokType::closingPar) {
         
         throw invalid_syntax("Classes can only inherit from 1 superclass. ");
         
     }
     
-    params = parseClassMembers(firstDeclaration, name);
-    
-    _ast.emplaceClass(name, superclass, params);
+    parseClassMembers(firstDeclaration, name);
     
 }
 
@@ -551,13 +550,15 @@ void Parser::classDefinition(unsigned long long defBeginning, unsigned long long
  
 ;;; Function
 (void x ()
-    (if (1)
+    (if 1
         (print 1 " evaluates to true")))
  
 ;;; Class
 (class c (base_class)
     (int x)
-    (num y))
+    (num y)
+    (void print ()
+        (print "x: " [self x] "y: " [self y] "\n")))
  
 ;;; Global variable
 (int var1)             ; Allowed

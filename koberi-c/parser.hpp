@@ -60,7 +60,7 @@ class Parser {
     unsigned long long findSexpEnd(unsigned long long sexpBeginning);
     
     /* Similar to parseSexps(), but adjusted to work properly on classes */
-    std::vector<parameter> parseClassMembers(unsigned long long firstSexp, std::string & className);
+    void parseClassMembers(unsigned long long firstSexp, std::string & className);
     
     /* Similar to parseSexp(), but only parses class attributes and global variables */
     parameter parseVariable(unsigned long long sexpBeginning);
