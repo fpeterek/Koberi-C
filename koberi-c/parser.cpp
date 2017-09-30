@@ -177,8 +177,9 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
         }
         else if (_tokens[constructBeginning + 2].type == tokType::openingBra) {
             
-            condition = new ASTMemberAccess(parseMemberAccess(constructBeginning + 2));
-            condEnd = constructBeginning + 2;
+            constructBeginning += 2;
+            condition = new ASTMemberAccess(parseMemberAccess(constructBeginning));
+            condEnd = constructBeginning;
             while (_tokens[condEnd].type != tokType::closingBra) {
                 ++condEnd;
                 if (condEnd == _tokens.size()) {
@@ -254,24 +255,23 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
 
 }
 
-ASTMemberAccess Parser::parseMemberAccess(unsigned long long exprBeginning) {
+ASTMemberAccess Parser::parseMemberAccess(unsigned long long & exprBeginning) {
     
     std::vector<std::string> accessedMembers;
     
-    unsigned long long iter = exprBeginning + 2;
     const size_t tokSize = _tokens.size();
     
-    while (_tokens[++iter] != tokType::closingBra) {
+    while (_tokens[++exprBeginning] != tokType::closingBra) {
         
-        if (iter >= tokSize) {
+        if (exprBeginning >= tokSize) {
             throw missing_token(']');
         }
         
-        if (_tokens[iter] != tokType::id) {
-            throw unexpected_token(_tokens[iter].value);
+        if (_tokens[exprBeginning] != tokType::id) {
+            throw unexpected_token(_tokens[exprBeginning].value);
         }
         
-        accessedMembers.emplace_back(_tokens[iter].value);
+        accessedMembers.emplace_back(_tokens[exprBeginning].value);
         
     }
     
@@ -365,6 +365,11 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     std::string type = _tokens[funBeginning + 1].value;
     
     std::string name = _tokens[funBeginning + 2].value;
+    
+    if (className != "") {
+        name = NameMangler::premangleMethodName(name, className);
+    }
+    
     std::vector<parameter> params;
     
     parseParams(funBeginning + 3, params);
@@ -372,7 +377,10 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     /* Emplace function into ast                                                 */
     /* EmplaceFunction also changes current scope to the newly emplaced function */
     _ast.emplaceFunction(name, type, params);
-    
+    /* If function is a member function, emplace self into ast. */
+    if (className != "") {
+        _ast.emplaceVariableIntoScope(parameter("self", className), _ast.getCurrentScopePtr());
+    }
     unsigned long long sexp = 0;
     
     /* funBeginning = (; funBeginning + 1 = data type; funBeginning + 2 = name; funBeginning + 3 = ( */
@@ -453,6 +461,7 @@ std::vector<parameter> Parser::parseClassMembers(unsigned long long firstSexp, s
             }
             
             parseMethod(sexp, className);
+            break;
             
         }
         param = parseVariable(sexp);

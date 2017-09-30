@@ -53,7 +53,9 @@ class Parser {
     void parseConstruct(unsigned long long constructBeginning, unsigned long long constructEnd);
     ASTFunCall parseFunCall(unsigned long long callBeginning, unsigned long long callEnd);
     
-    ASTMemberAccess parseMemberAccess(unsigned long long exprBeginning);
+    /* Accepts a reference so when the function execution finishes, the iterator is set at the end of member access */
+    /* And member access parameters aren't parsed as separate variables                                             */
+    ASTMemberAccess parseMemberAccess(unsigned long long & exprBeginning);
     
     unsigned long long findSexpEnd(unsigned long long sexpBeginning);
     

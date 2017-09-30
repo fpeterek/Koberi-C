@@ -21,8 +21,12 @@ class NameMangler {
     
 public:
     
+    /* Mangles function names by parameter types */
     static std::string mangleName(const std::string & name, const std::vector<parameter> & params);
     static std::string mangleName(const std::string & name, const std::vector<std::string> & paramTypes);
+    
+    /* Premangles method names by class name, but not by parameters */
+    static std::string premangleMethodName(const std::string & name, const std::string & className);
     
 };
 
