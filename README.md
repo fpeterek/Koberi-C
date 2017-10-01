@@ -3,7 +3,7 @@
 Kobeři-C is a language with Lisp-like syntax, which compiles to pure C. 
 
 ## Why Kobeři-C
-Kobeři-C was built with modern features in mind. It's goal is to introduce useful modern features to the world of C, while keeping the performance on par with pure C. Kobeři-C achieves this by compiling straight to C99.
+Kobeři-C was built with modern features in mind. It's goal is to introduce useful modern features to the world of C, while keeping the performance on par with pure C. Kobeři-C achieves this by compiling straight to pure C.
 
 ## Features
 ### Simplified syntax
