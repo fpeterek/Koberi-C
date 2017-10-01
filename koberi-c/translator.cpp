@@ -256,6 +256,10 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     
     std::string name = funcall.function;
     
+    if (funcall.object != nullptr) {
+        name = NameMangler::premangleMethodName(name, translateMemberAccess(*funcall.object).type);
+    }
+    
     if (expr::isOperator(name)) {
         return translateOperator(name, params);
     }
@@ -268,11 +272,21 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     
     /* Mangle name and get return type, if function doesn't exist, and exception should be thrown */
     /* If function exists, create valid C function call from provided parameters                  */
-    name = NameMangler::mangleName(funcall.function, params);
-    
-    functionCall.type = _ast.getFunctionReturnType(name);
+    name = NameMangler::mangleName(name, params);
     
     functionCall.value = name + "(";
+    
+    if (funcall.object != nullptr) {
+        
+        parameter object = translateMemberAccess(*funcall.object);
+        
+        functionCall.value += "&(" + object.value + ")" + (params.size() ? ", " : "");
+        
+        functionCall.type = _ast.getClass(object.type).methods.at(name);
+        
+    } else {
+        functionCall.type = _ast.getFunctionReturnType(name);
+    }
     
     for (size_t i = 0; i < params.size(); ++i) {
         
@@ -649,7 +663,7 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
 
 parameter Translator::translateMemberAccess(ASTMemberAccess & attribute) {
     
-    if (attribute.accessOrder.size() < 2) {
+    if (attribute.accessOrder.size() < 1) {
         throw invalid_attribute_access(_functionName, "Not enough parameters.");
     }
     
@@ -660,7 +674,11 @@ parameter Translator::translateMemberAccess(ASTMemberAccess & attribute) {
     baseVar.name = attribute.accessOrder[0];
     baseVar.type = _ast.getVarType(baseVar.name, attribute.parentScope);
     
-    attr.type = checkAttributesAndReturnType(baseVar, attribute.accessOrder);
+    if (attribute.accessOrder.size() > 1) {
+        attr.type = checkAttributesAndReturnType(baseVar, attribute.accessOrder);
+    } else {
+        attr.type = baseVar.type;
+    }
     
     for (auto & i : attribute.accessOrder) {
         attr.value += (i == "self" ? "(*self)" : i) + ".";

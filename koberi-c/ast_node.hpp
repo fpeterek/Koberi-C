@@ -74,13 +74,17 @@ struct ASTFunCall : public ASTNode {
     /* Used to point to an object on which a member function is called */
     ASTMemberAccess * object;
     
-    ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<ASTNode *> & params);
+    ASTFunCall(ASTScope * parent,
+               const std::string & name,
+               const std::vector<ASTNode *> & params,
+               ASTMemberAccess * object = nullptr);
     ASTFunCall(const ASTFunCall & orig);
     ~ASTFunCall();
     
     static ASTFunCall * createFunCall(ASTScope * parentScope,
                                       const std::string & name,
-                                      const std::vector<ASTNode *> & params);
+                                      const std::vector<ASTNode *> & params,
+                                      ASTMemberAccess * object = nullptr);
     
 };
 

@@ -220,9 +220,29 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
     std::string name;
     std::vector<ASTNode *> params;
     
-    name = _tokens[callBeginning + 1].value;
+    ASTMemberAccess * object = nullptr;
     
-    for (unsigned long long iter = callBeginning + 2; iter < callEnd; ++iter) {
+    unsigned long long iter;
+    if (_tokens[callBeginning + 1] == tokType::openingBra) {
+        
+        unsigned long long memberAccessBeginning = callBeginning + 1;
+        object = new ASTMemberAccess(parseMemberAccess(memberAccessBeginning));
+        /* parseMemberAccess sets memberAccessBeginning to the position of the closing bracket */
+        iter = memberAccessBeginning + 1;
+        
+        /* Last item is the function that's being called                               */
+        /* Everything before that points to the object on which the function is called */
+        name = object->accessOrder.back();
+        object->accessOrder.pop_back();
+    
+    } else {
+        
+        name = _tokens[callBeginning + 1].value;
+        iter = callBeginning + 2;
+        
+    }
+    
+    for (; iter < callEnd; ++iter) {
     
         if (_tokens[iter] == tokType::openingPar) {
             
@@ -251,7 +271,7 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
         
     }
     
-    return ASTFunCall(_ast.getCurrentScopePtr(), name, params);
+    return ASTFunCall(_ast.getCurrentScopePtr(), name, params, object);
 
 }
 

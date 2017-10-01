@@ -149,11 +149,15 @@ ASTConstruct::~ASTConstruct() {
     
 }
 
-ASTFunCall::ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<ASTNode *> & params) {
+ASTFunCall::ASTFunCall(ASTScope * parent,
+                       const std::string & name,
+                       const std::vector<ASTNode *> & params,
+                       ASTMemberAccess * object) {
     
     nodeType    = NodeType::FunCall;
     parentScope = parent;
     function    = name;
+    this->object = object;
 
     for (ASTNode * param : params) {
         
@@ -208,6 +212,11 @@ ASTFunCall::ASTFunCall(const ASTFunCall & orig) {
     nodeType = NodeType::FunCall;
     parentScope = orig.parentScope;
     function = orig.function;
+    if (orig.object != nullptr) {
+        object = new ASTMemberAccess(*orig.object);
+    } else {
+        object = nullptr;
+    }
     
     for (ASTNode * param : orig.parameters) {
         
@@ -258,6 +267,10 @@ ASTFunCall::ASTFunCall(const ASTFunCall & orig) {
 }
 
 ASTFunCall::~ASTFunCall() {
+    
+    if (object != nullptr) {
+        delete object;
+    }
     
     for (ASTNode * param : parameters) {
         
@@ -367,9 +380,10 @@ ASTLiteral * ASTLiteral::createLiteral(const std::string & type,
 
 ASTFunCall * ASTFunCall::createFunCall(ASTScope * parent,
                                        const std::string & name,
-                                       const std::vector<ASTNode *> & params) {
+                                       const std::vector<ASTNode *> & params,
+                                       ASTMemberAccess * object) {
     
-    ASTFunCall * funcall = new ASTFunCall(parent, name, params);
+    ASTFunCall * funcall = new ASTFunCall(parent, name, params, object);
     
     return funcall;
     
