@@ -197,6 +197,19 @@ public:
     
 };
 
+class redefinition_of_function {
+    
+    std::string _message;
+    
+public:
+    
+    redefinition_of_function(const std::string & functionName);
+    redefinition_of_function(const std::string & functionName, const std::string & className);
+    
+    const char * what () const throw();
+    
+};
+
 class no_such_member : public std::exception {
     
     std::string _message;

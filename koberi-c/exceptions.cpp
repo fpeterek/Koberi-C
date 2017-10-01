@@ -239,6 +239,24 @@ const char * redefinition_of_variable::what() const throw() {
     
 }
 
+redefinition_of_function::redefinition_of_function(const std::string & functionName) {
+    
+    _message = "Redefinition of function " + functionName;
+    
+}
+
+redefinition_of_function::redefinition_of_function(const std::string & functionName, const std::string & className) {
+    
+    _message = "Redefinition of member function " + functionName + " of class " + className;
+    
+}
+
+const char * redefinition_of_function::what () const throw() {
+    
+    return _message.c_str();
+    
+}
+
 no_such_member::no_such_member(const std::string && memberName, const std::string && className) {
     
     _message = className + " has no member " + memberName;

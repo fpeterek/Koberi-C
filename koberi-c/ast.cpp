@@ -31,6 +31,11 @@ void AbstractSyntaxTree::addMethod(const std::string & methodType, const std::st
     
     try {
         _class & c = _classes.at(className);
+        
+        if (c.methods[methodName] != "") {
+            throw redefinition_of_function(methodName);
+        }
+        
         c.methods.emplace(methodName, methodType);
     } catch (const std::out_of_range & e) {
         throw compiler_error("Compiler error: defining method for unexisting class. ");
@@ -54,6 +59,14 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
     }
     checkType(returnType);
     
+    /* Check if function doesn't already exist                    */
+    /* If yes, an exception is thrown, if not, function is stored */
+    std::string mangledName = NameMangler::mangleName(functionName, params);
+    if (_functions[mangledName] != "") {
+        throw redefinition_of_function(functionName);
+    }
+    _functions[mangledName] = returnType;
+    
     ASTFunction * function = new ASTFunction(&_globalScope, functionName, returnType, params, className);
     
     _globalScope.childNodes.emplace_back(function);
@@ -71,8 +84,6 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
         // _currentScope->vars.emplace(param.name, param.type);
         
     }
-    
-    _functions.emplace(NameMangler::mangleName(functionName, params), returnType);
     
 }
 

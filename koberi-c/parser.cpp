@@ -382,7 +382,12 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     if (className != "") {
         
         std::string mangledName = NameMangler::mangleName(name, params);
-        _ast.addMethod(type, mangledName, className);
+        
+        try {
+            _ast.addMethod(type, mangledName, className);
+        } catch (const redefinition_of_function & e) {
+            throw redefinition_of_function(_tokens[funBeginning + 2].value, className);
+        }
         
         _ast.emplaceVariableIntoScope(parameter("self", className), _ast.getCurrentScopePtr());
     

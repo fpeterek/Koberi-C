@@ -62,12 +62,17 @@ struct ASTScope : public ASTNode {
     
 };
 
-/* A function call (operators count too) */
+struct ASTMemberAccess;
+
+/* A function call (used for member functions and operators, too)                  */
 /* It will also be used for storing literals used in language constructs (while 1) */
 struct ASTFunCall : public ASTNode {
     
     std::string function;
     std::vector<ASTNode *> parameters;
+    
+    /* Used to point to an object on which a member function is called */
+    ASTMemberAccess * object;
     
     ASTFunCall(ASTScope * parent, const std::string & name, const std::vector<ASTNode *> & params);
     ASTFunCall(const ASTFunCall & orig);
