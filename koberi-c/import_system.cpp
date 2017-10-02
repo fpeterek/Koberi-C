@@ -102,6 +102,9 @@ void ImportSystem::parseImports(const std::string & filename) {
         
         if (line[0] == '#') {
             
+            /* Trim comments from line */
+            line = line.substr(0, line.find(";"));
+            
             std::vector<std::string> split = splitStr(line);
             
             if (split[0] != "#import") {
