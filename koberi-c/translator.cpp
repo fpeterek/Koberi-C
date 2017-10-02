@@ -92,8 +92,11 @@ void Translator::forwardFunctionDeclarations() {
         if (node->nodeType == NodeType::Function) {
             
             ASTFunction * fun = (ASTFunction*)node;
-            std::string mangledName = NameMangler::mangleName(fun->name, fun->parameters);
             
+            std::string mangledName = NameMangler::mangleName(fun->name, fun->parameters);
+            if (fun->className != "") {
+                mangledName = NameMangler::premangleMethodName(mangledName, fun->className);
+            }
             _output << (fun->type == "int" ? "ll" : fun->type) << " " << mangledName << "(";
             
             if (fun->className != "") {
@@ -211,8 +214,13 @@ void Translator::translateFunction(ASTFunction & function) {
     
     const std::vector<parameter> & params = function.parameters;
     
-    _output << "\n" << (function.type == "int" ? "ll" : function.type) << " "
-            << NameMangler::mangleName(function.name, params) << "(";
+    std::string name = NameMangler::mangleName(function.name, params);
+    
+    if (function.className != "") {
+        name = NameMangler::premangleMethodName(name, function.className);
+    }
+    
+    _output << "\n" << (function.type == "int" ? "ll" : function.type) << " " << name << "(";
     
     /* If function is a member function, pass pointer to self as first parameter */
     if (function.className != "") {
@@ -238,6 +246,26 @@ void Translator::translateFunction(ASTFunction & function) {
 parameter Translator::translateFunCall(ASTFunCall & funcall) {
     
     parameter functionCall;
+    std::string name = funcall.function;
+    
+    /* Only used if function is a member function   */
+    /* It needs to be declared at this scope though */
+    method m;
+    
+    /* Casting needs to be handled separately, because it contains class names */
+    if (name == "cast" and funcall.parameters.size() == 2 and funcall.object == nullptr) {
+        
+        if (funcall.parameters[1]->nodeType == NodeType::Variable and
+            _ast.isDataType(((ASTVariable*)funcall.parameters[1])->name)) {
+            
+            parameter param = (getFuncallParameter(funcall.parameters[0]));
+            std::string type = ((ASTVariable*)funcall.parameters[1])->name;
+            
+            return cast(param, type);
+            
+        }
+    
+    }
     
     std::vector<parameter> params;
     
@@ -254,19 +282,13 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
         }
     }
     
-    std::string name = funcall.function;
-    
-    if (funcall.object != nullptr) {
-        name = NameMangler::premangleMethodName(name, translateMemberAccess(*funcall.object).type);
-    }
-    
-    if (expr::isOperator(name)) {
+    if (expr::isOperator(name) and funcall.object == nullptr) {
         return translateOperator(name, params);
     }
-    if (name == "print") {
+    if (name == "print" and funcall.object == nullptr) {
         return translatePrint(params);
     }
-    if (name == "c") {
+    if (name == "c" and funcall.object == nullptr) {
         return inlineC(params);
     }
     
@@ -274,15 +296,27 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     /* If function exists, create valid C function call from provided parameters                  */
     name = NameMangler::mangleName(name, params);
     
-    functionCall.value = name + "(";
+    /* Translate parameters first */
+    functionCall.value = "(";
     
     if (funcall.object != nullptr) {
         
         parameter object = translateMemberAccess(*funcall.object);
         
-        functionCall.value += "&(" + object.value + ")" + (params.size() ? ", " : "");
+        try {
+            m = _ast.getMethodReturnType(name, object.type);
+        } catch (const undeclared_function_call & e) {
+            throw undeclared_function_call(funcall.function, object.type);
+        }
         
-        functionCall.type = _ast.getClass(object.type).methods.at(name);
+        /* If method is a member of objects superclass, cast object to that superclass */
+        /* Otherwise just access the objects address                                   */
+        std::string castedObject = "&(" + object.value + ")";
+        if (m.className != object.type) {
+            castedObject = "((" + m.className + " *)((void *) " + castedObject + "))";
+        }
+        functionCall.value += castedObject + (params.size() ? ", " : "");
+        
         
     } else {
         functionCall.type = _ast.getFunctionReturnType(name);
@@ -296,7 +330,12 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     
     functionCall.value += ")";
     
-    // std::cout << "Translate fun call: " << funcall.function << std::endl;
+    /* After translating the arguments, prepend mangled name in front of them */
+    if (funcall.object != nullptr) {
+        name = NameMangler::premangleMethodName(name, m.className);
+    }
+    
+    functionCall.value = name + functionCall.value;
     
     return functionCall;
     
@@ -424,6 +463,46 @@ parameter Translator::translateOperator(std::string & op, std::vector<parameter>
     
     /* Should never occur */
     return parameter(op, "");
+    
+}
+
+parameter Translator::cast(const parameter & valueToCast, const std::string & type) {
+    
+    parameter castedObject;
+    
+    if (valueToCast.type == type) {
+        castedObject.type = valueToCast.type;
+        castedObject.value = valueToCast.value;
+    }
+    else if (type == "num" and valueToCast.type == "int") {
+        castedObject.type = "num";
+        castedObject.value = "((num)" + valueToCast.value + ")";
+    }
+    else if (type == "int" and valueToCast.type == "num") {
+        castedObject.type = "int";
+        castedObject.value = "((ll)" + valueToCast.value + ")";
+    }
+    /* Check if classes are related, doesn't matter which one inherits from which */
+    else if (_ast.hasSuperclass(valueToCast.type, type) or
+             _ast.hasSuperclass(type, valueToCast.type)) {
+        
+        castedObject.type = type;
+        
+        /* Access the object's address */
+        castedObject.value = "&(" + valueToCast.value + ")";
+        /* Cast address to void* */
+        castedObject.value = "((void *)" + castedObject.value + ")";
+        /* Cast void* to desired_type* */
+        castedObject.value = "((" + type + "*)" + castedObject.value + ")";
+        /* Dereference pointer and access value at pointer */
+        castedObject.value = "(*" + castedObject.value + ")";
+        
+    }
+    else {
+        throw invalid_cast(valueToCast.type, type);
+    }
+    
+    return castedObject;
     
 }
 

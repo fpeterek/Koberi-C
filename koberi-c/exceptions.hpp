@@ -98,7 +98,8 @@ class undeclared_function_call : public std::exception {
 public:
     
     const char * what() const throw();
-    undeclared_function_call(const std::string & message);
+    undeclared_function_call(const std::string & function);
+    undeclared_function_call(const std::string & method, const std::string & className);
     
 };
 
@@ -340,6 +341,17 @@ class invalid_attribute_access : public std::exception {
 public:
     
     invalid_attribute_access(const std::string & functionName, const std::string & msg);
+    const char * what() const throw();
+    
+};
+
+class invalid_cast : public std::exception {
+    
+    const std::string _message;
+    
+public:
+    
+    invalid_cast(const std::string & origType, const std::string & newType);
     const char * what() const throw();
     
 };

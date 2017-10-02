@@ -386,10 +386,6 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     
     std::string name = _tokens[funBeginning + 2].value;
     
-    if (className != "") {
-        name = NameMangler::premangleMethodName(name, className);
-    }
-    
     std::vector<parameter> params;
     
     parseParams(funBeginning + 3, params);

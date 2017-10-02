@@ -107,6 +107,12 @@ undeclared_function_call::undeclared_function_call(const std::string & message) 
 
 }
 
+undeclared_function_call::undeclared_function_call(const std::string & method, const std::string & className) {
+    
+    _message = "Call to undeclared member function " + method + " on object of type " + className;
+    
+}
+
 const char * undeclared_function_call::what() const throw() {
 
     return _message.c_str();
@@ -394,5 +400,17 @@ invalid_attribute_access::invalid_attribute_access(const std::string & functionN
 const char * invalid_attribute_access::what() const throw() {
     
     return message.c_str();
+    
+}
+
+invalid_cast::invalid_cast(const std::string & origType, const std::string & newType)
+                            : _message("Cannot cast value of type "
+                                       + origType + " to " + newType) {
+
+}
+
+const char * invalid_cast::what() const throw() {
+    
+    return _message.c_str();
     
 }

@@ -13,6 +13,18 @@
 
 #include "ast.hpp"
 
+/* Tuples are a bit ugly in C++, structs look better so I'm using a struct       */
+/* Return type for getMethodReturnType(), which holds the methods return type    */
+/* And name of the class it belongs to                                           */
+/* Used to mangle names properly and cast objects properly to their superclasses */
+
+struct method {
+    
+    std::string type;
+    std::string className;
+    
+};
+
 class TraversableAbstractSyntaxTree : public AbstractSyntaxTree {
     
     std::string getVarTypeRecursive(const std::string & varName, ASTScope * scope);
@@ -43,6 +55,10 @@ public:
     
     bool isDataType(const std::string & param);
     bool isClass(const std::string & param);
+    
+    bool hasSuperclass(const std::string & className, const std::string & superClass);
+    
+    method getMethodReturnType(const std::string & methodName, const std::string & className);
     
 };
 

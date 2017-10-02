@@ -58,6 +58,9 @@ class Translator {
     parameter translatePrint(std::vector<parameter> & parameters);
     parameter inlineC(std::vector<parameter> & parameters);
     
+    /* Casts objects to their superclasses/inheriting classes and int <-> num */
+    parameter cast(const parameter & valueToCast, const std::string & type);
+    
     parameter getFuncallParameter(ASTNode * node);
     
     /* Translates a scope ( {...} ) */

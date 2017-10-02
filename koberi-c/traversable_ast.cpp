@@ -146,3 +146,48 @@ bool TraversableAbstractSyntaxTree::isClass(const std::string & param) {
     return isDataType(param) and not contains(_primitiveTypes, param);
     
 }
+
+bool TraversableAbstractSyntaxTree::hasSuperclass(const std::string & className, const std::string & superClass) {
+    
+    if (not _classes.count(className)) {
+        throw not_a_class(className);
+    }
+    
+    const _class & c = _classes.at(className);
+    
+    if (c.superClass == "") {
+        return false;
+    }
+    
+    if (c.superClass == superClass) {
+        return true;
+    }
+    
+    return hasSuperclass(c.superClass, superClass);
+    
+}
+
+method TraversableAbstractSyntaxTree::getMethodReturnType(const std::string & methodName, const std::string & className) {
+    
+    if (not _classes.count(className)) {
+        throw not_a_class(className);
+    }
+    
+    if (_classes.at(className).methods.count(methodName)) {
+        
+        method meth;
+        
+        meth.type = _classes.at(className).methods.at(methodName);
+        meth.className = className;
+        
+        return meth;
+        
+    }
+    
+    if (_classes.at(className).superClass == "") {
+        throw undeclared_function_call(methodName);
+    }
+    
+    return getMethodReturnType(methodName, _classes.at(className).superClass);
+    
+}
