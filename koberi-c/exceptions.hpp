@@ -341,6 +341,7 @@ class invalid_attribute_access : public std::exception {
 public:
     
     invalid_attribute_access(const std::string & functionName, const std::string & msg);
+    invalid_attribute_access(const std::string & msg);
     const char * what() const throw();
     
 };

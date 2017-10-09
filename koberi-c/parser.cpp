@@ -232,7 +232,7 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
         
         /* Last item is the function that's being called                               */
         /* Everything before that points to the object on which the function is called */
-        name = object->accessOrder.back();
+        name = ((ASTVariable*)object->accessOrder.back())->name;
         object->accessOrder.pop_back();
     
     } else {
@@ -277,7 +277,7 @@ ASTFunCall Parser::parseFunCall(unsigned long long callBeginning, unsigned long 
 
 ASTMemberAccess Parser::parseMemberAccess(unsigned long long & exprBeginning) {
     
-    std::vector<std::string> accessedMembers;
+    std::vector<ASTNode*> accessedMembers;
     
     const size_t tokSize = _tokens.size();
     
@@ -287,11 +287,55 @@ ASTMemberAccess Parser::parseMemberAccess(unsigned long long & exprBeginning) {
             throw missing_token(']');
         }
         
+        if (_tokens[exprBeginning] == tokType::openingPar) {
+            
+            const unsigned long long callBeginning = exprBeginning;
+            int parenCounter = 1;
+            int bracketCounter = 0;
+            while (++exprBeginning) {
+                
+                if (exprBeginning >= tokSize) {
+                    throw missing_token(']');
+                }
+                
+                if (_tokens[exprBeginning] == tokType::openingPar) {
+                    ++parenCounter;
+                }
+                else if (_tokens[exprBeginning] == tokType::closingPar) {
+                    --parenCounter;
+                }
+                else if (_tokens[exprBeginning] == tokType::openingBra) {
+                    ++bracketCounter;
+                }
+                else if (_tokens[exprBeginning] == tokType::closingBra) {
+                    --bracketCounter;
+                }
+                
+                if (bracketCounter < 0) {
+                    throw unexpected_token(']');
+                }
+                if (parenCounter < 0) {
+                    throw unexpected_token(')');
+                }
+                
+                if (not (parenCounter or bracketCounter)) {
+                    break;
+                }
+                
+            }
+            
+            ASTFunCall * fcall = new ASTFunCall(parseFunCall(callBeginning, exprBeginning));
+            accessedMembers.emplace_back(fcall);
+            continue;
+            
+        }
+        
         if (_tokens[exprBeginning] != tokType::id) {
             throw unexpected_token(_tokens[exprBeginning].value);
         }
         
-        accessedMembers.emplace_back(_tokens[exprBeginning].value);
+        ASTVariable * var = new ASTVariable(_tokens[exprBeginning].value, _ast.getCurrentScopePtr());
+        accessedMembers.emplace_back(var);
         
     }
     

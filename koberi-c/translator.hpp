@@ -78,7 +78,7 @@ class Translator {
     std::string translateDeclaration(ASTDeclaration & declaration);
     
     parameter translateMemberAccess(ASTMemberAccess & attribute);
-    std::string checkAttributesAndReturnType(parameter & var, std::vector<std::string> & attributes, unsigned int iter = 1);
+    std::string checkAttributesAndReturnType(parameter & var, std::vector<ASTNode*> & attributes, unsigned int iter = 1);
     parameter getVariable(ASTVariable & variable);
     
     /* Checks if parameter is an existing class, throws invalid_attribute_access exception if parameter isn't a class */

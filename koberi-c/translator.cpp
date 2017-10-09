@@ -750,8 +750,17 @@ parameter Translator::translateMemberAccess(ASTMemberAccess & attribute) {
     
     parameter baseVar;
     
-    baseVar.name = attribute.accessOrder[0];
-    baseVar.type = _ast.getVarType(baseVar.name, attribute.parentScope);
+    if ((*attribute.accessOrder[0]).nodeType == NodeType::FunCall) {
+        
+        ASTFunCall & fcall = *((ASTFunCall*)attribute.accessOrder[0]);
+        baseVar = translateFunCall(fcall);
+        
+    } else {
+    
+        baseVar.name = ((ASTVariable*)attribute.accessOrder[0])->name;
+        baseVar.type = _ast.getVarType(baseVar.name, attribute.parentScope);
+        
+    }
     
     if (attribute.accessOrder.size() > 1) {
         attr.type = checkAttributesAndReturnType(baseVar, attribute.accessOrder);
@@ -759,8 +768,14 @@ parameter Translator::translateMemberAccess(ASTMemberAccess & attribute) {
         attr.type = baseVar.type;
     }
     
-    for (auto & i : attribute.accessOrder) {
-        attr.value += (i == "self" ? "(*self)" : i) + ".";
+    attr.value += (baseVar.name == "self" ? "(*self)" : baseVar.name) + ".";
+    
+    for (size_t i = 1; i < attribute.accessOrder.size(); ++i) {
+        
+        std::string & a = ((ASTVariable*)attribute.accessOrder[i])->name;
+        
+        attr.value += a + ".";
+    
     }
     
     attr.value.pop_back();
@@ -769,7 +784,7 @@ parameter Translator::translateMemberAccess(ASTMemberAccess & attribute) {
     
 }
 
-std::string Translator::checkAttributesAndReturnType(parameter & var, std::vector<std::string> & attributes, unsigned int iter) {
+std::string Translator::checkAttributesAndReturnType(parameter & var, std::vector<ASTNode*> & attributes, unsigned int iter) {
     
     /* Probably unnecessary */
     /* if (iter != attributes.size() - 1) {
@@ -778,7 +793,7 @@ std::string Translator::checkAttributesAndReturnType(parameter & var, std::vecto
     
     checkIsClass(var.type);
     
-    std::string & attribute = attributes[iter];
+    std::string & attribute = ((ASTVariable*)attributes[iter])->name;
     
     const _class & cls = _ast.getClass(var.type);
     

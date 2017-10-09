@@ -15,6 +15,7 @@
 #include <unordered_map>
 
 #include "parameter.hpp"
+#include "exceptions.hpp"
 
 /* C++11 has ways of checking the type of a variable at runtime, but I'm going to use an enum instead */
 enum class NodeType {
@@ -104,12 +105,21 @@ struct ASTVariable : public ASTNode {
 /* Used to indicate access to object members */
 struct ASTMemberAccess : public ASTNode {
     
-    /* Just indicates how members are accessed                                         */
-    /* [object attributeObject number] translates to { object, attributeObject, number } */
-    /* Which translates to object.attributeObject.number                                 */
-    std::vector<std::string> accessOrder;
+private:
     
-    ASTMemberAccess(const std::vector<std::string> & accessOrder, ASTScope * parentScope);
+    void check();
+    
+public:
+    
+    /* Just indicates how members are accessed                                                  */
+    /* [object attributeObject number] translates to { object, attributeObject, number }        */
+    /* Which translates to object.attributeObject.number                                        */
+    /* [(get_object 2 3 4) attribute number] translates to get_object(2, 3, 4).attribute.number */
+    std::vector<ASTNode*> accessOrder;
+    
+    ASTMemberAccess(const std::vector<ASTNode*> & accessOrder, ASTScope * parentScope);
+    ASTMemberAccess(const ASTMemberAccess & orig);
+    ~ASTMemberAccess();
     
 };
 

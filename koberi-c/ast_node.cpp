@@ -360,12 +360,135 @@ ASTVariable * ASTVariable::createVariable(const std::string & variableName, ASTS
     
 }
 
-ASTMemberAccess::ASTMemberAccess(const std::vector<std::string> & accessOrder, ASTScope * parent) {
+void ASTMemberAccess::check() {
+    
+    if (not accessOrder.size()) {
+        return;
+    }
+    
+    NodeType type = (*accessOrder[0]).nodeType;
+    if (type != NodeType::Variable and type != NodeType::FunCall) {
+        throw invalid_attribute_access("First parameter of [] operator must be a variable or function call.");
+    }
+    
+    for (size_t i = 1; i < accessOrder.size(); ++i) {
+        
+        type = (*accessOrder[i]).nodeType;
+        if (type != NodeType::Variable) {
+            throw invalid_attribute_access("Parameters of [] operator beyond the first operator must be valid identifiers. ");
+        }
+        
+    }
+    
+}
+
+ASTMemberAccess::ASTMemberAccess(const std::vector<ASTNode *> & accessOrder, ASTScope * parent) {
     
     nodeType = NodeType::MemberAccess;
     parentScope = parent;
     
     this->accessOrder = accessOrder;
+    
+    check();
+    
+}
+
+ASTMemberAccess::ASTMemberAccess(const ASTMemberAccess & orig) {
+    
+    nodeType = NodeType::MemberAccess;
+    parentScope = orig.parentScope;
+    
+    for (ASTNode * node : orig.accessOrder) {
+        
+        switch (node -> nodeType) {
+                
+            case NodeType::Variable:
+                accessOrder.emplace_back( new ASTVariable( *((ASTVariable*)node) ) );
+                break;
+                
+            case NodeType::Literal:
+                accessOrder.emplace_back( new ASTLiteral( *((ASTLiteral*)node) ) );
+                break;
+                
+            case NodeType::MemberAccess:
+                accessOrder.emplace_back( new ASTMemberAccess( *((ASTMemberAccess*)node) ) );
+                break;
+                
+            case NodeType::FunCall:
+                accessOrder.emplace_back( new ASTFunCall( *((ASTFunCall*)node) ) );
+                break;
+                
+            case NodeType::Scope:
+                accessOrder.emplace_back( new ASTScope( *((ASTScope*)node) ) );
+                break;
+                
+            case NodeType::Declaration:
+                accessOrder.emplace_back( new ASTDeclaration( *((ASTDeclaration*)node) ) );
+                break;
+                
+            case NodeType::Function:
+                accessOrder.emplace_back( new ASTFunction( *((ASTFunction*)node) ) );
+                break;
+                
+            case NodeType::Construct:
+                accessOrder.emplace_back( new ASTConstruct( *((ASTConstruct*)node) ) );
+                break;
+                
+            default:
+                break;
+                
+        }
+        
+    }
+    
+}
+
+
+ASTMemberAccess::~ASTMemberAccess() {
+    
+    for (ASTNode * param : accessOrder) {
+        
+        switch (param -> nodeType) {
+                
+            case NodeType::Variable:
+                delete (ASTVariable*)param;
+                break;
+                
+            case NodeType::Literal:
+                delete (ASTLiteral*)param;
+                break;
+                
+            case NodeType::MemberAccess:
+                delete (ASTMemberAccess*)param;
+                break;
+                
+            case NodeType::FunCall:
+                delete (ASTFunCall*)param;
+                break;
+                
+            case NodeType::Scope:
+                delete (ASTScope*)param;
+                break;
+                
+            case NodeType::Declaration:
+                delete (ASTDeclaration*)param;
+                break;
+                
+            case NodeType::Function:
+                delete (ASTFunction*)param;
+                break;
+                
+            case NodeType::Construct:
+                delete (ASTConstruct*)param;
+                break;
+                
+            default:
+                delete param;
+                break;
+                
+        }
+        
+    }
     
 }
 

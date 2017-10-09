@@ -12,7 +12,8 @@
 unexpected_token::unexpected_token(char tok) {
     
     _message = "Unexpected token: ";
-    _message += std::to_string(tok);
+    // _message += std::to_string(tok);
+    _message += { tok, 0 };
     
 }
 
@@ -32,7 +33,8 @@ const char * unexpected_token::what() const throw() {
 missing_token::missing_token(char tok) {
     
     _message = "Missing token ";
-    _message += std::to_string(tok);
+    // _message += std::to_string(tok);
+    _message += { tok, 0 };
 
 }
 
@@ -396,6 +398,10 @@ invalid_attribute_access::invalid_attribute_access(const std::string & functionN
     
 }
 
+invalid_attribute_access::invalid_attribute_access(const std::string & msg)
+                                                 : message("Invalid attribute access: " + msg) {
+    
+}
 
 const char * invalid_attribute_access::what() const throw() {
     

@@ -10,41 +10,20 @@
 
 static const std::string TEST = "testing_script.koberice";
 
-
 int main(int argc, const char * argv[]) {
-    /*
-    const std::array<std::string, 8> numbers = { "123", "4132", "1234423", "4123", "87654", "145", "12", "5" };
-    std::string x = "123";
-    print(numbers >> parameter("Kappa", "str").type);
-    */
     
+    /*if (argc < 2) {
+        std::cout << "Error: No file provided. Compilation terminated. " << std::endl;
+        return -1;
+    }
+    
+    std::string file = argv[1]; */
     
     KoberiC ks;
     
     try {
         ks.compile(TEST);
-    } catch (unexpected_token & e) {
-        print(e.what());
-    } catch (missing_token & e) {
-        print(e.what());
-    } catch (invalid_operator & e) {
-        print(e.what());
-    } catch (file_not_opened & e) {
-        print(e.what());
-    } catch (undeclared_function_call & e) {
-        print(e.what());
-    } catch (undefined_variable & e) {
-        print(e.what());
-    } catch (invalid_syntax & e) {
-        print(e.what());
-    } catch (bad_type & e) {
-        print(e.what());
-    } catch (undefined_class & e) {
-        print(e.what());
-    } catch (redefinition_of_attribute & e) {
-        print(e.what());
-    } catch (std::runtime_error & e) {
-        print(e.what());
+        // ks.compile(file);
     } catch (std::exception & e) {
         print(e.what());
     }
