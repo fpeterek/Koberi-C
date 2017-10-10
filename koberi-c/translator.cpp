@@ -316,6 +316,7 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
             castedObject = "((" + m.className + " *)((void *) " + castedObject + "))";
         }
         functionCall.value += castedObject + (params.size() ? ", " : "");
+        functionCall.type = m.type;
         
         
     } else {

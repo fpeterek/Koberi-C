@@ -173,21 +173,23 @@ method TraversableAbstractSyntaxTree::getMethodReturnType(const std::string & me
         throw not_a_class(className);
     }
     
-    if (_classes.at(className).methods.count(methodName)) {
+    _class & c = _classes.at(className);
+    
+    if (c.methods.count(methodName)) {
         
         method meth;
         
-        meth.type = _classes.at(className).methods.at(methodName);
+        meth.type = c.methods.at(methodName);
         meth.className = className;
         
         return meth;
         
     }
     
-    if (_classes.at(className).superClass == "") {
+    if (c.superClass == "") {
         throw undeclared_function_call(methodName);
     }
     
-    return getMethodReturnType(methodName, _classes.at(className).superClass);
+    return getMethodReturnType(methodName, c.superClass);
     
 }

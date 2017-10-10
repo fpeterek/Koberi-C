@@ -36,7 +36,7 @@ void AbstractSyntaxTree::addMethod(const std::string & methodType, const std::st
             throw redefinition_of_function(methodName);
         }
         
-        c.methods.emplace(methodName, methodType);
+        c.methods[methodName] = methodType;
     } catch (const std::out_of_range & e) {
         throw compiler_error("Compiler error: defining method for unexisting class. ");
     }
