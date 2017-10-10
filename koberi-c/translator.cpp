@@ -44,7 +44,7 @@ void Translator::translateClasses() {
         
         const _class & cls = classes.at(c);
         
-        _output << "\n" << "typedef struct " << cls.className << "{\n";
+        _output << "\n" << "typedef struct " << cls.className << " {\n";
         
         for (const auto & attr : cls.attributes) {
             _output << INDENT << (attr.type == "int" ? "ll" : attr.type) << " " << attr.name << ";\n";
@@ -899,7 +899,7 @@ void Translator::test() {
             }
                 
             case NodeType::MemberAccess: {
-                std::cout << "Member access: " << "too lazy" << std::endl;
+                std::cout << "Member access: " << "too lazy, shouldn't happen anyway" << std::endl;
                 break;
             }
                 
