@@ -206,6 +206,9 @@ std::vector<std::string> expr::print(std::vector<parameter> & params) {
         else if (i.type == "str") {
             statements.emplace_back("fputs(\"" + i.value + "\", stdout)");
         }
+        else if (i.type == "char") {
+            statements.emplace_back("putchar(" + i.value + ")");
+        }
         else {
             throw invalid_syntax("(print) can only print primitive types to stdout. ");
         }

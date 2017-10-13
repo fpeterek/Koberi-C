@@ -26,9 +26,9 @@ void Translator::libraries() {
 
 void Translator::typedefs() {
     
-    _output << "\n" << "/* Typedefs */" << "\n";
+    _output << "\n" << "/* Typedefs */" << "\n\n";
     
-    _output << "\n" << "typedef double num;" << "\n";
+    _output << "typedef double num;" << "\n";
     _output << "typedef long long ll;" << "\n\n";
     
 }
@@ -483,6 +483,14 @@ parameter Translator::cast(const parameter & valueToCast, const std::string & ty
         castedObject.type = "int";
         castedObject.value = "((ll)" + valueToCast.value + ")";
     }
+    else if (type == "int" and valueToCast.type == "char") {
+        castedObject.type = "int";
+        castedObject.value = "((char)" + valueToCast.value + ")";
+    }
+    else if (type == "char" and valueToCast.type == "int") {
+        castedObject.type = "int";
+        castedObject.value = "((ll)" + valueToCast.type + ")";
+    }
     /* Check if classes are related, doesn't matter which one inherits from which */
     else if (_ast.hasSuperclass(valueToCast.type, type) or
              _ast.hasSuperclass(type, valueToCast.type)) {
@@ -536,7 +544,13 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
         parameter lit;
         
         lit.type = literal.type;
-        lit.value = literal.value;
+        
+        /* If literal is a character literal, surround character literal with single quotes ' */
+        if (literal.type == "char") {
+            lit.value = "\'" + literal.value + "\'";
+        } else {
+            lit.value = literal.value;
+        }
         
         return lit;
         

@@ -420,3 +420,14 @@ const char * invalid_cast::what() const throw() {
     return _message.c_str();
     
 }
+
+invalid_char_literal::invalid_char_literal(const std::string & literal)
+                                          : _message("Invalid character literal: " + literal) {
+    
+}
+
+const char * invalid_char_literal::what() const throw() {
+    
+    return _message.c_str();
+    
+}

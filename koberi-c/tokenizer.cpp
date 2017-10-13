@@ -99,14 +99,15 @@ void Tokenizer::numberLiteral() {
     
 }
 
-void Tokenizer::strLiteral() {
+
+void Tokenizer::strLiteral(const char delimiter) {
     
     std::string str;
     bool isEscape = false;
     
-    ++_iter; /* First " character */
+    ++_iter; /* First delimiter character */
     
-    while ( _line[_iter] != '"' or isEscape ) {
+    while ( _line[_iter] != delimiter or isEscape ) {
         
         if ( _line[_iter] == '\\' ) {
             
@@ -114,7 +115,7 @@ void Tokenizer::strLiteral() {
             
             str += "\\";
             ++_iter;
-            if (_iter >= _lineLen) { throw missing_token('"'); }
+            if (_iter >= _lineLen) { throw missing_token(delimiter); }
             
         }
         else {
@@ -123,14 +124,22 @@ void Tokenizer::strLiteral() {
             
             str += std::string(1, _line[_iter]); /* std::string constructor(repeat: int, character: char) */
             ++_iter;
-            if (_iter >= _lineLen) { throw missing_token('"'); }
+            if (_iter >= _lineLen) { throw missing_token(delimiter); }
             
         }
         
     }
     
-    ++_iter; /* Last " character */
-    _tokens.emplace_back(tokType::strLit, str);
+    ++_iter; /* Last delimiter character */
+    const tokType type = delimiter == '"' ? tokType::strLit : tokType::charLit;
+    
+    /* If literal is a char literal, check if literal is valid                    */
+    /* A char literal can contain one character if the first one is not '\'       */
+    /* A char literal can contain more characters in case it's an escape sequence */
+    if (type == tokType::charLit and ((str.length() >= 2 and str[0] != '\\') or str.length() > 1) ) {
+        
+    }
+    _tokens.emplace_back(type, str);
     
 }
 
@@ -181,7 +190,7 @@ void Tokenizer::parseLine() {
         
         else if ( syntax::isValidIdChar(_line[_iter]) ) {  identifierCheck();  }
         
-        /* Check for a num or flt literal */
+        /* Check for an int or num literal */
         
         else if ( syntax::isNum(_line[_iter]) or _line[_iter] == '-' ) {  numberLiteral();  }
         
@@ -189,9 +198,13 @@ void Tokenizer::parseLine() {
         
         else if ( syntax::isOperatorChar(_line[_iter]) ) {  operatorCheck();  }
         
+        /* Check for a character */
+        
+        else if ( _line[_iter] == '\'' ) { strLiteral('\''); }
+        
         /* Check for a str literal */
         
-        else if ( _line[_iter] == '"' ) {  strLiteral();  }
+        else if ( _line[_iter] == '"' ) {  strLiteral('"');  }
         
         else {  throw unexpected_token(_line[_iter]);  }
         

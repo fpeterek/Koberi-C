@@ -357,4 +357,15 @@ public:
     
 };
 
+class invalid_char_literal : public std::exception {
+  
+    const std::string _message;
+    
+public:
+    
+    invalid_char_literal(const std::string & literal);
+    const char * what() const throw();
+    
+};
+
 #endif /* exceptions_hpp */

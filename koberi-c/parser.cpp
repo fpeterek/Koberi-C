@@ -26,6 +26,8 @@ std::string Parser::getType(token & tok) {
         type = "num";
     } else if (tok == tokType::strLit) {
         type = "str";
+    } else if (tok == tokType::charLit) {
+        type = "char";
     }
     
     return type;
@@ -36,7 +38,7 @@ bool Parser::isLiteral(unsigned long long tokenIndex) {
     
     tokType t = _tokens[tokenIndex].type;
     
-    bool result = t == tokType::strLit or t == tokType::intLit or t == tokType::numLit;
+    bool result = t == tokType::strLit or t == tokType::intLit or t == tokType::numLit or t == tokType::charLit;
     
     return result;
     
@@ -55,6 +57,10 @@ ASTLiteral Parser::createLiteral(unsigned long long literalIndex) {
     } else if (_tokens[literalIndex] == tokType::numLit) {
         
         return ASTLiteral("num", _tokens[literalIndex].value);
+        
+    } else if (_tokens[literalIndex] == tokType::charLit) {
+        
+        return ASTLiteral("char", _tokens[literalIndex].value);
         
     }
     

@@ -36,7 +36,7 @@ class Tokenizer {
     void identifierCheck();
     void operatorCheck();
     void numberLiteral();
-    void strLiteral();
+    void strLiteral(const char delimiter='"');
     void readLine();
     void parseLine();
     void openFile(const std::string & filename);

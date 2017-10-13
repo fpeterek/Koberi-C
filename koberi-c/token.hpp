@@ -21,6 +21,7 @@ enum class tokType {
     closingBra,     //  Closing bracket ']'
     numLit,         //  Floating point number literal
     intLit,         //  Integer literal
+    charLit,        //  Character literal, eg. 'K'
     strLit,         //  String literal, eg. "Kobeřice"
     id,             //  An identifier, eg. add
     op,             //  An operator, eg. +
