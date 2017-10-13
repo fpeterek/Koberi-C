@@ -16,7 +16,7 @@ AbstractSyntaxTree::AbstractSyntaxTree() : _globalScope(nullptr) {
 
 void AbstractSyntaxTree::checkType(const std::string & type) {
     
-    if (_dataTypes >> type) {
+    if (contains(_dataTypes, type)) {
         return;
     }
     throw bad_type("Error: Unknown type: " + type);

@@ -18,19 +18,6 @@
 /* Returns true if item can be found in a vector, otherwise returns false */
 
 template <typename Container, typename Type>
-bool operator >> (const Container & container, const Type & item) {
-    
-    for (auto & i : container) {
-        
-        if (item == i) { return true; }
-        
-    }
-    
-    return false;
-    
-}
-
-template <typename Container, typename Type>
 bool contains(const Container & container, const Type & item) {
     
     for (auto & i : container) {
