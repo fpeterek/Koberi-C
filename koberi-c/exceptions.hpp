@@ -379,4 +379,15 @@ public:
 
 };
 
+class type_deduction_error : public std::exception {
+    
+    const std::string _message;
+    
+public:
+    
+    type_deduction_error(const std::string & varName, const std::string & function);
+    const char * what() const throw();
+    
+};
+
 #endif /* exceptions_hpp */

@@ -442,3 +442,18 @@ const char * invalid_identifier::what() const throw() {
     return _message.c_str();
     
 }
+
+type_deduction_error::type_deduction_error(const std::string & varName, const std::string & function) :
+                    _message("Error: Type of variable " + varName
+                             + " in function " + function
+                             + " could not be automatically deduced.") {
+    
+}
+const char * type_deduction_error::what() const throw() {
+    
+    return _message.c_str();
+    
+}
+
+
+

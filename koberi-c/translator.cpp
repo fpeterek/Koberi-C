@@ -46,6 +46,8 @@ void Translator::translateClasses() {
         
         const _class & cls = classes.at(c);
         
+        checkIdIsValid(cls.className);
+        
         _output << "\n" << "typedef struct " << cls.className << " {\n";
         
         for (const auto & attr : cls.attributes) {
@@ -685,7 +687,11 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     
     checkIdIsValid(declaration.name);
     
-    decl = translateType(declaration.type) + " " + declaration.name;
+    std::string type;
+    
+    if (declaration.type != "var") {
+        type = declaration.type;
+    }
     
     if (declaration.value != nullptr) {
         
@@ -695,8 +701,12 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             parameter fcall = translateFunCall(*funcall);
             
-            if ((not (expr::isNumericalType(declaration.type) and expr::isNumericalType(fcall.type)))
-                and declaration.type != fcall.type) {
+            if (declaration.type == "var") {
+                type = fcall.type;
+            }
+            
+            if ((not (expr::isNumericalType(type) and expr::isNumericalType(fcall.type)))
+                and type != fcall.type) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
                                     + declaration.type + " " + declaration.name + "). Expected: "
                                     + declaration.type +
@@ -711,8 +721,12 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             parameter var = getVariable(variable);
             
-            if ((not (expr::isNumericalType(declaration.type) and expr::isNumericalType(var.type)))
-                and declaration.type != var.type) {
+            if (declaration.type == "var") {
+                type = var.type;
+            }
+            
+            if ((not (expr::isNumericalType(type) and expr::isNumericalType(var.type)))
+                and type != var.type) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
                                     + declaration.type + " " + declaration.name + "). Expected: "
                                     + declaration.type +
@@ -725,8 +739,12 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             ASTLiteral & literal = *((ASTLiteral*)declaration.value);
             
-            if ((not (expr::isNumericalType(declaration.type) and expr::isNumericalType(literal.type)))
-                and declaration.type != literal.type) {
+            if (declaration.type == "var") {
+                type = literal.type;
+            }
+            
+            if ((not (expr::isNumericalType(type) and expr::isNumericalType(literal.type)))
+                and type != literal.type) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
                                     + declaration.type + " " + declaration.name + "). Expected: "
                                     + declaration.type +
@@ -738,7 +756,14 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
         } else if (declaration.value->nodeType == NodeType::MemberAccess) {
             
             ASTMemberAccess & attribute = *((ASTMemberAccess*)declaration.value);
-            decl += " = " + translateMemberAccess(attribute).value;
+            
+            parameter memberAccess = translateMemberAccess(attribute);
+            
+            if (declaration.type == "var") {
+                type = memberAccess.type;
+            }
+            
+            decl += " = " + memberAccess.value;
             
         }
         
@@ -746,7 +771,13 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     
     decl += ";";
     
-    _ast.emplaceVariableIntoScope(parameter(declaration.name, declaration.type), declaration.parentScope);
+    if (type == "var") {
+        throw type_deduction_error(declaration.name, _functionName);
+    }
+    
+    decl = translateType(type) + " " + declaration.name + decl;
+    
+    _ast.emplaceVariableIntoScope(parameter(declaration.name, type), declaration.parentScope);
     
     return decl;
     
@@ -878,6 +909,10 @@ void Translator::checkIdIsValid(const std::string & id) {
             throw invalid_identifier(id);
         }
         
+    }
+    
+    if (contains(expr::keywords, id)) {
+        throw invalid_identifier(id);
     }
     
 }

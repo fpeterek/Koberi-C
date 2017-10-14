@@ -38,6 +38,21 @@ namespace expr {
         "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"
     };
     
+    const std::vector<std::string> keywords = {
+        /* Types */
+        "int", "char", "void", "unsigned", "long", "short", "num", "auto",
+        "const", "static", "double", "float", "register", "restrict", "signed",
+        "volatile", "var",
+        /* Constructs */
+        "if", "else", "elif", "while", "for", "do", "switch", "case", "default"
+        /* Operators */
+        "return", "break", "continue", "size_of", "sizeof", "inc", "dec", "equals",
+        "not_eq", "and", "or", "not", "compl", "set", "lshift", "rshift", "xor", "bit_or",
+        "bit_and", "goto"
+        /* Other */
+        "typedef", "struct", "extern", "inline", "union"
+    };
+    
     const std::array<std::string, 4> constructs = { "if", "elsif", "else", "while" };
     
     const std::unordered_map<std::string /* Kobeři-C function */, std::string /* C operator */ > unary_operators_map = {
