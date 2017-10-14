@@ -368,4 +368,15 @@ public:
     
 };
 
+class invalid_identifier : public std::exception {
+
+    const std::string _message;
+    
+public:
+    
+    invalid_identifier(const std::string & identifier);
+    const char * what() const throw();
+
+};
+
 #endif /* exceptions_hpp */

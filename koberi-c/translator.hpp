@@ -81,8 +81,15 @@ class Translator {
     std::string checkAttributesAndReturnType(parameter & var, std::vector<ASTNode*> & attributes, unsigned int iter = 1);
     parameter getVariable(ASTVariable & variable);
     
+    /* Checks if type is int. If type is int/uint, returns ll/ull respectively */
+    /* Otherwise returns parameter                                             */
+    std::string translateType(const std::string & type);
+    
     /* Checks if parameter is an existing class, throws invalid_attribute_access exception if parameter isn't a class */
     void checkIsClass(std::string & className);
+    
+    /* Checks if id is a valid identifier for variable names */
+    void checkIdIsValid(const std::string & id);
     
     /* Indents code */
     void indent();

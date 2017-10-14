@@ -174,9 +174,18 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
     if (construct != "else") {
         
         if (_tokens[constructBeginning + 2].type == tokType::intLit or
-            _tokens[constructBeginning + 2].type == tokType::numLit) {
+            _tokens[constructBeginning + 2].type == tokType::numLit or
+            _tokens[constructBeginning + 2].type == tokType::charLit) {
             
-            std::string type = _tokens[constructBeginning + 2].type == tokType::intLit ? "int" : "num";
+            std::string type;
+            
+            if (_tokens[constructBeginning + 2].type == tokType::intLit) {
+                type = "int";
+            } else if (_tokens[constructBeginning + 2].type == tokType::numLit) {
+                type = "num";
+            } else if (_tokens[constructBeginning + 2].type == tokType::charLit) {
+                type = "char";
+            }
             
             condition = new ASTLiteral(type, _tokens[constructBeginning + 2].value);
             

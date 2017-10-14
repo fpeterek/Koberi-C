@@ -38,6 +38,12 @@ bool expr::isBinaryOperator(const std::string & op) {
 
 }
 
+bool expr::isNumericalType(const std::string & type) {
+    
+    return contains(numerical_types, type);
+    
+}
+
 parameter expr::variableDeclaration(std::string & type, std::string & name, std::string & value) {
     
     return parameter((type == "int" ? "ll" : type) + " " + name + " = " + value + ";", type);
@@ -72,7 +78,7 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
         
     }
     
-    if (op == ">" or op == "<" or op == "equals" or op == "not_eq") {
+    if (op == ">" or op == ">=" or op == "<" or op == "<=" or op == "equals" or op == "not_eq") {
         return comparison(op, params);
     }
     
@@ -203,10 +209,13 @@ std::vector<std::string> expr::print(std::vector<parameter> & params) {
         else if (i.type == "int") {
             statements.emplace_back("printf(\"%lld\", " + i.value + ")");
         }
+        else if (i.type == "uint") {
+            statements.emplace_back("printf(\"%llu\", " + i.value + ")");
+        }
         else if (i.type == "str") {
             statements.emplace_back("fputs(\"" + i.value + "\", stdout)");
         }
-        else if (i.type == "char") {
+        else if (i.type == "char" or i .type == "uchar") {
             statements.emplace_back("putchar(" + i.value + ")");
         }
         else {

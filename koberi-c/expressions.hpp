@@ -59,6 +59,8 @@ namespace expr {
         
     };
     
+    const std::array<std::string, 5> numerical_types = { "char", "uchar", "int", "uint", "num" };
+    
     bool isConstruct(const std::string & construct);
     
     bool isOperator(const std::string & op);
@@ -66,6 +68,8 @@ namespace expr {
     bool isParameterlessOperator(const std::string & op);
     bool isUnaryOperator(const std::string & op);
     bool isBinaryOperator(const std::string & op);
+    
+    bool isNumericalType(const std::string & type);
     
     /* Can't use an std::map for these functions, because they accept different parameters */
     

@@ -431,3 +431,14 @@ const char * invalid_char_literal::what() const throw() {
     return _message.c_str();
     
 }
+
+invalid_identifier::invalid_identifier(const std::string & identifier)
+                                    : _message("Error: " + identifier + " is not a valid identifier") {
+    
+}
+
+const char * invalid_identifier::what() const throw() {
+    
+    return _message.c_str();
+    
+}

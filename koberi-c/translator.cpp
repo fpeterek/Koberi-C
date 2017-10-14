@@ -29,7 +29,9 @@ void Translator::typedefs() {
     _output << "\n" << "/* Typedefs */" << "\n\n";
     
     _output << "typedef double num;" << "\n";
-    _output << "typedef long long ll;" << "\n\n";
+    _output << "typedef intmax_t ll;" << "\n";
+    _output << "typedef uintmax_t ull;" << "\n";
+    _output << "typedef unsigned char uchar;" << "\n";
     
 }
 
@@ -47,7 +49,9 @@ void Translator::translateClasses() {
         _output << "\n" << "typedef struct " << cls.className << " {\n";
         
         for (const auto & attr : cls.attributes) {
-            _output << INDENT << (attr.type == "int" ? "ll" : attr.type) << " " << attr.name << ";\n";
+            
+            checkIdIsValid(attr.name);
+            _output << INDENT << translateType(attr.type) << " " << attr.name << ";\n";
         }
         
         _output << "} " << cls.className << ";\n" << std::endl;
@@ -69,7 +73,7 @@ void Translator::translateGlobalVars() {
         if (node->nodeType == NodeType::Declaration) {
             
             ASTDeclaration * decl = (ASTDeclaration*)node;
-            _output << (decl->type == "int" ? "ll" : decl->type) << " " << decl->name << ";\n";
+            _output << translateType(decl->type) << " " << decl->name << ";\n";
             
         }
         
@@ -97,7 +101,7 @@ void Translator::forwardFunctionDeclarations() {
             if (fun->className != "") {
                 mangledName = NameMangler::premangleMethodName(mangledName, fun->className);
             }
-            _output << (fun->type == "int" ? "ll" : fun->type) << " " << mangledName << "(";
+            _output << translateType(fun->type) << " " << mangledName << "(";
             
             if (fun->className != "") {
                 _output << fun->className << " * self";
@@ -111,7 +115,7 @@ void Translator::forwardFunctionDeclarations() {
                 for (size_t iter = 0; iter < fun->parameters.size(); ++iter) {
                     
                     const parameter & param = fun->parameters[iter];
-                    _output << (param.type == "int" ? "ll" : param.type) << " " << param.name
+                    _output << translateType(param.type) << " " << param.name
                             << (iter == fun->parameters.size() - 1 ? "" : ", ");
                     
                 }
@@ -220,7 +224,7 @@ void Translator::translateFunction(ASTFunction & function) {
         name = NameMangler::premangleMethodName(name, function.className);
     }
     
-    _output << "\n" << (function.type == "int" ? "ll" : function.type) << " " << name << "(";
+    _output << "\n" << translateType(function.type) << " " << name << "(";
     
     /* If function is a member function, pass pointer to self as first parameter */
     if (function.className != "") {
@@ -232,7 +236,7 @@ void Translator::translateFunction(ASTFunction & function) {
     
     for (size_t i = 0; i < params.size(); ++i) {
         
-        _output << (params[i].type == "int" ? "ll" : params[i].type) << " " << params[i].name
+        _output << translateType(params[i].type) << " " << params[i].name
                 << (i == params.size() - 1 ? "" : ", ");
         
     }
@@ -475,21 +479,9 @@ parameter Translator::cast(const parameter & valueToCast, const std::string & ty
         castedObject.type = valueToCast.type;
         castedObject.value = valueToCast.value;
     }
-    else if (type == "num" and valueToCast.type == "int") {
-        castedObject.type = "num";
-        castedObject.value = "((num)" + valueToCast.value + ")";
-    }
-    else if (type == "int" and valueToCast.type == "num") {
-        castedObject.type = "int";
-        castedObject.value = "((ll)" + valueToCast.value + ")";
-    }
-    else if (type == "int" and valueToCast.type == "char") {
-        castedObject.type = "int";
-        castedObject.value = "((char)" + valueToCast.value + ")";
-    }
-    else if (type == "char" and valueToCast.type == "int") {
-        castedObject.type = "int";
-        castedObject.value = "((ll)" + valueToCast.type + ")";
+    else if (expr::isNumericalType(type) and expr::isNumericalType(valueToCast.type)) {
+        castedObject.type = type;
+        castedObject.value = "((" + translateType(type) + ")" + valueToCast.value + ")";
     }
     /* Check if classes are related, doesn't matter which one inherits from which */
     else if (_ast.hasSuperclass(valueToCast.type, type) or
@@ -667,8 +659,8 @@ std::string Translator::translateIfWhile(ASTConstruct & construct) {
         
     }
     
-    if (condition.type != "int" and condition.type != "num") {
-        throw bad_type("Error: Construct conditions must be of type int or num. ");
+    if (not expr::isNumericalType(condition.type)) {
+        throw bad_type("Error: Construct conditions must be of numerical type. ");
     }
     
     _if += condition.value;
@@ -691,7 +683,9 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     
     std::string decl;
     
-    decl = (declaration.type == "int" ? "ll" : declaration.type) + " " + declaration.name;
+    checkIdIsValid(declaration.name);
+    
+    decl = translateType(declaration.type) + " " + declaration.name;
     
     if (declaration.value != nullptr) {
         
@@ -701,7 +695,8 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             parameter fcall = translateFunCall(*funcall);
             
-            if (declaration.type != fcall.type) {
+            if ((not (expr::isNumericalType(declaration.type) and expr::isNumericalType(fcall.type)))
+                and declaration.type != fcall.type) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
                                     + declaration.type + " " + declaration.name + "). Expected: "
                                     + declaration.type +
@@ -716,7 +711,8 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             parameter var = getVariable(variable);
             
-            if (declaration.type != var.type) {
+            if ((not (expr::isNumericalType(declaration.type) and expr::isNumericalType(var.type)))
+                and declaration.type != var.type) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
                                     + declaration.type + " " + declaration.name + "). Expected: "
                                     + declaration.type +
@@ -729,7 +725,8 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             ASTLiteral & literal = *((ASTLiteral*)declaration.value);
             
-            if (declaration.type != literal.type) {
+            if ((not (expr::isNumericalType(declaration.type) and expr::isNumericalType(literal.type)))
+                and declaration.type != literal.type) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
                                     + declaration.type + " " + declaration.name + "). Expected: "
                                     + declaration.type +
@@ -839,6 +836,20 @@ parameter Translator::getVariable(ASTVariable & variable) {
     
 }
 
+std::string Translator::translateType(const std::string & type) {
+    
+    std::string t = type;
+    
+    if (type == "int") {
+        t = "ll";
+    } else if (type == "uint") {
+        t = "ull";
+    }
+    
+    return t;
+    
+}
+
 void Translator::checkIsClass(std::string & className) {
     
     if (not _ast.isClass(className)) {
@@ -847,6 +858,29 @@ void Translator::checkIsClass(std::string & className) {
     
 }
 
+void Translator::checkIdIsValid(const std::string & id) {
+    
+    auto isLetterOrUnderscore = [] (const char c) -> bool {
+        return ('A' <= c and c <= 'Z') or ('a' <= c and c <= 'z') or c == '_';
+    };
+    
+    auto isValidIdChar = [&] (const char c) -> bool {
+        return isLetterOrUnderscore(c) or ('0' <= c and c <= '9');
+    };
+    
+    if (not isLetterOrUnderscore(id[0])) {
+        throw invalid_identifier(id);
+    }
+    
+    for (size_t i = 1; i < id.length(); ++i) {
+        
+        if (not isValidIdChar(id[i])) {
+            throw invalid_identifier(id);
+        }
+        
+    }
+    
+}
 
 void Translator::indent() {
     
