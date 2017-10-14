@@ -687,11 +687,7 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     
     checkIdIsValid(declaration.name);
     
-    std::string type;
-    
-    if (declaration.type != "var") {
-        type = declaration.type;
-    }
+    std::string type = declaration.type;
     
     if (declaration.value != nullptr) {
         
