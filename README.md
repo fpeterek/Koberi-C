@@ -1,4 +1,7 @@
 # Kobeři-C
+
+![Kobeřice](http://www.koberice.cz/admin/file/image/Ikony/thumbs/1.jpg)
+
 ## What is Kobeři-C
 Kobeři-C is a language with Lisp-like syntax, which compiles to pure C. 
 
