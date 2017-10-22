@@ -96,16 +96,6 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
     
     const std::string oper = binary_operators_map.at(op);
     
-    if ( not params.size() ) { return val; }
-    
-    if (params.size() == 1 and op == "-") {
-        val.value = "(-" + params[0].value + ")";
-        val.type = params[0].type;
-        return val;
-    } /* (- x) gives -x */
-    
-    if (params.size() == 1 ) { val = params[0]; return val; }
-    
     val.value = "(" + params[0].value;
     val.type = params[0].type;
     for ( int i = 1; i < params.size() - 1; ++i ) {
@@ -324,10 +314,21 @@ parameter expr::voidToInt(parameter & param) {
 
 parameter expr::unaryOperator(parameter & param, std::string & op) {
     
-    /* Type stays the same, value changes */
-    parameter val = param;
+    parameter val;
+    
+    /* Return can't be used inside an expression to return a value because it jumps out of a function       */
+    /* Arithmetical negation, binary complement incrementing and decrementing return value of the same type */
+    /* Logical negation and size_of return an integer                                                       */
+    if (op == "return") {
+        val.type = "void";
+    } else if (op == "-" or op == "inc" or op == "dec" or op == "compl") {
+        val.type = param.type;
+    } else {
+        val.type = "ll";
+    }
+    
     std::string oper = unary_operators_map.at(op);
-    val.value = oper + " ( " + param.value + " )";
+    val.value = oper + "( " + param.value + " )";
     return val;
     
 }
