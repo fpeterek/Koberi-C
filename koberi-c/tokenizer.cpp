@@ -49,6 +49,22 @@ void Tokenizer::identifierCheck() {
     
 }
 
+void Tokenizer::minus() {
+    
+    try {
+        
+        if ( syntax::isNum(_line[_iter + 1])) {
+            numberLiteral();
+        } else {
+            operatorCheck();
+        }
+        
+    } catch (const std::out_of_range & e) {
+        throw missing_token(')');
+    }
+    
+}
+
 void Tokenizer::operatorCheck() {
     
     std::string str(1, _line[_iter]); /* std::string constructor(repeat: int, character: char) */
@@ -149,15 +165,12 @@ void Tokenizer::parseLine() {
         
         /* Check for single line comment, if found, break out of loop  */
         /* The content of a comment is none of the compiler's bussines */
-        
         if ( _line[_iter] == ';' or _line[_iter] == '#') {  break;  }
         
         /* Ignore whitespace, it's not important anymore, just increment iterator */
-        
         else if ( syntax::isWhiteSpace(_line[_iter]) ) {  ++_iter;  }
         
         /* Check for brackets */
-        
         else if ( _line[_iter] == '[' ) {
             
             _tokens.emplace_back( tokType::openingBra, std::string("[") );
@@ -172,7 +185,6 @@ void Tokenizer::parseLine() {
         }
         
         /* Check for parenthesis */
-        
         else if ( _line[_iter] == '(' ) {
             
             _tokens.emplace_back( tokType::openingPar, std::string("(") );
@@ -187,23 +199,21 @@ void Tokenizer::parseLine() {
         }
         
         /* Check for an identifier */
+        else if ( syntax::isValidIdChar(_line[_iter])) {  identifierCheck();  }
         
-        else if ( syntax::isValidIdChar(_line[_iter]) ) {  identifierCheck();  }
+        /* Minus - needs to be treated prefentially, because it can denote either a number or an operator */
+        else if (_line[_iter] == '-') { minus(); }
         
         /* Check for an int or num literal */
-        
-        else if ( syntax::isNum(_line[_iter]) or _line[_iter] == '-' ) {  numberLiteral();  }
+        else if ( syntax::isNum(_line[_iter])) {  numberLiteral();  }
         
         /* Check for operator */
-        
         else if ( syntax::isOperatorChar(_line[_iter]) ) {  operatorCheck();  }
         
         /* Check for a character */
-        
         else if ( _line[_iter] == '\'' ) { strLiteral('\''); }
         
         /* Check for a str literal */
-        
         else if ( _line[_iter] == '"' ) {  strLiteral('"');  }
         
         else {  throw unexpected_token(_line[_iter]);  }

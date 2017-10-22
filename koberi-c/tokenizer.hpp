@@ -34,6 +34,7 @@ class Tokenizer {
     size_t _iter;
     
     void identifierCheck();
+    void minus();
     void operatorCheck();
     void numberLiteral();
     void strLiteral(const char delimiter='"');

@@ -16,7 +16,7 @@ bool syntax::isNum(char param) {
 
 bool syntax::isValidIdChar(char param) {
     
-    return ( (param >= 'a' and param <= 'z') or (param >= 'A' and param <= 'Z') or param == '_' or param == '-');
+    return ( (param >= 'a' and param <= 'z') or (param >= 'A' and param <= 'Z') or param == '_');
     
 }
 

@@ -385,6 +385,10 @@ invalid_call::invalid_call(const std::string & funcall,
                                       " in function " + functionName +
                                       ": " + msg) { }
 
+invalid_call::invalid_call(const std::string & funcall,
+                           const std::string & msg)
+                            : message("Invalid call to " + funcall + ": " + msg) { }
+
 const char * invalid_call::what() const throw() {
     
     return message.c_str();

@@ -330,6 +330,7 @@ class invalid_call : public std::exception {
 public:
     
     invalid_call(const std::string & funcall, const std::string & functionName, const std::string & msg);
+    invalid_call(const std::string & funcall, const std::string & msg);
     const char * what() const throw();
     
 };

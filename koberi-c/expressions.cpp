@@ -328,7 +328,15 @@ parameter expr::unaryOperator(parameter & param, std::string & op) {
     }
     
     std::string oper = unary_operators_map.at(op);
-    val.value = oper + "( " + param.value + " )";
+    if (op == "-") {
+        if (not isNumericalType(op)) {
+            invalid_call("(" + op + " " + param.value + ")", "Unary operator - must receive a parameter of numerical type");
+        }
+        val.value = "((" + param.value + ") * (-1))";
+    } else {
+        val.value = oper + "( " + param.value + " )";
+    }
+    std::cout << "-3 - -5 = " << (-3 - -5) << std::endl;
     return val;
     
 }
