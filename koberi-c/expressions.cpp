@@ -316,6 +316,11 @@ parameter expr::unaryOperator(parameter & param, std::string & op) {
     
     parameter val;
     
+    if (op == "compl" and param.type == "num") {
+        invalid_parameter("Invalid parameter in call (compl " + param.value +
+                          "): Operator compl doesn't accept parameters of type num");
+    }
+    
     /* Return can't be used inside an expression to return a value because it jumps out of a function       */
     /* Arithmetical negation, binary complement incrementing and decrementing return value of the same type */
     /* Logical negation and size_of return an integer                                                       */
@@ -336,7 +341,7 @@ parameter expr::unaryOperator(parameter & param, std::string & op) {
     } else {
         val.value = oper + "( " + param.value + " )";
     }
-    std::cout << "-3 - -5 = " << (-3 - -5) << std::endl;
+    
     return val;
     
 }

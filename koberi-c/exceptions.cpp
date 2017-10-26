@@ -371,6 +371,9 @@ invalid_parameter::invalid_parameter(const std::string & functionName,
                                               " in call to " + funcall +
                                               " in function " + functionName) { }
 
+invalid_parameter::invalid_parameter(const std::string & msg) : message(msg) { }
+
+
 const char * invalid_parameter::what() const throw() {
     
     return message.c_str();

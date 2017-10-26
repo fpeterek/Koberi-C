@@ -319,6 +319,7 @@ class invalid_parameter : public std::exception {
 public:
     
     invalid_parameter(const std::string & functionName, const std::string & funcall, const std::string & parameter);
+    invalid_parameter(const std::string & msg);
     const char * what() const throw();
     
 };
