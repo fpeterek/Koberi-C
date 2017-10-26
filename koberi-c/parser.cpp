@@ -25,7 +25,7 @@ std::string Parser::getType(token & tok) {
     } else if (tok == tokType::numLit) {
         type = "num";
     } else if (tok == tokType::strLit) {
-        type = "str";
+        type = "char*";
     } else if (tok == tokType::charLit) {
         type = "char";
     }
@@ -48,7 +48,7 @@ ASTLiteral Parser::createLiteral(unsigned long long literalIndex) {
     
     if (_tokens[literalIndex] == tokType::strLit) {
         
-        return ASTLiteral("str", _tokens[literalIndex].value);
+        return ASTLiteral("char*", _tokens[literalIndex].value);
         
     } else if (_tokens[literalIndex] == tokType::intLit) {
         
@@ -464,7 +464,7 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
             throw redefinition_of_function(_tokens[funBeginning + 2].value, className);
         }
         
-        _ast.emplaceVariableIntoScope(parameter("self", className), _ast.getCurrentScopePtr());
+        _ast.emplaceVariableIntoScope(parameter("self", className + syntax::pointerChar), _ast.getCurrentScopePtr());
     
     }
     unsigned long long sexp = 0;

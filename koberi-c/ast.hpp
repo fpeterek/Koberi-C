@@ -30,9 +30,9 @@ protected:
     std::unordered_map<std::string, std::string> _functions;
     
     /* Keeps track of all data types, whether native types or user defined types */
-    std::vector<std::string> _dataTypes = { "num", "int", "uint", "char", "uchar", "str", "void", "var" };
+    std::vector<std::string> _dataTypes = { "num", "int", "uint", "char", "uchar", "void", "var" };
     
-    const std::vector<std::string> _primitiveTypes = { "num", "int", "uint", "char", "uchar", "str", "void" };
+    const std::vector<std::string> _primitiveTypes = { "num", "int", "uint", "char", "uchar", "void" };
     
     void checkType(const std::string & type);
     

@@ -49,3 +49,12 @@ bool syntax::isOperatorChar(char param) {
     return false;
     
 }
+
+std::string syntax::pointerForType(const std::string & type) {
+    
+    std::string t = type;
+    t.push_back(pointerChar);
+    
+    return t;
+    
+}

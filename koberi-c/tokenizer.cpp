@@ -38,10 +38,14 @@ void Tokenizer::identifierCheck() {
     std::string str(1, _line[_iter]); /* std::string constructor(repeat: int, character: char) */
     ++_iter;
     
-    while ( syntax::isValidIdChar(_line[_iter]) or syntax::isNum(_line[_iter]) ) {
+    while ( syntax::isValidIdChar(_line[_iter]) or syntax::isNum(_line[_iter]) or _line[_iter] == syntax::pointerChar ) {
         
         str += std::string(1, _line[_iter]); /* std::string constructor(repeat: int, character: char) */
         ++_iter;
+        
+        if (str.back() == syntax::pointerChar) {
+            break;
+        }
         
     }
     

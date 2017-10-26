@@ -46,13 +46,13 @@ bool expr::isNumericalType(const std::string & type) {
 
 parameter expr::variableDeclaration(std::string & type, std::string & name, std::string & value) {
     
-    return parameter((type == "int" ? "ll" : type) + " " + name + " = " + value + ";", type);
+    return parameter((type == "int" ? syntax::intType : type) + " " + name + " = " + value + ";", type);
     
 }
 
 parameter expr::variableDeclaration(std::string & type, std::string & name) {
     
-    return parameter((type == "int" ? "ll" : type) + " " + name + ";", type);
+    return parameter((type == "int" ? syntax::intType : type) + " " + name + ";", type);
     
 }
 
@@ -202,8 +202,8 @@ std::vector<std::string> expr::print(std::vector<parameter> & params) {
         else if (i.type == "uint") {
             statements.emplace_back("printf(\"%llu\", " + i.value + ")");
         }
-        else if (i.type == "str") {
-            statements.emplace_back("fputs(\"" + i.value + "\", stdout)");
+        else if (i.type == syntax::pointerForType("char")) {
+            statements.emplace_back("fputs(" + i.value + ", stdout)");
         }
         else if (i.type == "char" or i .type == "uchar") {
             statements.emplace_back("putchar(" + i.value + ")");
@@ -236,11 +236,13 @@ std::vector<std::string> expr::inlineC(std::vector<parameter> &params) {
     std::string temp;
     for (auto & i : params) {
         
-        if (i.type != "str") {
+        if (i.type != syntax::pointerForType("char")) {
             throw bad_type("Inline C requires a string literal. ");
         }
         
-        temp = i.value;
+        /* Char* literals are surrounded with quotes. Remove the quotes. */
+        temp = i.value.substr(1);
+        temp.pop_back();
         replaceEscapeSequence(temp);
         c.emplace_back(temp);
         
@@ -258,7 +260,7 @@ parameter expr::conversionToNum(parameter & param) {
     else if (param.type == "int") {
         return intToNum(param);
     }
-    else if (param.type == "str") {
+    else if (param.type == syntax::pointerForType("char")) {
         return strToNum(param);
     }
     
@@ -290,7 +292,7 @@ parameter expr::conversionToInt(parameter & param) {
     else if (param.type == "int") {
         return param;
     }
-    else if (param.type == "str") {
+    else if (param.type == syntax::pointerForType("char")) {
         return strToInt(param);
     }
     
@@ -299,7 +301,7 @@ parameter expr::conversionToInt(parameter & param) {
 }
 
 parameter expr::numToInt(parameter & param) {
-    parameter val("(ll)" + param.value, "int");
+    parameter val("(" + syntax::intType + ")" + param.value, "int");
     return val;
 }
 
@@ -328,8 +330,10 @@ parameter expr::unaryOperator(parameter & param, std::string & op) {
         val.type = "void";
     } else if (op == "-" or op == "inc" or op == "dec" or op == "compl") {
         val.type = param.type;
+    } else if (op == "&") {
+        val.type = param.type + syntax::pointerChar;
     } else {
-        val.type = "ll";
+        val.type = syntax::intType;
     }
     
     std::string oper = unary_operators_map.at(op);

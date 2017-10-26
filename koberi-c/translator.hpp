@@ -16,6 +16,7 @@
 #include "traversable_ast.hpp"
 #include "name_mangler.hpp"
 #include "expressions.hpp"
+#include "syntax.hpp"
 
 #include "debug_macro_definitions.hpp"
 
@@ -93,6 +94,9 @@ class Translator {
     
     /* Indents code */
     void indent();
+    
+    std::string dereference(const std::string & param);
+    bool isPointer(const std::string & type);
     
 public:
     

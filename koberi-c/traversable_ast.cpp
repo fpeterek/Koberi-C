@@ -136,14 +136,21 @@ const std::vector<std::string> & TraversableAbstractSyntaxTree::getClassOrder() 
 
 bool TraversableAbstractSyntaxTree::isDataType(const std::string & param) {
     
-    return contains(_dataTypes, param);
+    std::string type = param;
+    
+    /* If type is a pointer, check if it's a pointer to an existing type */
+    if (type.back() == '*') {
+        type.pop_back();
+    }
+    
+    return contains(_dataTypes, type);
     
 }
 
 bool TraversableAbstractSyntaxTree::isClass(const std::string & param) {
     
-    /* Check if param is an existing data type. If yes, check if it isn't a primitive type. */
-    return isDataType(param) and not contains(_primitiveTypes, param);
+    /* Check if param isn't a primitive type. If it isn't, check if it is an existing type. */
+    return (not contains(_primitiveTypes, param)) and isDataType(param);
     
 }
 

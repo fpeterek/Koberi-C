@@ -17,6 +17,10 @@ std::string NameMangler::mangleName(const std::string & name, const std::vector<
     for (const auto & param : params) {
         
         mangledName.append("_" + param.type);
+        if (mangledName.back() == '*') {
+            mangledName.pop_back();
+            mangledName.append("__ptr");
+        }
         
     }
     

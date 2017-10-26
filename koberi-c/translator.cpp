@@ -16,11 +16,12 @@ void Translator::libraries() {
     
     _output << "/* Libraries */" << "\n\n";
     
-    _output << "#include <stdio.h>" << "\n";
+    _output << "#include <stdio.h>"  << "\n";
     _output << "#include <stdlib.h>" << "\n";
-    _output << "#include <time.h>" << "\n";
-    _output << "#include <math.h>" << "\n";
+    _output << "#include <time.h>"   << "\n";
+    _output << "#include <math.h>"   << "\n";
     _output << "#include <string.h>" << "\n";
+    _output << "#include <stdint.h>" << "\n";
     
 }
 
@@ -28,10 +29,10 @@ void Translator::typedefs() {
     
     _output << "\n" << "/* Typedefs */" << "\n\n";
     
-    _output << "typedef double num;" << "\n";
-    _output << "typedef intmax_t ll;" << "\n";
-    _output << "typedef uintmax_t ull;" << "\n";
-    _output << "typedef unsigned char uchar;" << "\n";
+    _output << "typedef double " + syntax::floatType + ";"   << "\n";
+    _output << "typedef intmax_t " + syntax::intType + ";"   << "\n";
+    _output << "typedef uintmax_t " + syntax::uintType + ";" << "\n";
+    _output << "typedef unsigned char uchar;"                << "\n";
     
 }
 
@@ -330,9 +331,7 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     }
     
     for (size_t i = 0; i < params.size(); ++i) {
-        
         functionCall.value += params[i].value + (i == params.size() - 1 ? "" : ", ");
-        
     }
     
     functionCall.value += ")";
@@ -481,6 +480,14 @@ parameter Translator::cast(const parameter & valueToCast, const std::string & ty
         castedObject.type = valueToCast.type;
         castedObject.value = valueToCast.value;
     }
+    /* Cast pointers via void* */
+    else if ( isPointer(valueToCast.type) and isPointer(type)) {
+        castedObject.type = type;
+        /* To void ptr */
+        castedObject.value = "(void*)(" + valueToCast.value + ")";
+        /* To desired type pointer */
+        castedObject.value = "((" + type + "*)" + "(" + castedObject.value + "))";
+    }
     else if (expr::isNumericalType(type) and expr::isNumericalType(valueToCast.type)) {
         castedObject.type = type;
         castedObject.value = "((" + translateType(type) + ")" + valueToCast.value + ")";
@@ -518,6 +525,12 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
         /* Recurse if funcall is passed as a parameter to a funcall */
         parameter fcall = translateFunCall(*funcall);
         
+        /* Dereference value returned by function unless the address is explicitely accessed */
+        if (fcall.value[0] != '&' and isPointer(fcall.type)) {
+            fcall.value = dereference(fcall.value);
+            fcall.type.pop_back();
+        }
+        
         return fcall;
         
     } else if (node->nodeType == NodeType::Variable) {
@@ -526,6 +539,11 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
         
         /* Get var name and type */
         parameter var = getVariable(variable);
+        
+        if (isPointer(var.type)) {
+            var.type.pop_back();
+            var.value = dereference(var.value);
+        }
         
         return var;
         
@@ -541,9 +559,14 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
         
         /* If literal is a character literal, surround character literal with single quotes ' */
         if (literal.type == "char") {
-            lit.value = "\'" + literal.value + "\'";
+            lit.value = "'" + literal.value + "'";
         } else {
             lit.value = literal.value;
+        }
+        
+        /* If literal is a char* literal, surround it with quotes " */
+        if (literal.type == syntax::pointerForType("char")) {
+            lit.value = "\"" + literal.value + "\"";
         }
         
         return lit;
@@ -653,6 +676,11 @@ std::string Translator::translateIfWhile(ASTConstruct & construct) {
         ASTVariable & var = *((ASTVariable*)construct.condition);
         condition = parameter(var.name, _ast.getVarType(var.name, var.parentScope));
         
+        if (isPointer(condition.type)) {
+            condition.type.pop_back();
+            condition.value = dereference(condition.value);
+        }
+        
     }
     else {
         
@@ -689,6 +717,11 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     
     std::string type = declaration.type;
     
+    const bool isPtr = isPointer(type);
+    if (isPtr) {
+        type.pop_back();
+    }
+    
     if (declaration.value != nullptr) {
         
         if (declaration.value->nodeType == NodeType::FunCall) {
@@ -696,13 +729,22 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             ASTFunCall * funcall = (ASTFunCall*)declaration.value;
             
             parameter fcall = translateFunCall(*funcall);
+            const bool fTypeIsPtr = isPointer(fcall.type);
             
-            if (declaration.type == "var") {
+            if (fTypeIsPtr) {
+                fcall.type.pop_back();
+            }
+            
+            if (type == "var") {
                 type = fcall.type;
             }
             
-            if ((not (expr::isNumericalType(type) and expr::isNumericalType(fcall.type)))
-                and type != fcall.type) {
+            if (fTypeIsPtr and not isPtr) {
+                fcall.value = dereference(fcall.value);
+            }
+            
+            if (((not (expr::isNumericalType(type) and expr::isNumericalType(fcall.type)))
+                and type != fcall.type) or (isPtr and not fTypeIsPtr)) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
                                     + declaration.type + " " + declaration.name + "). Expected: "
                                     + declaration.type +
@@ -716,13 +758,22 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             ASTVariable & variable = *((ASTVariable*)declaration.value);
             
             parameter var = getVariable(variable);
+            const bool vTypeIsPtr = isPointer(var.type);
             
-            if (declaration.type == "var") {
+            if (vTypeIsPtr) {
+                var.type.pop_back();
+            }
+            
+            if (type == "var") {
                 type = var.type;
             }
             
-            if ((not (expr::isNumericalType(type) and expr::isNumericalType(var.type)))
-                and type != var.type) {
+            if (vTypeIsPtr and not isPtr) {
+                var.value = dereference(var.value);
+            }
+            
+            if (((not (expr::isNumericalType(type) and expr::isNumericalType(var.type)))
+                and type != var.type) or (isPtr and not vTypeIsPtr)) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
                                     + declaration.type + " " + declaration.name + "). Expected: "
                                     + declaration.type +
@@ -735,19 +786,33 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             ASTLiteral & literal = *((ASTLiteral*)declaration.value);
             
-            if (declaration.type == "var") {
+            const bool lTypeIsPtr = isPointer(literal.type);
+            
+            if (lTypeIsPtr) {
+                literal.type.pop_back();
+            }
+            
+            if (type == "var") {
                 type = literal.type;
             }
             
-            if ((not (expr::isNumericalType(type) and expr::isNumericalType(literal.type)))
-                and type != literal.type) {
+            if (((not (expr::isNumericalType(type) and expr::isNumericalType(literal.type)))
+                and type != literal.type) or (isPtr and not lTypeIsPtr)) {
                 throw type_mismatch("Error: Type mismatch in declaration of variable ("
                                     + declaration.type + " " + declaration.name + "). Expected: "
                                     + declaration.type +
                                     " Got: " + literal.type);
             }
             
-            decl += " = " + literal.value;
+            std::string value = literal.value;
+            
+            if (literal.type == "char" and lTypeIsPtr) {
+                value = "\"" + value + "\"";
+            } else if (literal.type == "char") {
+                value = "'" + value + "'";
+            }
+            
+            decl += " = " + value;
             
         } else if (declaration.value->nodeType == NodeType::MemberAccess) {
             
@@ -770,6 +835,8 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     if (type == "var") {
         throw type_deduction_error(declaration.name, _functionName);
     }
+    
+    type += isPtr ? "*" : "";
     
     decl = translateType(type) + " " + declaration.name + decl;
     
@@ -807,16 +874,33 @@ parameter Translator::translateMemberAccess(ASTMemberAccess & attribute) {
         attr.type = baseVar.type;
     }
     
-    attr.value += (baseVar.name == "self" ? "(*self)" : baseVar.name) + ".";
+    const bool isPtr = isPointer(baseVar.type);
+    
+    if (isPtr) {
+        baseVar.type.pop_back();
+        baseVar.name = dereference(baseVar.name);
+    }
+    
+    std::vector<ASTNode*> accessedVars;
+    accessedVars.emplace_back(attribute.accessOrder[0]);
+    
+    attr.value = baseVar.name + ".";
     
     for (size_t i = 1; i < attribute.accessOrder.size(); ++i) {
         
         std::string & a = ((ASTVariable*)attribute.accessOrder[i])->name;
+        accessedVars.emplace_back(attribute.accessOrder[i]);
         
-        attr.value += a + ".";
+        const bool isMemberPointer = isPointer(checkAttributesAndReturnType(baseVar, accessedVars));
+        
+        attr.value += a + (isMemberPointer ? "->" : ".");
     
     }
     
+    /* Pop back twice if value ends with ->, otherwise pop back once, because value ends with . */
+    if (attr.value.back() == '>') {
+        attr.value.pop_back();
+    }
     attr.value.pop_back();
     
     return attr;
@@ -830,11 +914,18 @@ std::string Translator::checkAttributesAndReturnType(parameter & var, std::vecto
         checkIsClass(var.type);
     } */
     
-    checkIsClass(var.type);
+    parameter v = var;
+    
+    if (isPointer(var.type)) {
+        v.type.pop_back();
+        v.value = dereference(v.value);
+    }
+    
+    checkIsClass(v.type);
     
     std::string & attribute = ((ASTVariable*)attributes[iter])->name;
     
-    const _class & cls = _ast.getClass(var.type);
+    const _class & cls = _ast.getClass(v.type);
     
     if (not cls.hasVar(attribute)) {
         throw invalid_attribute_access(_functionName, "Class " + cls.className + " has no attribute " + attribute);
@@ -844,6 +935,10 @@ std::string Translator::checkAttributesAndReturnType(parameter & var, std::vecto
     
     if (iter == attributes.size() - 1) {
         return type;
+    }
+    
+    if (isPointer(type)) {
+        type.pop_back();
     }
     
     parameter baseVar(attribute, type);
@@ -867,10 +962,22 @@ std::string Translator::translateType(const std::string & type) {
     
     std::string t = type;
     
-    if (type == "int") {
-        t = "ll";
-    } else if (type == "uint") {
-        t = "ull";
+    const bool isPtr = isPointer(type);
+    
+    if (isPtr) {
+        t.pop_back();
+    }
+    
+    if (t == "int") {
+        t = syntax::intType;
+    } else if (t == "uint") {
+        t = syntax::uintType;
+    } else if (t == "num") {
+        t = syntax::floatType;
+    }
+    
+    if (isPtr) {
+        t.push_back('*');
     }
     
     return t;
@@ -919,6 +1026,16 @@ void Translator::indent() {
         _output << INDENT;
     }
     
+}
+
+std::string Translator::dereference(const std::string & param) {
+    
+    return "(*" + param + ")";
+    
+}
+
+bool Translator::isPointer(const std::string & type) {
+    return type.back() == '*';
 }
 
 void Translator::test() {

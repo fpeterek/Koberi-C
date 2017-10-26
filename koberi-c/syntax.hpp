@@ -18,13 +18,19 @@ namespace syntax {
     
     const std::string fileExtension = ".koberice";
     
-    const std::array<char, 8> operatorChar = {
+    const std::array<char, 9> operatorChar = {
         
-        '=', '+', '-', '*', '/', '%', '<', '>'
+        '=', '+', '-', '*', '/', '%', '<', '>', '&'
         
     };
     
-    const std::array<std::string, 9> operators = {
+    const std::string floatType = "num_type";
+    const std::string intType = "int_type";
+    const std::string uintType = "uint_type";
+    const char pointerChar = '*';
+    
+    
+    const std::array<std::string, 10> operators = {
         
         "+", "-",
         "*", "/",
@@ -35,6 +41,10 @@ namespace syntax {
         "<", ">",
         "<=", ">=",
         
+        // Memory address access operator
+        
+        "&"
+        
     };
     
     bool isNum(char param);
@@ -43,6 +53,7 @@ namespace syntax {
     bool isOperator(std::string & param); /* Returns true if string is a koberi-c operator */
     bool isOperatorChar(char param);
     
+    std::string pointerForType(const std::string & type);
     
 }
 

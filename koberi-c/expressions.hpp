@@ -21,21 +21,22 @@
 #include "print.hpp"
 #include "parameter.hpp"
 #include "contains.hpp"
+#include "syntax.hpp"
 
 
 namespace expr {
     
-    const std::array<std::string, 4> native_types  = {"int", "num", "str", "void"};
+    const std::array<std::string, 4> native_types  = {"int", "num", "char", "void"};
     const std::array<std::string, 3> parameterless_operators = { "return", "break", "continue" };
-    const std::array<std::string, 7> unary_operators = { "return", "size_of", "inc", "dec", "not", "compl", "-" };
+    const std::array<std::string, 8> unary_operators = { "return", "size_of", "inc", "dec", "not", "compl", "-", "&" };
     const std::array<std::string, 19> binary_operators = { "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
     "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"};
     
-    const std::array<std::string, 27> operators = {
+    const std::array<std::string, 28> operators = {
         "return", "break", "continue",
         "size_of", "inc", "dec", "not", "compl",
         "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
-        "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"
+        "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift", "&"
     };
     
     const std::vector<std::string> keywords = {
@@ -50,7 +51,9 @@ namespace expr {
         "not_eq", "and", "or", "not", "compl", "set", "lshift", "rshift", "xor", "bit_or",
         "bit_and", "goto"
         /* Other */
-        "typedef", "struct", "extern", "inline", "union"
+        "typedef", "struct", "extern", "inline", "union",
+        /* Kobeři-C keywords */
+        "c"
     };
     
     const std::array<std::string, 4> constructs = { "if", "elsif", "else", "while" };
@@ -63,7 +66,8 @@ namespace expr {
         {"dec", "--"},
         {"not", "!"},
         {"compl", "~"},
-        {"-", "-"}
+        {"-", "-"},
+        {"&", "&"}
     
     };
     
