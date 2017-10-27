@@ -293,9 +293,6 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
         if (param.type == "") {
             throw invalid_parameter(_functionName, funcall.function, param.value);
         }
-        if (param.value == "self") {
-            param.value = "(*self)";
-        }
     }
     
     if (expr::isOperator(name) and funcall.object == nullptr) {

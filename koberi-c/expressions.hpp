@@ -28,16 +28,17 @@ namespace expr {
     
     const std::array<std::string, 4> native_types  = {"int", "num", "char", "void"};
     const std::array<std::string, 3> parameterless_operators = { "return", "break", "continue" };
-    const std::array<std::string, 9> unary_operators = { "return", "size_of", "inc", "dec", "not", "compl", "-", "&", "new" };
+    const std::array<std::string, 10> unary_operators = { "return", "size_of", "inc", "dec", "not", "compl", "-", "&",
+    "new", "delete" };
     const std::array<std::string, 19> binary_operators = { "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
     "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift"};
     
-    const std::array<std::string, 29> operators = {
+    const std::array<std::string, 30> operators = {
         "return", "break", "continue",
         "size_of", "inc", "dec", "not", "compl",
         "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
         "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift",
-        "&", "new"
+        "&", "new", "delete"
     };
     
     const std::vector<std::string> keywords = {
@@ -54,7 +55,7 @@ namespace expr {
         /* Other */
         "typedef", "struct", "extern", "inline", "union",
         /* Kobeři-C keywords */
-        "_c"
+        "_c", "new", "delete"
     };
     
     const std::array<std::string, 4> constructs = { "if", "elsif", "else", "while" };
@@ -68,7 +69,8 @@ namespace expr {
         {"not", "!"},
         {"compl", "~"},
         {"-", "-"},
-        {"&", "&"}
+        {"&", "&"},
+        {"delete", "free"}
     
     };
     

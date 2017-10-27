@@ -96,8 +96,23 @@ parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op
     
     const std::string oper = binary_operators_map.at(op);
     
+    if (op == "set" and params[0].type.back() == syntax::pointerChar and params[1].type.back() != syntax::pointerChar) {
+        params[0].value = "(*" + params[0].value + ")";
+    } else if (op == "set" and params[0].type.back() != syntax::pointerChar and params[1].type.back() == syntax::pointerChar) {
+        
+        if (params[0].value.substr(0, 2) == "(*" and params[0].value.back() == ')') {
+            params[0].value = params[0].value.substr(2);
+            params[0].value.pop_back();
+        } else {
+            throw invalid_parameter("Cannot assign value of type " + params[1].type +
+                                    " to variable of type " + params[0].type);
+        }
+        
+    }
+    
     val.value = "(" + params[0].value;
     val.type = params[0].type;
+    
     for ( int i = 1; i < params.size() - 1; ++i ) {
         
         val.value += " " + oper + " " + params[i].value;
@@ -334,6 +349,13 @@ parameter expr::unaryOperator(parameter & param, std::string & op) {
         val.type = param.type + syntax::pointerChar;
     } else {
         val.type = syntax::intType;
+    }
+    
+    if (op == "delete" and param.value.substr(0, 2) == "(*" and param.value.back() == ')') {
+        param.value = param.value.substr(2);
+        param.value.pop_back();
+    } else if (op == "delete" and param.type.back() != syntax::pointerChar) {
+        throw invalid_parameter("Delete must be called on pointer type.");
     }
     
     std::string oper = unary_operators_map.at(op);
