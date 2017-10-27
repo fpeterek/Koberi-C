@@ -245,7 +245,6 @@ void Translator::translateFunction(ASTFunction & function) {
     }
     
     _output << ")";
-    
     translateScope(function.childNodes);
     
 }
@@ -280,7 +279,6 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     }
     
     std::vector<parameter> params;
-    
     /* Don't deref char* if statement is a print statement */ {
         const bool derefCharPtr = not (name == "print" and funcall.object == nullptr);
         
@@ -296,7 +294,8 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     }
     
     if (name == "delete" and funcall.object == nullptr and params.size() == 1) {
-        return deleteObject(params[0]);
+        const bool paramIsFuncall = funcall.parameters.size() and funcall.parameters[0]->nodeType == NodeType::FunCall;
+        return deleteObject(params[0], paramIsFuncall);
     }
     if (expr::isOperator(name) and funcall.object == nullptr) {
         return translateOperator(name, params);
@@ -542,7 +541,7 @@ parameter Translator::newObject(const std::string & type) {
     
 }
 
-parameter Translator::deleteObject(parameter & object) {
+parameter Translator::deleteObject(parameter & object, bool paramIsFuncall) {
     
     parameter del;
     
@@ -566,25 +565,36 @@ parameter Translator::deleteObject(parameter & object) {
     
     if (_ast.isClass(type)) {
         
-        std::string destructor =  NameMangler::mangleName("destruct", std::vector<parameter>());
+        if (_ast.hasDestructor(type)) {
         
-        const _class & c = _ast.getClass(type);
-        
-        for (auto & i : c.methods) {
-            std::cout <<  std::get<0>(i) << " : " << std::get<1>(i) << std::endl;
-        }
-        
-        if (c.methods.count(destructor)) {
-            
-            destructor = NameMangler::premangleMethodName(destructor, type);
-            del.value = destructor + "(" + object.value + "), ";
+            del.value = getDestructor(parameter(object.value, type)) + ", ";
         
         }
     }
     
     del.type = "void";
-    del.value += "free(" + object.value + ")";
+    del.value += "free(" + object.value + ")" + (not paramIsFuncall ? ", " + object.value + " = 0" : "");
     return del;
+    
+}
+
+std::string Translator::getDestructor(const parameter & object) {
+    
+    std::string destructor =  NameMangler::mangleName("destruct", std::vector<parameter>());
+    
+    method dest = _ast.getMethodReturnType(destructor, object.type);
+    
+    std::string destruct = object.value;
+    
+    destructor = NameMangler::premangleMethodName(destructor, dest.className);
+    
+    if (object.type != dest.className) {
+        destruct =  + "((" + dest.className + "*)(void*)" + object.value + ")";
+    }
+    
+    destruct = destructor + "(" + destruct + ")";
+    
+    return destruct;
     
 }
 
@@ -668,11 +678,46 @@ void Translator::translateScope(std::vector<ASTNode *> scopeNodes) {
         translateFunctionNode(node);
     }
     
+    destructScopedObjects(scopeNodes);
+    
     --_indentLevel;
     indent();
     _output << "}" << "\n" << std::endl;
     
     
+}
+
+void Translator::destructScopedObjects(std::vector<ASTNode *> scopeNodes) {
+    
+    /* Search for variable declarations. If any variables are declared in scope,         */
+    /* check if they have destructors and call the destructors to delete local variables */
+    
+    std::vector<parameter> declarations;
+    
+    for (ASTNode * node : scopeNodes) {
+        if (node->nodeType == NodeType::Declaration) {
+            
+            const ASTDeclaration & d = *((ASTDeclaration*)node);
+            parameter p(d.name, d.type);
+            declarations.emplace_back(p);
+            
+        }
+    }
+    
+    _output << "\n";
+    indent();
+    _output << "/* Destructing local variables. */" << "\n";
+    
+    for (auto & i : declarations) {
+        if (_ast.isClass(i.type) and (not isPointer(i.type))  and _ast.hasDestructor(i.type)) {
+            parameter param("(&" + i.name + ")", i.type);
+            std::string destructor = getDestructor(param);
+            // destructor = NameMangler::premangleMethodName(destructor, i.type);
+            indent();
+            _output << destructor << ";\n";
+        }
+    }
+        
 }
 
 void Translator::translateFunctionNode(ASTNode * node) {
@@ -722,7 +767,6 @@ void Translator::translateConstruct(ASTConstruct & construct) {
     _output << constructStr;
     
     translateScope(construct.childNodes);
-    
     
 }
 
@@ -785,6 +829,7 @@ std::string Translator::translateElse(ASTConstruct & construct) {
     
 }
 
+/* If type is to be inferred, inferred type is also stored in ast. */
 std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
     
     std::string decl;
@@ -813,6 +858,7 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             if (type == "var") {
                 type = fcall.type;
+                declaration.type = type;
             }
             
             if (fTypeIsPtr and not isPtr) {
@@ -842,6 +888,7 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             if (type == "var") {
                 type = var.type;
+                declaration.type = type;
             }
             
             if (vTypeIsPtr and not isPtr) {
@@ -870,6 +917,7 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             if (type == "var") {
                 type = literal.type;
+                declaration.type = literal.type;
             }
             
             if (((not (expr::isNumericalType(type) and expr::isNumericalType(literal.type)))
@@ -898,6 +946,7 @@ std::string Translator::translateDeclaration(ASTDeclaration & declaration) {
             
             if (declaration.type == "var") {
                 type = memberAccess.type;
+                declaration.type = memberAccess.type;
             }
             
             decl += " = " + memberAccess.value;

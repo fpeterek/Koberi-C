@@ -65,13 +65,19 @@ class Translator {
     /* Creates a new object on heap */
     parameter newObject(const std::string & type);
     
-    /* Deletes an object */
-    parameter deleteObject(parameter & object);
+    /* Deletes an object by calling destructor and deallocating memory                      */
+    /* If parameter is a scoped variable and not an rvalue returned by function set it to 0 */
+    parameter deleteObject(parameter & object, const bool isFuncall);
     
     parameter getFuncallParameter(ASTNode * node, const bool derefCharPointers = true);
     
     /* Translates a scope ( {...} ) */
     void translateScope(std::vector<ASTNode *> scopeNodes);
+    /* Calls constructors on all objects with constructors from the current scope */
+    void destructScopedObjects(std::vector<ASTNode *> scopeNodes);
+    
+    std::string getDestructor(const parameter & object);
+    
     /* Translates node found inside function bodies (constructs, declarations, funcalls) */
     void translateFunctionNode(ASTNode * node);
     
@@ -103,6 +109,7 @@ class Translator {
     
     std::string dereference(const std::string & param);
     bool isPointer(const std::string & type);
+    
     
 public:
     

@@ -120,7 +120,7 @@ std::string TraversableAbstractSyntaxTree::getFunctionReturnType(const std::stri
     
 }
 
-const _class & TraversableAbstractSyntaxTree::getClass(std::string & className) {
+const _class & TraversableAbstractSyntaxTree::getClass(const std::string & className) {
     
     return _classes.at(className);
     
@@ -171,6 +171,34 @@ bool TraversableAbstractSyntaxTree::hasSuperclass(const std::string & className,
     }
     
     return hasSuperclass(c.superClass, superClass);
+    
+}
+
+bool TraversableAbstractSyntaxTree::hasMethod(const std::string & methodName, const std::string & className) {
+    
+    if (not _classes.count(className)) {
+        throw not_a_class(className);
+    }
+    
+    _class & c = _classes.at(className);
+    
+    if (c.methods.count(methodName)) {
+        return true;
+    }
+    
+    if (c.superClass == "") {
+        return false;
+    }
+    
+    return hasMethod(methodName, c.superClass);
+    
+}
+
+bool TraversableAbstractSyntaxTree::hasDestructor(const std::string & className) {
+    
+    std::string destructor =  NameMangler::mangleName("destruct", std::vector<parameter>());
+    
+    return hasMethod(destructor, className);
     
 }
 

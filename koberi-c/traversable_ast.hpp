@@ -51,12 +51,14 @@ public:
     const std::unordered_map<std::string, _class> & getClasses();
     const std::vector<std::string> & getClassOrder();
     
-    const _class & getClass(std::string & className);
+    const _class & getClass(const std::string & className);
     
     bool isDataType(const std::string & param);
     bool isClass(const std::string & param);
     
     bool hasSuperclass(const std::string & className, const std::string & superClass);
+    bool hasMethod(const std::string & methodName, const std::string & className);
+    bool hasDestructor(const std::string & className);
     
     method getMethodReturnType(const std::string & methodName, const std::string & className);
     
