@@ -62,7 +62,7 @@ class Translator {
     /* Casts objects to their superclasses/inheriting classes and int <-> num */
     parameter cast(const parameter & valueToCast, const std::string & type);
     
-    parameter getFuncallParameter(ASTNode * node);
+    parameter getFuncallParameter(ASTNode * node, const bool derefCharPointers = true);
     
     /* Translates a scope ( {...} ) */
     void translateScope(std::vector<ASTNode *> scopeNodes);

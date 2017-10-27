@@ -276,8 +276,12 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     
     std::vector<parameter> params;
     
-    for (auto & param : funcall.parameters) {
-        params.emplace_back(getFuncallParameter(param));
+    /* Don't deref char* if statement is a print statement */ {
+        const bool derefCharPtr = not (name == "print" and funcall.object == nullptr);
+        
+        for (auto & param : funcall.parameters) {
+            params.emplace_back(getFuncallParameter(param, derefCharPtr));
+        }
     }
     
     for (auto & param : params) {
@@ -516,7 +520,7 @@ parameter Translator::cast(const parameter & valueToCast, const std::string & ty
     
 }
 
-parameter Translator::getFuncallParameter(ASTNode * node) {
+parameter Translator::getFuncallParameter(ASTNode * node, const bool derefCharPointers) {
     
     if (node->nodeType == NodeType::FunCall) {
         
@@ -525,8 +529,10 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
         /* Recurse if funcall is passed as a parameter to a funcall */
         parameter fcall = translateFunCall(*funcall);
         
+        const bool deref = not (not derefCharPointers and fcall.type == syntax::pointerForType("char"));
+        
         /* Dereference value returned by function unless the address is explicitely accessed */
-        if (fcall.value[0] != '&' and isPointer(fcall.type)) {
+        if (fcall.value[0] != '&' and isPointer(fcall.type) and deref) {
             fcall.value = dereference(fcall.value);
             fcall.type.pop_back();
         }
@@ -540,7 +546,9 @@ parameter Translator::getFuncallParameter(ASTNode * node) {
         /* Get var name and type */
         parameter var = getVariable(variable);
         
-        if (isPointer(var.type)) {
+        const bool deref = not (not derefCharPointers and var.type == syntax::pointerForType("char"));
+        
+        if (isPointer(var.type) and deref) {
             var.type.pop_back();
             var.value = dereference(var.value);
         }
