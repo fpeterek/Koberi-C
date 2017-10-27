@@ -62,6 +62,9 @@ class Translator {
     /* Casts objects to their superclasses/inheriting classes and int <-> num */
     parameter cast(const parameter & valueToCast, const std::string & type);
     
+    /* Creates a new object on heap */
+    parameter newObject(const std::string & type);
+    
     parameter getFuncallParameter(ASTNode * node, const bool derefCharPointers = true);
     
     /* Translates a scope ( {...} ) */

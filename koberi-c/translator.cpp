@@ -259,7 +259,7 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     /* It needs to be declared at this scope though */
     method m;
     
-    /* Casting needs to be handled separately, because it contains class names */
+    /* Casting and new need to be handled separately, because it contains class names */
     if (name == "cast" and funcall.parameters.size() == 2 and funcall.object == nullptr) {
         
         if (funcall.parameters[1]->nodeType == NodeType::Variable and
@@ -272,6 +272,11 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
             
         }
     
+    }
+    
+    if (name == "new" and funcall.parameters.size() == 1 and funcall.object == nullptr) {
+        std::string type = ((ASTVariable*)funcall.parameters[0])->name;
+        return newObject(type);
     }
     
     std::vector<parameter> params;
@@ -299,7 +304,7 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
     if (name == "print" and funcall.object == nullptr) {
         return translatePrint(params);
     }
-    if (name == "c" and funcall.object == nullptr) {
+    if (name == "_c" and funcall.object == nullptr) {
         return inlineC(params);
     }
     
@@ -517,6 +522,23 @@ parameter Translator::cast(const parameter & valueToCast, const std::string & ty
     }
     
     return castedObject;
+    
+}
+
+parameter Translator::newObject(const std::string & type) {
+    
+    if (not _ast.isDataType(type)) {
+        throw undefined_class(type);
+    }
+    
+    parameter object;
+    
+    object.type = syntax::pointerForType(type);
+    /* Pointers are automatically derefenced, unless the address is accessed explicitely */
+    /* Deref object and access the address again. It's a workaround, but it works        */
+    object.value = "&(*(" + object.type +  ")malloc(sizeof(" + type + ")))";
+    
+    return object;
     
 }
 
