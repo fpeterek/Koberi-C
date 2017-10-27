@@ -65,6 +65,9 @@ class Translator {
     /* Creates a new object on heap */
     parameter newObject(const std::string & type);
     
+    /* Deletes an object */
+    parameter deleteObject(parameter & object);
+    
     parameter getFuncallParameter(ASTNode * node, const bool derefCharPointers = true);
     
     /* Translates a scope ( {...} ) */

@@ -295,6 +295,9 @@ parameter Translator::translateFunCall(ASTFunCall & funcall) {
         }
     }
     
+    if (name == "delete" and funcall.object == nullptr and params.size() == 1) {
+        return deleteObject(params[0]);
+    }
     if (expr::isOperator(name) and funcall.object == nullptr) {
         return translateOperator(name, params);
     }
@@ -536,6 +539,52 @@ parameter Translator::newObject(const std::string & type) {
     object.value = "&(*(" + object.type +  ")malloc(sizeof(" + type + ")))";
     
     return object;
+    
+}
+
+parameter Translator::deleteObject(parameter & object) {
+    
+    parameter del;
+    
+    if (not isPointer(object.type)) {
+        
+        if (object.value.substr(0, 2) == "(*" and object.value.back() == ')') {
+            
+            object.value.pop_back();
+            object.value = object.value.substr(2);
+        
+        } else  {
+            throw invalid_parameter("Delete must be called on pointer type.");
+        }
+        
+    }
+    
+    std::string type = object.type;
+    if (isPointer(type)) {
+        type.pop_back();
+    }
+    
+    if (_ast.isClass(type)) {
+        
+        std::string destructor =  NameMangler::mangleName("destruct", std::vector<parameter>());
+        
+        const _class & c = _ast.getClass(type);
+        
+        for (auto & i : c.methods) {
+            std::cout <<  std::get<0>(i) << " : " << std::get<1>(i) << std::endl;
+        }
+        
+        if (c.methods.count(destructor)) {
+            
+            destructor = NameMangler::premangleMethodName(destructor, type);
+            del.value = destructor + "(" + object.value + "), ";
+        
+        }
+    }
+    
+    del.type = "void";
+    del.value += "free(" + object.value + ")";
+    return del;
     
 }
 
@@ -922,6 +971,11 @@ parameter Translator::translateMemberAccess(ASTMemberAccess & attribute) {
         
         attr.value += a + (isMemberPointer ? "->" : ".");
     
+    }
+    
+    /* Self is dereferenced, so if the only item is self, remove pointer char to reflect this */
+    if (attribute.accessOrder.size() == 1 and isPointer(attr.type)) {
+        attr.type.pop_back();
     }
     
     /* Pop back twice if value ends with ->, otherwise pop back once, because value ends with . */

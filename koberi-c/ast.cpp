@@ -67,6 +67,9 @@ void AbstractSyntaxTree::emplaceFunction(const std::string & functionName,
     /* Check if function doesn't already exist                    */
     /* If yes, an exception is thrown, if not, function is stored */
     std::string mangledName = NameMangler::mangleName(functionName, params);
+    if (className != "") {
+        mangledName = NameMangler::premangleMethodName(mangledName, className);
+    }
     if (_functions[mangledName] != "") {
         throw redefinition_of_function(functionName);
     }

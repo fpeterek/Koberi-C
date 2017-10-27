@@ -351,13 +351,6 @@ parameter expr::unaryOperator(parameter & param, std::string & op) {
         val.type = syntax::intType;
     }
     
-    if (op == "delete" and param.value.substr(0, 2) == "(*" and param.value.back() == ')') {
-        param.value = param.value.substr(2);
-        param.value.pop_back();
-    } else if (op == "delete" and param.type.back() != syntax::pointerChar) {
-        throw invalid_parameter("Delete must be called on pointer type.");
-    }
-    
     std::string oper = unary_operators_map.at(op);
     if (op == "-") {
         if (not isNumericalType(op)) {
