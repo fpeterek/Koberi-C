@@ -28,6 +28,14 @@ void AbstractSyntaxTree::checkType(const std::string & type) {
     
 }
 
+void AbstractSyntaxTree::addExternTypes(const std::vector<std::string> & types) {
+    
+    for (auto & i : types) {
+        _dataTypes.emplace_back(i);
+    }
+    
+}
+
 void AbstractSyntaxTree::addMethod(const parameter & method, const std::string & className) {
     addMethod(method.type, method.name, className);
 }

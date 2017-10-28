@@ -31,6 +31,8 @@ void KoberiC::handleImports(const std::string & file) {
     _importSystem.parseImports(filename);
     _importSystem.appendExtensions();
     
+    _ast.addExternTypes(_importSystem.getExternTypes());
+    
 }
 
 void KoberiC::tokenize(const std::string & filename) {

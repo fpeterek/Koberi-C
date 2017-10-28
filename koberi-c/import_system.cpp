@@ -11,7 +11,7 @@
 
 void trimFront(std::string & orig) {
     
-    if (not orig.size() or isspace(orig[0])) {
+    if (orig.size() and isspace(orig[0])) {
         orig = orig.substr(1);
         return trimFront(orig);
     }
@@ -20,7 +20,7 @@ void trimFront(std::string & orig) {
 
 void trimBack(std::string & orig) {
     
-    if (not orig.size() or isspace(orig.back())) {
+    if (orig.size() and isspace(orig.back())) {
         orig = orig.substr(0, orig.size() - 1);
         return trimBack(orig);
     }
@@ -65,6 +65,16 @@ bool ImportSystem::isImported(const std::string & filename) {
     
 }
 
+void ImportSystem::importType(const std::string & type) {
+    
+    if (contains(_externTypes, type)) {
+        return;
+    }
+    
+    _externTypes.emplace_back(type);
+    
+}
+
 void ImportSystem::appendExtensions() {
     
     for (auto & i : _importedFiles) {
@@ -85,16 +95,16 @@ void ImportSystem::parseImports(const std::string & filename) {
     
     std::string line;
     std::vector<std::string> imports;
+    std::vector<std::string> types;
     
     while (not file.eof()) {
         
         std::getline(file, line);
+        trimStr(line);
         
         if (not line.size()) {
             continue;
         }
-        
-        trimStr(line);
         
         if (line[0] == ';') {
             continue;
@@ -107,15 +117,10 @@ void ImportSystem::parseImports(const std::string & filename) {
             
             std::vector<std::string> split = splitStr(line);
             
-            if (split[0] != "#import") {
-                continue;
-            }
-            
-            for (size_t i = 1; i < split.size(); ++i) {
-                if (split[i][0] == ';' or split[i][0] == '#') {
-                    break;
-                }
-                imports.emplace_back(split[i]);
+            if (split[0] == "#import") {
+                imports = importFiles(split);
+            } else if (split[0] == "#extern") {
+                types = importTypes(split);
             }
             
         } else {
@@ -130,10 +135,60 @@ void ImportSystem::parseImports(const std::string & filename) {
         }
     }
     
+    for (auto & i : types) {
+        importType(i);
+    }
+    
+}
+
+std::vector<std::string> ImportSystem::importFiles(const std::vector<std::string> & files) {
+    
+    std::vector<std::string> imports;
+    
+    /* Start at index one because files[0] is #import */
+    for (size_t i = 1; i < files.size(); ++i) {
+        imports.emplace_back(files[i]);
+    }
+    
+    return imports;
+    
+}
+
+std::vector<std::string> ImportSystem::importTypes(const std::vector<std::string> & types) {
+    
+    std::vector<std::string> imports;
+    
+    /* Start at index one because types[0] is #extern */
+    for (size_t i = 1; i < types.size(); ++i) {
+        
+        if (not syntax::isValidIdChar(types[i].front())) {
+            throw bad_type("Error: Cannot import data type " + types[i] + ". ");
+        }
+        
+        for (size_t c = 0; c < types[i].size(); ++c) {
+            
+            if (not syntax::isValidIdChar(types[i][c])) {
+                throw bad_type("Error: Cannot import data type " + types[i] + ". ");
+            }
+            
+        }
+        
+        imports.emplace_back(types[i]);
+        
+    }
+    
+    return imports;
+    
 }
 
 const std::vector<std::string> & ImportSystem::getImportedFiles() {
     
     return _importedFiles;
+    
+}
+
+const std::vector<std::string> & ImportSystem::getExternTypes() {
+    
+    return _externTypes;
     
 }

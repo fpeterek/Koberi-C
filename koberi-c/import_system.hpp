@@ -22,8 +22,14 @@
 class ImportSystem {
     
     std::vector<std::string> _importedFiles;
+    std::vector<std::string> _externTypes;
     
     bool isImported(const std::string & filename);
+    
+    void importType(const std::string & type);
+    
+    std::vector<std::string> importFiles(const std::vector<std::string> & files);
+    std::vector<std::string> importTypes(const std::vector<std::string> & types);
     
 public:
     
@@ -32,6 +38,7 @@ public:
     void appendExtensions();
     
     const std::vector<std::string> & getImportedFiles();
+    const std::vector<std::string> & getExternTypes();
     
 };
 

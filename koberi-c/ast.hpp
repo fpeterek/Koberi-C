@@ -54,6 +54,8 @@ protected:
 public:
     AbstractSyntaxTree();
     
+    void addExternTypes(const std::vector<std::string> & types);
+    
     void addMethod(const parameter & method, const std::string & className);
     void addMethod(const std::string & methodType, const std::string & methodName, const std::string & className);
     
