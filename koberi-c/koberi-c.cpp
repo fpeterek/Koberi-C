@@ -49,6 +49,10 @@ void KoberiC::parse() {
     
     _parser.parse();
     
+    /* After the AST is created, there is no need to store the tokens any longer */
+    /* Deleting tokens to save memory.                                           */
+    _tokens = std::vector<token>();
+    
 }
 
 void KoberiC::translate() {
