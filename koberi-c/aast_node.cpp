@@ -22,6 +22,10 @@ std::string indent(int i) {
 AASTNode::AASTNode(AASTNodeType nodeType, const std::string & dataType) : _nodeType(nodeType),
                                                                           _type(dataType) { }
 
+AASTNode::~AASTNode() {
+    
+}
+
 AASTNodeType AASTNode::nodeType() const {
     return _nodeType;
 }
@@ -34,9 +38,11 @@ AASTScope::AASTScope(const std::vector<AASTNode *> & body) : _body(body),
                                                              AASTNode(AASTNodeType::Scope, "") { }
 
 AASTScope::~AASTScope() {
+    
     for (AASTNode * node : _body) {
         delete node;
     }
+    
 }
 
 std::string AASTScope::value(int baseIndent) const {
@@ -197,7 +203,7 @@ std::string AASTDeclaration::value(int baseIndent) const {
     stream << type() << " " << _name;
     
     if (_value != nullptr) {
-        stream << " = " << _value->AASTNode::value(baseIndent + 1);
+        stream << " = " << _value->value(baseIndent + 1);
     }
     
     stream << ";";
@@ -220,6 +226,12 @@ AASTOperator::~AASTOperator() {
     
 }
 
+void unaryOperator(std::stringstream & stream, const std::string & op, const std::string & parameter);
+
+void binaryOperator(std::stringstream & stream,
+                    const std::string & op,
+                    const std::vector<std::string> & parameters);
+
 std::string AASTOperator::value(int baseIndent) const {
     
     std::stringstream stream;
@@ -230,11 +242,77 @@ std::string AASTOperator::value(int baseIndent) const {
         values.emplace_back(param->value(baseIndent + 1));
     }
     
+    if (not values.size()) {
+        stream << _operator;
+    }
+    
+    else if (values.size() == 1) {
+        unaryOperator(stream, _operator, values[0]);
+    }
+    
+    else {
+        binaryOperator(stream, _operator, values);
+    }
+    
     return stream.str();
     
 }
 
+void unaryOperator(std::stringstream & stream, const std::string & op, const std::string & parameter) {
+    
+    std::string oper = expr::unary_operators_map.at(op);
+    
+    if (op == "-") {
+        stream << "((" << parameter << ") * (-1))";
+    } else {
+        stream << oper << "( " << parameter << " )";
+    }
+    
+}
 
+void fmodOperator(std::stringstream & stream,
+                  const std::vector<std::string> & parameters) {
+    
+    
+    
+}
 
+void ltGt(std::stringstream & stream,
+          const std::string & op,
+          const std::vector<std::string> & parameters) {
+    
+}
 
+void set(std::stringstream & stream,
+         const std::vector<std::string> & parameters) {
+    
+}
+
+void equality(std::stringstream & stream,
+              const std::string & op,
+              const std::vector<std::string> & parameters) {
+    
+}
+
+void binaryOperator(std::stringstream & stream,
+                    const std::string & op,
+                    const std::vector<std::string> & parameters) {
+    
+    if (op == "fmod") {
+        return fmodOperator(stream, parameters);
+    }
+    
+    if (op == "<" or op == ">" or op == "<=" or op == ">=") {
+        return ltGt(stream, op, parameters);
+    }
+    
+    if (op == "set") {
+        return set(stream, parameters);
+    }
+    
+    if (op == "equals" or op == "not_eq") {
+        return equality(stream, op == "equals" ? "==" : "!=", parameters);
+    }
+    
+}
 

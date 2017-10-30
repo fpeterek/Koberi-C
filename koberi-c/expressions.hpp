@@ -109,17 +109,6 @@ namespace expr {
     
     parameter comparison(std::string & op, std::vector<parameter> & params);
     
-    
-    parameter conversionToNum(parameter & param);
-    parameter intToNum(parameter & param);
-    parameter strToNum(parameter & param);
-    parameter voidToNum(parameter & param);
-    
-    parameter conversionToInt(parameter & param);
-    parameter numToInt(parameter & param);
-    parameter strToInt(parameter & param);
-    parameter voidToInt(parameter & param);
-    
     parameter unaryOperator(parameter & param, std::string & op);
     parameter parameterless_operator(std::string & op);
 

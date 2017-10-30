@@ -267,68 +267,6 @@ std::vector<std::string> expr::inlineC(std::vector<parameter> &params) {
     
 }
 
-parameter expr::conversionToNum(parameter & param) {
-    
-    if (param.type == "num") {
-        return param;
-    }
-    else if (param.type == "int") {
-        return intToNum(param);
-    }
-    else if (param.type == syntax::pointerForType("char")) {
-        return strToNum(param);
-    }
-    
-    return parameter();
-    
-}
-
-parameter expr::intToNum(parameter & param) {
-    parameter val("(num)" + param.value, "num");
-    return val;
-}
-
-parameter expr::strToNum(parameter & param) {
-    parameter val("atof(" + param.value + ")", "num");
-    return val;
-}
-
-parameter expr::voidToNum(parameter & param) {
-    
-    throw bad_type("Invalid conversion of type void to type num. ");
-    
-}
-
-parameter expr::conversionToInt(parameter & param) {
-    
-    if (param.type == "num") {
-        return numToInt(param);
-    }
-    else if (param.type == "int") {
-        return param;
-    }
-    else if (param.type == syntax::pointerForType("char")) {
-        return strToInt(param);
-    }
-    
-    return parameter();
-    
-}
-
-parameter expr::numToInt(parameter & param) {
-    parameter val("(" + syntax::intType + ")" + param.value, "int");
-    return val;
-}
-
-parameter expr::strToInt(parameter & param) {
-    parameter val("atoll(" + param.value + ")", "int");
-    return val;
-}
-
-parameter expr::voidToInt(parameter & param) {
-    throw bad_type("Invalid conversion of type void to type int. ");
-}
-
 parameter expr::unaryOperator(parameter & param, std::string & op) {
     
     parameter val;

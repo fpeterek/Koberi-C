@@ -14,6 +14,8 @@
 #include <sstream>
 #include <vector>
 
+#include "expressions.hpp"
+
 #define INDENT "    " /* Use four spaces to indent */
 
 enum class AASTNodeType {
@@ -46,7 +48,7 @@ class AASTNode {
 public:
     
     AASTNode(AASTNodeType nodeType, const std::string & dataType);
-    virtual ~AASTNode() = 0;
+    virtual ~AASTNode();
     
     AASTNodeType nodeType() const;
     std::string type() const;
