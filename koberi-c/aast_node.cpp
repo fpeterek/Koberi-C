@@ -226,6 +226,10 @@ std::string AASTOperator::value(int baseIndent) const {
     
     std::vector<std::string> values;
     
+    for (AASTNode * param : _parameters) {
+        values.emplace_back(param->value(baseIndent + 1));
+    }
+    
     return stream.str();
     
 }
