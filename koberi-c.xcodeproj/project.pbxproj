@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		4E041AF11EC8D41200C3DB34 /* traversable_ast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E041AEF1EC8D41200C3DB34 /* traversable_ast.cpp */; };
+		4E1B07DE1FA7705500423D58 /* analyzer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E1B07DC1FA7705500423D58 /* analyzer.cpp */; };
+		4E1B07E21FA770AE00423D58 /* analyzed_abstract_syntax_tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E1B07E01FA770AE00423D58 /* analyzed_abstract_syntax_tree.cpp */; };
+		4E1B07E61FA77D4900423D58 /* aast_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E1B07E41FA77D4900423D58 /* aast_node.cpp */; };
 		4E2B3A8A1DC79ADB00700208 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A891DC79ADB00700208 /* main.cpp */; };
 		4E2B3A921DC79B0C00700208 /* koberi-c.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A901DC79B0C00700208 /* koberi-c.cpp */; };
 		4E2B3A951DC79B3500700208 /* syntax.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A931DC79B3500700208 /* syntax.cpp */; };
@@ -41,6 +44,12 @@
 		4E041AEF1EC8D41200C3DB34 /* traversable_ast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = traversable_ast.cpp; sourceTree = "<group>"; };
 		4E041AF01EC8D41200C3DB34 /* traversable_ast.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = traversable_ast.hpp; sourceTree = "<group>"; };
 		4E0929011DE99E2C004D7BDA /* contains.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = contains.hpp; sourceTree = "<group>"; };
+		4E1B07DC1FA7705500423D58 /* analyzer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = analyzer.cpp; sourceTree = "<group>"; };
+		4E1B07DD1FA7705500423D58 /* analyzer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = analyzer.hpp; sourceTree = "<group>"; };
+		4E1B07E01FA770AE00423D58 /* analyzed_abstract_syntax_tree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = analyzed_abstract_syntax_tree.cpp; sourceTree = "<group>"; };
+		4E1B07E11FA770AE00423D58 /* analyzed_abstract_syntax_tree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = analyzed_abstract_syntax_tree.hpp; sourceTree = "<group>"; };
+		4E1B07E41FA77D4900423D58 /* aast_node.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = aast_node.cpp; sourceTree = "<group>"; };
+		4E1B07E51FA77D4900423D58 /* aast_node.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = aast_node.hpp; sourceTree = "<group>"; };
 		4E2B3A861DC79ADB00700208 /* koberi-c */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "koberi-c"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E2B3A891DC79ADB00700208 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4E2B3A901DC79B0C00700208 /* koberi-c.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "koberi-c.cpp"; sourceTree = "<group>"; };
@@ -86,6 +95,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4E1B07DF1FA7706400423D58 /* Analyzer */ = {
+			isa = PBXGroup;
+			children = (
+				4E1B07DC1FA7705500423D58 /* analyzer.cpp */,
+				4E1B07DD1FA7705500423D58 /* analyzer.hpp */,
+			);
+			name = Analyzer;
+			sourceTree = "<group>";
+		};
+		4E1B07E31FA770B300423D58 /* Analyzed Abstract Syntax Tree */ = {
+			isa = PBXGroup;
+			children = (
+				4E1B07E01FA770AE00423D58 /* analyzed_abstract_syntax_tree.cpp */,
+				4E1B07E11FA770AE00423D58 /* analyzed_abstract_syntax_tree.hpp */,
+				4E1B07E41FA77D4900423D58 /* aast_node.cpp */,
+				4E1B07E51FA77D4900423D58 /* aast_node.hpp */,
+			);
+			name = "Analyzed Abstract Syntax Tree";
+			sourceTree = "<group>";
+		};
 		4E2B3A7D1DC79ADB00700208 = {
 			isa = PBXGroup;
 			children = (
@@ -116,6 +145,8 @@
 				4E425D3C1E916F020090F591 /* Abstract Syntax Tree */,
 				4E2B3AA91DC79CEF00700208 /* Syntax */,
 				4E2B3AAA1DC79CF600700208 /* Parser */,
+				4E1B07E31FA770B300423D58 /* Analyzed Abstract Syntax Tree */,
+				4E1B07DF1FA7706400423D58 /* Analyzer */,
 				4EFEFD861F23E795003AF308 /* Translator */,
 				4E2B3AAB1DC79D0300700208 /* Tokenizer */,
 				4E2B3AAC1DC79D0B00700208 /* Token */,
@@ -315,10 +346,12 @@
 			files = (
 				4E425D4C1E91897A0090F591 /* class.cpp in Sources */,
 				4E54D5D41F6AE19900339786 /* import_system.cpp in Sources */,
+				4E1B07E61FA77D4900423D58 /* aast_node.cpp in Sources */,
 				4E2B3A9B1DC79BA600700208 /* tokenizer.cpp in Sources */,
 				4E3E613B1F24ACA600FBE7A1 /* name_mangler.cpp in Sources */,
 				4E2B3A8A1DC79ADB00700208 /* main.cpp in Sources */,
 				4E041AF11EC8D41200C3DB34 /* traversable_ast.cpp in Sources */,
+				4E1B07E21FA770AE00423D58 /* analyzed_abstract_syntax_tree.cpp in Sources */,
 				4E425D421E91719D0090F591 /* ast_node.cpp in Sources */,
 				4E2B3A981DC79B7000700208 /* parser.cpp in Sources */,
 				4E425D3F1E916F330090F591 /* ast.cpp in Sources */,
@@ -329,6 +362,7 @@
 				4EFEFD851F23E78C003AF308 /* translator.cpp in Sources */,
 				4E2B3AA11DC79C0500700208 /* exceptions.cpp in Sources */,
 				4E2B3A9E1DC79BDA00700208 /* token.cpp in Sources */,
+				4E1B07DE1FA7705500423D58 /* analyzer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
