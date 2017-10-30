@@ -76,6 +76,7 @@ void Translator::translateGlobalVars() {
         if (node->nodeType == NodeType::Declaration) {
             
             ASTDeclaration * decl = (ASTDeclaration*)node;
+            checkIdIsValid(decl->name);
             _output << translateType(decl->type) << " " << decl->name << ";\n";
             
         }
