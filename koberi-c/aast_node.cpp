@@ -271,7 +271,7 @@ void unaryOperator(std::stringstream & stream, const std::string & op, const std
 }
 
 void fmodOperator(std::stringstream & stream,
-                  const std::vector<std::string> & parameters) {
+                  const std::vector<AASTNode *> & parameters) {
     
     
     
@@ -279,24 +279,28 @@ void fmodOperator(std::stringstream & stream,
 
 void ltGt(std::stringstream & stream,
           const std::string & op,
-          const std::vector<std::string> & parameters) {
+          const std::vector<AASTNode *> & parameters) {
     
 }
 
 void set(std::stringstream & stream,
-         const std::vector<std::string> & parameters) {
+         const std::vector<AASTNode *> & parameters) {
     
 }
 
 void equality(std::stringstream & stream,
               const std::string & op,
-              const std::vector<std::string> & parameters) {
+              const std::vector<AASTNode *> & parameters) {
+    
+}
+
+void dereference(std::stringstream & stream, const AASTNode * parameter) {
     
 }
 
 void binaryOperator(std::stringstream & stream,
                     const std::string & op,
-                    const std::vector<std::string> & parameters) {
+                    const std::vector<AASTNode *> & parameters) {
     
     if (op == "fmod") {
         return fmodOperator(stream, parameters);
@@ -312,6 +316,10 @@ void binaryOperator(std::stringstream & stream,
     
     if (op == "equals" or op == "not_eq") {
         return equality(stream, op == "equals" ? "==" : "!=", parameters);
+    }
+    
+    if (op == "&") {
+        return;
     }
     
 }

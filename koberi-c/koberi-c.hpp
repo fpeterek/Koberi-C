@@ -31,6 +31,8 @@
 #include "syntax.hpp"
 #include "parser.hpp"
 #include "traversable_ast.hpp"
+#include "analyzer.hpp"
+#include "analyzed_abstract_syntax_tree.hpp"
 #include "translator.hpp"
 #include "import_system.hpp"
 
@@ -45,6 +47,8 @@ class KoberiC {
     Tokenizer _tokenizer;
     Parser _parser;
     TraversableAbstractSyntaxTree _ast;
+    AnalyzedAbstractSyntaxTree _aast;
+    Analyzer _analyzer;
     Translator _translator;
     
     

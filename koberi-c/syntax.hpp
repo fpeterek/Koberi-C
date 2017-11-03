@@ -29,7 +29,6 @@ namespace syntax {
     const std::string uintType = "uint_type";
     const char pointerChar = '*';
     
-    
     const std::array<std::string, 10> operators = {
         
         "+", "-",
