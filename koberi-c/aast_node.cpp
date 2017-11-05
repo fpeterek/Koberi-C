@@ -105,17 +105,27 @@ std::string AASTFunction::value(int baseIndent) const {
     
     std::stringstream stream;
     
+    stream << declaration() << "\n" << _body.value(baseIndent + 1);
+    
+    return stream.str();
+    
+}
+
+std::string AASTFunction::declaration() const {
+    
+    std::stringstream stream;
+    
     stream << type() << " " << _mangledName << "(";
     
     for (size_t i = 0; i < _parameters.size(); ++i) {
         
         const AASTDeclaration & param = _parameters[i];
         
-        stream << param.type() << " " << param.value(baseIndent) << (i < _parameters.size() - 1 ? ", " : "");
+        stream << param.type() << " " << param.value() << (i < _parameters.size() - 1 ? ", " : "");
         
     }
     
-    stream << "\n" << _body.value(baseIndent + 1);
+    stream << ")";
     
     return stream.str();
     
@@ -226,20 +236,19 @@ AASTOperator::~AASTOperator() {
     
 }
 
-void unaryOperator(std::stringstream & stream, const std::string & op, const std::string & parameter);
+void unaryOperator(std::stringstream & stream, const std::string & op, const parameter & parameter);
 
 void binaryOperator(std::stringstream & stream,
                     const std::string & op,
-                    const std::vector<std::string> & parameters);
+                    const std::vector<parameter> & parameters);
 
 std::string AASTOperator::value(int baseIndent) const {
     
     std::stringstream stream;
     
-    std::vector<std::string> values;
-    
+    std::vector<parameter> values;
     for (AASTNode * param : _parameters) {
-        values.emplace_back(param->value(baseIndent + 1));
+        values.emplace_back(param->value(baseIndent + 1), param->type());
     }
     
     if (not values.size()) {
@@ -258,20 +267,28 @@ std::string AASTOperator::value(int baseIndent) const {
     
 }
 
-void unaryOperator(std::stringstream & stream, const std::string & op, const std::string & parameter) {
+void unaryOperator(std::stringstream & stream, const std::string & op, const parameter & parameter) {
     
     std::string oper = expr::unary_operators_map.at(op);
     
     if (op == "-") {
-        stream << "((" << parameter << ") * (-1))";
+        stream << "((" << parameter.value << ") * (-1))";
+    } else if (op == "&") {
+        
+        if (syntax::isPointerType(parameter.type)) {
+            stream << parameter.value;
+        } else {
+            stream << "&" << parameter.value;
+        }
+        
     } else {
-        stream << oper << "( " << parameter << " )";
+        stream << oper << "( " << parameter.value << " )";
     }
     
 }
 
 void fmodOperator(std::stringstream & stream,
-                  const std::vector<AASTNode *> & parameters) {
+                  const std::vector<parameter> & parameters) {
     
     
     
@@ -279,18 +296,18 @@ void fmodOperator(std::stringstream & stream,
 
 void ltGt(std::stringstream & stream,
           const std::string & op,
-          const std::vector<AASTNode *> & parameters) {
+          const std::vector<parameter> & parameters) {
     
 }
 
 void set(std::stringstream & stream,
-         const std::vector<AASTNode *> & parameters) {
+         const std::vector<parameter> & parameters) {
     
 }
 
 void equality(std::stringstream & stream,
               const std::string & op,
-              const std::vector<AASTNode *> & parameters) {
+              const std::vector<parameter> & parameters) {
     
 }
 
@@ -300,7 +317,7 @@ void dereference(std::stringstream & stream, const AASTNode * parameter) {
 
 void binaryOperator(std::stringstream & stream,
                     const std::string & op,
-                    const std::vector<AASTNode *> & parameters) {
+                    const std::vector<parameter> & parameters) {
     
     if (op == "fmod") {
         return fmodOperator(stream, parameters);
@@ -316,10 +333,6 @@ void binaryOperator(std::stringstream & stream,
     
     if (op == "equals" or op == "not_eq") {
         return equality(stream, op == "equals" ? "==" : "!=", parameters);
-    }
-    
-    if (op == "&") {
-        return;
     }
     
 }

@@ -8,7 +8,8 @@
 
 #include "translator.hpp"
 
-Translator::Translator(TraversableAbstractSyntaxTree & ast) : _ast(ast) {
+Translator::Translator(TraversableAbstractSyntaxTree & ast,
+                       AnalyzedAbstractSyntaxTree & aast) : _ast(ast), _aast(aast) {
     
 }
 
@@ -38,100 +39,39 @@ void Translator::typedefs() {
 
 void Translator::translateClasses() {
     
-    const std::unordered_map<std::string, _class> & classes = _ast.getClasses();
-    const std::vector<std::string> & classOrder = _ast.getClassOrder();
+    const std::vector<AASTClass> & classes = _aast.getClasses();
     
-    _output << "\n" << "/* Classes */" << "\n";
+    _output << "\n\n" << "/* Classes */" << "\n\n";
     
-    for (const auto & c : classOrder) {
-        
-        const _class & cls = classes.at(c);
-        
-        checkIdIsValid(cls.className);
-        
-        _output << "\n" << "typedef struct " << cls.className << " {\n";
-        
-        for (const auto & attr : cls.attributes) {
-            
-            checkIdIsValid(attr.name);
-            _output << INDENT << translateType(attr.type) << " " << attr.name << ";\n";
-        }
-        
-        _output << "} " << cls.className << ";\n" << std::endl;
-        
+    for (auto & cls : classes) {
+        _output << cls.value() << std::endl;
     }
     
 }
 
-void Translator::translateGlobalVars() {
+void Translator::translateGlobals() {
     
-    const size_t nodeCount = _ast.getNodeCount();
+    const std::vector<AASTDeclaration> & declarations = _aast.getDeclarations();
     
-    _output << "\n" << "/* Global Variables */" << "\n" << "\n";
+    _output << "\n\n" << "/* Global Variables */" << "\n\n";
     
-    for (size_t i = 0; i < nodeCount; ++i) {
-        
-        ASTNode * node = _ast.getNodePtr(i);
-        
-        if (node->nodeType == NodeType::Declaration) {
-            
-            ASTDeclaration * decl = (ASTDeclaration*)node;
-            checkIdIsValid(decl->name);
-            _output << translateType(decl->type) << " " << decl->name << ";\n";
-            
-        }
-        
+    for (auto & declaration : declarations) {
+        _output << declaration.value() << "\n";
     }
     
     std::endl(_output);
     
 }
 
-void Translator::forwardFunctionDeclarations() {
+void Translator::translateFunctionDeclarations() {
     
-    const size_t nodeCount = _ast.getNodeCount();
+    _output << "\n\n" << "/* Function Declarations */" << "\n\n";
     
-    _output << "\n" << "/* Function Declarations */" << "\n" << "\n";
+    const std::vector<AASTFunction> & functions = _aast.getFunctions();
     
-    for (size_t i = 0; i < nodeCount; ++i) {
+    for (auto & function : functions) {
         
-        ASTNode * node = _ast.getNodePtr(i);
-        
-        if (node->nodeType == NodeType::Function) {
-            
-            ASTFunction * fun = (ASTFunction*)node;
-            
-            std::string mangledName = NameMangler::mangleName(fun->name, fun->parameters);
-            if (fun->className != "") {
-                mangledName = NameMangler::premangleMethodName(mangledName, fun->className);
-            }
-            _output << translateType(fun->type) << " " << mangledName << "(";
-            
-            if (fun->className != "") {
-                _output << fun->className << " * self";
-                if (fun->parameters.size()) {
-                    _output << ", ";
-                }
-            }
-            
-            if (fun->parameters.size()) {
-                
-                for (size_t iter = 0; iter < fun->parameters.size(); ++iter) {
-                    
-                    const parameter & param = fun->parameters[iter];
-                    _output << translateType(param.type) << " " << param.name
-                            << (iter == fun->parameters.size() - 1 ? "" : ", ");
-                    
-                }
-                
-            }
-            else if (fun->className == ""){
-                _output << "void";
-            }
-            
-            _output << ");\n";
-            
-        }
+        _output << function.declaration() << ";\n";
         
     }
     
@@ -141,19 +81,12 @@ void Translator::forwardFunctionDeclarations() {
 
 void Translator::translateFunctions() {
     
-    ASTNode * node;
+    _output << "\n\n" << "/* Function Definitionss */" << "\n\n";
     
-    for (size_t i = 0; i < _ast.getNodeCount(); ++i) {
-        
-        node = _ast.getNodePtr(i);
-        
-        if (node->nodeType == NodeType::Function) {
-            
-            ASTFunction & function = *((ASTFunction*)node);
-            translateFunction(function);
-            
-        }
-        
+    const std::vector<AASTFunction> & functions = _aast.getFunctions();
+    
+    for (auto & function : functions) {
+        _output << function.value() << "\n" << std::endl;
     }
     
 }
@@ -189,8 +122,8 @@ void Translator::translate() {
     libraries();
     typedefs();
     translateClasses();
-    translateGlobalVars();
-    forwardFunctionDeclarations();
+    translateGlobals();
+    translateFunctionDeclarations();
     translateFunctions();
     
     main();

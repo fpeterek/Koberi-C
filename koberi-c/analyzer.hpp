@@ -43,19 +43,20 @@ class Analyzer {
     /* Analyzes a function call, mangles the name */
     AASTNode * analyzeFunCall(ASTFunCall & funcall);
     
-    AASTOperator analyzeOperator(std::string & op, std::vector<parameter> & params);
-    AASTOperator analyzePrint(std::vector<parameter> & parameters);
-    AASTOperator inlineC(std::vector<parameter> & parameters);
+    AASTOperator analyzeOperator(const std::string & op, const std::vector<AASTNode *> & params);
+    AASTOperator analyzePrint(std::vector<AASTNode *> & parameters);
+    AASTOperator inlineC(std::vector<AASTNode *> & parameters);
     
     /* Casts objects to their superclasses/inheriting classes and int <-> num */
-    AASTValue cast(const parameter & valueToCast, const std::string & type);
+    AASTValue cast(AASTNode * valueToCast, const std::string & type);
     
     /* New operator, which creates a new object on heap */
     AASTOperator newObject(const std::string & type);
     
     /* Deletes an object by calling destructor and deallocating memory                        */
     /* Funcall is destructor, first operator is free and second operator sets pointer to NULL */
-    std::tuple<AASTFuncall*, AASTOperator, AASTOperator> deleteObject(parameter & object, const bool isFuncall);
+    // std::tuple<AASTFuncall*, AASTOperator, AASTOperator> deleteObject(parameter & object, const bool isFuncall);
+    AASTScope deleteObject(AASTNode * object);
     
     AASTNode * getFuncallParameter(ASTNode * node);
     
@@ -65,7 +66,7 @@ class Analyzer {
     /* Calls constructors on all objects with constructors from the current scope */
     std::vector<AASTFuncall> destructScopedObjects(std::vector<ASTNode *> scopeNodes);
     
-    AASTFuncall getDestructor(const parameter & object);
+    AASTFuncall getDestructor(AASTNode * object);
     
     /* Analyzes a single node found inside function bodies (construct, declaration, funcall) */
     AASTNode * analyzeFunctionNode(ASTNode * node);

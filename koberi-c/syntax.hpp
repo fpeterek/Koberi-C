@@ -53,6 +53,7 @@ namespace syntax {
     bool isOperatorChar(char param);
     
     std::string pointerForType(const std::string & type);
+    bool isPointerType(const std::string & type);
     
 }
 

@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "traversable_ast.hpp"
+#include "analyzed_abstract_syntax_tree.hpp"
 #include "name_mangler.hpp"
 #include "expressions.hpp"
 #include "syntax.hpp"
@@ -25,8 +26,8 @@
 class Translator {
     
     TraversableAbstractSyntaxTree & _ast;
+    AnalyzedAbstractSyntaxTree & _aast;
     
-    std::ofstream _output;
     
     /* This could be a char, but people might use software-generated code                */
     /* If someone manages to make this overflow, they don't deserve to use this compiler */
@@ -34,14 +35,7 @@ class Translator {
     
     /* Used to store name of current function to make error messages slightly more useful */
     std::string _functionName;
-    
-    void libraries();
-    void typedefs();
-    void translateClasses();
-    void translateGlobalVars();
-    void forwardFunctionDeclarations();
-    /* Iterates over nodes and calls translateFunction() on each function */
-    void translateFunctions();
+
     
     void main();
     
@@ -110,10 +104,19 @@ class Translator {
     std::string dereference(const std::string & param);
     bool isPointer(const std::string & type);
     
+    std::ofstream _output;
+    
+    void libraries();
+    void typedefs();
+    void translateClasses();
+    void translateFunctionDeclarations();
+    void translateGlobals();
+    void translateFunctions();
+    
     
 public:
     
-    Translator(TraversableAbstractSyntaxTree & ast);
+    Translator(TraversableAbstractSyntaxTree & ast, AnalyzedAbstractSyntaxTree & aast);
     
     void setOutputFile(const std::string & filename);
     

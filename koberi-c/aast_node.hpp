@@ -53,7 +53,7 @@ public:
     AASTNodeType nodeType() const;
     std::string type() const;
     
-    virtual std::string value(int baseIndent) const = 0;
+    virtual std::string value(int baseIndent = 0) const = 0;
     
 };
 
@@ -65,7 +65,7 @@ public:
     
     AASTScope(const std::vector<AASTNode *> & body);
     ~AASTScope();
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -80,7 +80,7 @@ public:
     AASTConstruct(const std::string & construct, const AASTNode * condition, const AASTScope & body);
     ~AASTConstruct();
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -97,7 +97,8 @@ public:
                  const std::vector<AASTDeclaration> & parameters,
                  const AASTScope & body);
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
+    std::string declaration() const;
     
 };
 
@@ -110,7 +111,7 @@ public:
     
     AASTClass(const std::string & name, const std::vector<AASTDeclaration> & attributes);
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
 };
 
 class AASTFuncall : public AASTNode {
@@ -123,7 +124,7 @@ public:
     AASTFuncall(const std::string & name, const std::string & type, const std::vector<AASTNode *> parameters);
     ~AASTFuncall();
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -134,7 +135,7 @@ class AASTValue : public AASTNode {
 public:
     
     AASTValue(const std::string & value, const std::string & type);
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -147,7 +148,7 @@ public:
     
     AASTDeclaration(const std::string & name, const std::string & type, const AASTNode * value);
     ~AASTDeclaration();
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -161,7 +162,7 @@ public:
     AASTOperator(const std::string & op, const std::string & type, const std::vector<AASTNode *> parameters);
     ~AASTOperator();
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 

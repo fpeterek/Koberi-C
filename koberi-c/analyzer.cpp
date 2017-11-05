@@ -103,6 +103,17 @@ void Analyzer::checkIdIsValid(const std::string & id) {
     
 }
 
+parameter Analyzer::getVariable(ASTVariable & variable) {
+    
+    parameter var;
+    
+    var.name = variable.name;
+    var.type = _ast.getVarType(variable.name, variable.parentScope);
+    
+    return var;
+    
+}
+
 void Analyzer::analyzeFunctions() {
     
     ASTNode * node;
@@ -177,7 +188,8 @@ AASTNode * Analyzer::analyzeFunctionNode(ASTNode * node) {
     if (node->nodeType == NodeType::FunCall) {
         
         ASTFunCall * funcall = (ASTFunCall*)node;
-        functionNode = (AASTNode *) new AASTFuncall(analyzeFunCall(*funcall));
+        const AASTFuncall & fcall = *((AASTFuncall *)analyzeFunCall(*funcall));
+        functionNode = (AASTNode *) new AASTFuncall(fcall);
         
     } else if (node->nodeType == NodeType::Construct) {
         
@@ -201,8 +213,8 @@ AASTNode * Analyzer::analyzeFunctionNode(ASTNode * node) {
 
 AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
     
-    parameter functionCall;
     std::string name = funcall.function;
+    std::string type;
     
     /* Only used if function is a member function   */
     /* It needs to be declared at this scope though */
@@ -215,94 +227,75 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
             _ast.isDataType(((ASTVariable*)funcall.parameters[1])->name)) {
             
             AASTNode * p = getFuncallParameter(funcall.parameters[0]);
-            parameter param = parameter(p->type(), p->type());
-            std::string type = ((ASTVariable*)funcall.parameters[1])->name;
             
-            return cast(param, type);
+            type = ((ASTVariable*)funcall.parameters[1])->name;
+            
+            return (AASTNode *)new AASTValue(cast(p, type));
             
         }
         
     }
     
     if (name == "new" and funcall.parameters.size() == 1 and funcall.object == nullptr) {
-        std::string type = ((ASTVariable*)funcall.parameters[0])->name;
+        type = ((ASTVariable*)funcall.parameters[0])->name;
         return (AASTNode *)new AASTOperator(newObject(type));
     }
     
-    std::vector<parameter> params;
-    /* Don't deref char* if statement is a print statement */ {
-        const bool derefCharPtr = not (name == "print" and funcall.object == nullptr);
-        
-        for (auto & param : funcall.parameters) {
-            params.emplace_back(getFuncallParameter(param, derefCharPtr));
-        }
+    std::vector<AASTNode *> params;
+    
+    for (auto & param : funcall.parameters) {
+        params.emplace_back(getFuncallParameter(param));
     }
     
-    for (auto & param : params) {
-        if (param.type == "") {
-            throw invalid_parameter(_functionName, funcall.function, param.value);
+    for (AASTNode * param : params) {
+        if (param->type() == "") {
+            throw invalid_parameter(_functionName, funcall.function, param->value());
         }
     }
     
     if (name == "delete" and funcall.object == nullptr and params.size() == 1) {
-        const bool paramIsFuncall = funcall.parameters.size() and funcall.parameters[0]->nodeType == NodeType::FunCall;
-        return deleteObject(params[0], paramIsFuncall);
+        return (AASTNode *)new AASTScope(deleteObject(params[0]));
     }
     if (expr::isOperator(name) and funcall.object == nullptr) {
-        return translateOperator(name, params);
+        return (AASTNode *)new AASTOperator(analyzeOperator(name, params));
     }
     if (name == "print" and funcall.object == nullptr) {
-        return translatePrint(params);
+        return (AASTNode *)new AASTOperator(analyzePrint(params));
     }
     if (name == "_c" and funcall.object == nullptr) {
-        return inlineC(params);
+        return (AASTNode *)new AASTOperator(inlineC(params));
     }
     
-    /* Mangle name and get return type, if function doesn't exist, and exception should be thrown */
-    /* If function exists, create valid C function call from provided parameters                  */
-    name = NameMangler::mangleName(name, params);
-    
-    /* Translate parameters first */
-    functionCall.value = "(";
+    {
+        /* Mangle name and get return type, if function doesn't exist, and exception should be thrown */
+        /* If function exists, create valid C function call from provided parameters                  */
+        std::vector<std::string> paramTypes;
+        for (AASTNode * node : params) {
+            paramTypes.emplace_back(node->type());
+        }
+        name = NameMangler::mangleName(name, paramTypes);
+    }
     
     if (funcall.object != nullptr) {
         
-        parameter object = translateMemberAccess(*funcall.object);
+        AASTValue object = analyzeMemberAccess(*funcall.object);
         
-        try {
-            m = _ast.getMethodReturnType(name, object.type);
-        } catch (const undeclared_function_call & e) {
-            throw undeclared_function_call(funcall.function, object.type);
-        }
+        /* Use & operator to access address of self */
+        AASTOperator * op = new AASTOperator(analyzeOperator("&", { (AASTNode *)new AASTValue(object) }));
         
-        /* If method is a member of objects superclass, cast object to that superclass */
-        /* Otherwise just access the objects address                                   */
-        std::string castedObject = "&(" + object.value + ")";
-        if (m.className != object.type) {
-            castedObject = "((" + m.className + " *)((void *) " + castedObject + "))";
-        }
-        functionCall.value += castedObject + (params.size() ? ", " : "");
-        functionCall.type = m.type;
+        params.insert(params.begin(), op);
         
+        type = m.type;
         
     } else {
-        functionCall.type = _ast.getFunctionReturnType(name);
+        type = _ast.getFunctionReturnType(name);
     }
     
-    for (size_t i = 0; i < params.size(); ++i) {
-        functionCall.value += params[i].value + (i == params.size() - 1 ? "" : ", ");
-    }
-    
-    functionCall.value += ")";
-    
-    /* After translating the arguments, prepend mangled name in front of them */
     if (funcall.object != nullptr) {
         name = NameMangler::premangleMethodName(name, m.className);
     }
     
-    functionCall.value = name + functionCall.value;
-    
-    return functionCall;
+    return (AASTNode *)new AASTFuncall(name, type, params);
     
 }
 
@@ -361,6 +354,72 @@ AASTNode * Analyzer::getFuncallParameter(ASTNode * node) {
     
 }
 
+AASTOperator Analyzer::analyzePrint(std::vector<AASTNode *> & parameters) {
+    
+    
+    /* If no parameters are passed print \n */
+    if (not parameters.size()) {
+        parameters.emplace_back((AASTNode *)new AASTValue("\"\n\"", syntax::pointerForType("char")));
+    }
+    
+    for (AASTNode * node : parameters) {
+        
+        const std::string & type = node->type();
+        
+        if (type != "char" and (not syntax::isPointerType(type)) and
+            type != "int" and type != "uint" and type != "num") {
+            throw invalid_parameter(_functionName, "(print)", node->value());
+        }
+        
+    }
+    
+    return AASTOperator("print", "", parameters);
+    
+}
+
+AASTScope Analyzer::deleteObject(AASTNode * object) {
+    
+    
+    AASTFuncall * destructor = nullptr;
+    AASTFuncall * free = nullptr;
+    AASTOperator * setToNull = nullptr;
+    
+    if (not syntax::isPointerType(object->type())) {
+        throw invalid_parameter("Delete must be called on pointer type.");
+    }
+    
+    std::string type = object->type();
+    type.pop_back();
+    
+    if (_ast.isClass(type)) {
+        
+        if (_ast.hasDestructor(type)) {
+            
+            destructor = new AASTFuncall(getDestructor(object));
+            
+        }
+    }
+
+    AASTOperator * objectAddress =
+        new AASTOperator("&", syntax::pointerForType(object->type()), std::vector<AASTNode *>( {object} ));
+    
+    free = new AASTFuncall("free", "void", std::vector<AASTNode *>( { objectAddress } ));
+    
+    
+    if (object->nodeType() != AASTNodeType::Funcall) {
+        setToNull = new AASTOperator("set", "void", std::vector<AASTNode *>( { object } ));
+    }
+    
+    std::vector<AASTNode *> body = { (AASTNode *)destructor, (AASTNode *)free };
+    
+    if (setToNull != nullptr) {
+        body.emplace_back((AASTNode *)setToNull);
+    }
+    
+    return AASTScope(body);
+    
+}
+
 std::vector<AASTFuncall> Analyzer::destructScopedObjects(std::vector<ASTNode *> scopeNodes) {
     
     /* Search for variable declarations. If any variables are declared in scope,         */
@@ -372,7 +431,7 @@ std::vector<AASTFuncall> Analyzer::destructScopedObjects(std::vector<ASTNode *> 
         if (node->nodeType == NodeType::Declaration) {
             
             const ASTDeclaration & d = *((ASTDeclaration*)node);
-            parameter p(d.name, d.type);
+            const parameter p(d.name, d.type);
             declarations.emplace_back(p);
             
         }
@@ -382,23 +441,43 @@ std::vector<AASTFuncall> Analyzer::destructScopedObjects(std::vector<ASTNode *> 
     
     for (auto & i : declarations) {
         
-        if (_ast.isClass(i.type) and (not isPointer(i.type))  and _ast.hasDestructor(i.type)) {
+        if (_ast.isClass(i.type) and (not syntax::isPointerType(i.type))  and _ast.hasDestructor(i.type)) {
             
-            method m = _ast.getMethodReturnType("destruct", i.type);
-            
-            std::string castedObject = i.name;
-            if (i.type != m.className) {
-                castedObject = "((" + m.className + "*)(void*)(&" + castedObject + "))";
-            }
-            
-            std::string destructorName = NameMangler::premangleMethodName("destruct", m.className);
-            
-            destructorCalls.emplace_back(destructorName, m.type, std::vector<AASTNode *>());
+            AASTNode * object = (AASTNode *)new AASTValue(i.value, i.type);
+            destructorCalls.emplace_back(getDestructor(object));
             
         }
     }
     
     return destructorCalls;
+    
+}
+
+AASTFuncall Analyzer::getDestructor(AASTNode * object) {
+    
+    method m = _ast.getMethodReturnType("destruct", object->type());
+    
+    std::string destructorName = NameMangler::mangleName("destruct", std::vector<std::string>( { m.className } ));
+    destructorName = NameMangler::premangleMethodName(destructorName, m.className);
+    
+    
+    if (object->type() != m.className) {
+        object = (AASTNode *)new AASTValue(cast(object, m.className));
+    }
+    
+    std::vector<AASTNode *> objectVector;
+    objectVector.emplace_back(object);
+    
+    AASTNode * objectAddress = (AASTNode *)new AASTOperator(analyzeOperator("&", objectVector));
+    
+    return AASTFuncall(destructorName, m.type, std::vector<AASTNode *>( { objectAddress } ));
+    
+}
+
+
+AASTValue Analyzer::cast(AASTNode * valueToCast, const std::string & type) {
+    
+    return AASTValue("value", "type");
     
 }
 
