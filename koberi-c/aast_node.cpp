@@ -269,8 +269,6 @@ std::string AASTOperator::value(int baseIndent) const {
 
 void unaryOperator(std::stringstream & stream, const std::string & op, const parameter & parameter) {
     
-    std::string oper = expr::unary_operators_map.at(op);
-    
     if (op == "-") {
         stream << "((" << parameter.value << ") * (-1))";
     } else if (op == "&") {
@@ -278,11 +276,11 @@ void unaryOperator(std::stringstream & stream, const std::string & op, const par
         if (syntax::isPointerType(parameter.type)) {
             stream << parameter.value;
         } else {
-            stream << "&" << parameter.value;
+            stream << "(&" << parameter.value << ")";
         }
         
     } else {
-        stream << oper << "( " << parameter.value << " )";
+        stream << op << "( " << parameter.value << " )";
     }
     
 }
@@ -337,3 +335,90 @@ void binaryOperator(std::stringstream & stream,
     
 }
 
+/* old expr::binary_operator
+ 
+ if (op == "mod") {
+ 
+ for (auto & param : params) {
+ 
+ // If at least one of the parameters is a floating point number, call fmod()
+if (param.type == "num") {
+    return expr::numMod(params);
+}
+
+}
+
+}
+
+if (op == ">" or op == ">=" or op == "<" or op == "<=" or op == "equals" or op == "not_eq") {
+    return comparison(op, params);
+}
+
+if (op == "set" and params.size() != 2) {
+    std::string str = "(set";
+    for (auto & i : params) {
+        str += " " + i.value;
+    }
+    str += ")";
+    throw invalid_operator(str);
+}
+
+parameter val;
+val.type = "void";
+
+const std::string oper = binary_operators_map.at(op);
+
+if (op == "set" and params[0].type.back() == syntax::pointerChar and params[1].type.back() != syntax::pointerChar) {
+    params[0].value = "(*" + params[0].value + ")";
+} else if (op == "set" and params[0].type.back() != syntax::pointerChar and params[1].type.back() == syntax::pointerChar) {
+    
+    if (params[0].value.substr(0, 2) == "(*" and params[0].value.back() == ')') {
+        params[0].value = params[0].value.substr(2);
+        params[0].value.pop_back();
+    } else {
+        throw invalid_parameter("Cannot assign value of type " + params[1].type +
+                                " to variable of type " + params[0].type);
+    }
+    
+}
+
+val.value = "(" + params[0].value;
+val.type = params[0].type;
+
+for ( int i = 1; i < params.size() - 1; ++i ) {
+    
+    val.value += " " + oper + " " + params[i].value;
+    
+    if (params[i].value == "num") {
+        val.value = "num";
+    }
+    
+}
+val.value += " " + oper + " " + params.back().value + ")";
+
+return val;
+ 
+ */
+
+AASTCast::AASTCast(const AASTNode * value, const std::string desiredType) :
+                _value(value),
+                _desiredType(desiredType),
+                AASTNode(AASTNodeType::Cast, desiredType) { }
+
+AASTCast::~AASTCast() {
+    delete _value;
+}
+
+std::string AASTCast::value(int baseIndent) const {
+    
+    std::stringstream stream;
+    
+    if (syntax::isPointerType(_desiredType)) {
+        stream << "((" << _desiredType << ")(void *)" << _value->value() << ")";
+    } else {
+        stream << "((" << _desiredType << ")" << _value->value() << ")";
+    }
+    
+    return stream.str();
+    
+}

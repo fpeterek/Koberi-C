@@ -14,7 +14,8 @@
 #include <sstream>
 #include <vector>
 
-#include "expressions.hpp"
+#include "syntax.hpp"
+#include "parameter.hpp"
 
 #define INDENT "    " /* Use four spaces to indent */
 
@@ -27,7 +28,8 @@ enum class AASTNodeType {
     Funcall,
     Value,
     Declaration,
-    Operator
+    Operator,
+    Cast
     
 };
 
@@ -39,6 +41,7 @@ class AASTFuncall;
 class AASTValue;
 class AASTDeclaration;
 class AASTOperator;
+class AASTCast;
 
 class AASTNode {
     
@@ -161,6 +164,20 @@ public:
     
     AASTOperator(const std::string & op, const std::string & type, const std::vector<AASTNode *> parameters);
     ~AASTOperator();
+    
+    std::string value(int baseIndent = 0) const;
+    
+};
+
+class AASTCast : public AASTNode {
+    
+    const AASTNode * _value;
+    const std::string _desiredType;
+    
+public:
+    
+    AASTCast(const AASTNode * value, const std::string desiredType);
+    ~AASTCast();
     
     std::string value(int baseIndent = 0) const;
     

@@ -22,6 +22,7 @@
 #include "parameter.hpp"
 #include "contains.hpp"
 #include "syntax.hpp"
+#include "aast_node.hpp"
 
 
 namespace expr {
@@ -103,14 +104,18 @@ namespace expr {
     std::vector<std::string> inlineC(std::vector<parameter> & params);
     
     /* + - * / mod on ints, + - * / on nums */
-    parameter binaryOperator(std::vector<parameter> & params, std::string & op);
+    AASTOperator binaryOperator(const std::vector<AASTNode *> & params, const std::string & op);
+    AASTOperator mod(const std::vector<AASTNode *> & params);
+    AASTOperator comparison(const std::vector<AASTNode *> & params, const std::string & op);
+    AASTOperator set(const AASTNode * lvalue, const AASTNode * rvalue);
+    
     /* % in C can only be used on ints */
     parameter numMod(std::vector<parameter> & nums);
     
     parameter comparison(std::string & op, std::vector<parameter> & params);
     
-    parameter unaryOperator(parameter & param, std::string & op);
-    parameter parameterless_operator(std::string & op);
+    AASTOperator unaryOperator(const AASTNode * param, const std::string & op);
+    AASTOperator parameterless_operator(const std::string & op);
 
 }
 

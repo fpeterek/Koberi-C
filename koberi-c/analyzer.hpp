@@ -17,7 +17,7 @@
 #include "analyzed_abstract_syntax_tree.hpp"
 #include "aast_node.hpp"
 #include "traversable_ast.hpp"
-#include "expressions.cpp"
+#include "expressions.hpp"
 #include "exceptions.cpp"
 
 class Analyzer {
@@ -48,7 +48,7 @@ class Analyzer {
     AASTOperator inlineC(std::vector<AASTNode *> & parameters);
     
     /* Casts objects to their superclasses/inheriting classes and int <-> num */
-    AASTValue cast(AASTNode * valueToCast, const std::string & type);
+    AASTNode * cast(AASTNode * valueToCast, const std::string & type);
     
     /* New operator, which creates a new object on heap */
     AASTOperator newObject(const std::string & type);

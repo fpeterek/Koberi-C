@@ -63,68 +63,137 @@ parameter expr::setNumValue(std::string & var, std::string & value) {
     
 }
 
-parameter expr::binaryOperator(std::vector<parameter> & params, std::string & op) {
+AASTOperator expr::mod(const std::vector<AASTNode *> & params) {
     
-    if (op == "mod") {
+    for (auto & param : params) {
         
-        for (auto & param : params) {
-            
-            /* If at least one of the parameters is a floating point number, call fmod() */
-            if (param.type == "num") {
-                return expr::numMod(params);
-            }
-            
+        /* If at least one of the parameters is a floating point number, call fmod() */
+        if (not expr::isNumericalType(param->type())) {
+            throw invalid_call("mod", "Error: can't call mod on non-numerical types. ");
+        }
+        
+        if (param->type() == "num") {
+            return AASTOperator("fmod", "num", params);
         }
         
     }
     
+    return AASTOperator("%", "num", params);
+    
+}
+
+AASTOperator expr::comparison(const std::vector<AASTNode *> & params, const std::string & op) {
+    
+    /* Check if parameters are of numerical or pointer type, therefore comparable */
+    for (auto & param : params) {
+        
+        if (not (expr::isNumericalType(param->type()) or syntax::isPointerType(param->type()))) {
+            throw invalid_call("mod", "Error: can't call mod on non-numerical types. ");
+        }
+        
+    }
+    
+    return AASTOperator("fmod", "num", params);
+    
+}
+
+AASTOperator expr::binaryOperator(const std::vector<AASTNode *> & params, const std::string & op) {
+    
+    if (op == "mod") {
+        return mod(params);
+    }
+    
     if (op == ">" or op == ">=" or op == "<" or op == "<=" or op == "equals" or op == "not_eq") {
-        return comparison(op, params);
+        return comparison(params, binary_operators_map.at(op));
     }
     
     if (op == "set" and params.size() != 2) {
         std::string str = "(set";
         for (auto & i : params) {
-            str += " " + i.value;
+            str += " " + i->value();
         }
         str += ")";
         throw invalid_operator(str);
     }
     
-    parameter val;
-    val.type = "void";
+    if (op == "set") {
+        
+        const AASTNode * lvalue = params[0];
+        const AASTNode * rvalue = params[1];
+        return set(lvalue, rvalue);
+        
+    }
     
     const std::string oper = binary_operators_map.at(op);
     
-    if (op == "set" and params[0].type.back() == syntax::pointerChar and params[1].type.back() != syntax::pointerChar) {
-        params[0].value = "(*" + params[0].value + ")";
-    } else if (op == "set" and params[0].type.back() != syntax::pointerChar and params[1].type.back() == syntax::pointerChar) {
+    return AASTOperator(binary_operators_map.at(op), params[0]->type(), params);
+    
+}
+
+AASTOperator expr::set(const AASTNode * lvalue, const AASTNode * rvalue) {
+    
+    /* If one value is a pointer and the other isn't dereference the pointer and check types */
+    
+    /* If value on left is a pointer */
+    if (lvalue->type().back() == syntax::pointerChar and
+        lvalue->type().back() != syntax::pointerChar) {
         
-        if (params[0].value.substr(0, 2) == "(*" and params[0].value.back() == ')') {
-            params[0].value = params[0].value.substr(2);
-            params[0].value.pop_back();
-        } else {
-            throw invalid_parameter("Cannot assign value of type " + params[1].type +
-                                    " to variable of type " + params[0].type);
+        /* Get type of dereferenced left value */
+        const std::string lvalueType = lvalue->type().substr(0, lvalue->type().size() - 1);
+        
+        /* Derefence value on the left side */
+        AASTOperator * derefLvalue = new AASTOperator("&", lvalueType,
+                                                 std::vector<AASTNode *>( { const_cast<AASTNode *>(lvalue) } ));
+        
+        /* Throw if types aren't equal */
+        if (not (isNumericalType(lvalueType) and isNumericalType(rvalue->type()))
+            or lvalueType != rvalue->type()) {
+            throw type_mismatch("Can't assign value of type " + rvalue->type() + " to variable of type " + lvalueType);
         }
+        
+        return AASTOperator("=",
+                            lvalueType,
+                            std::vector<AASTNode *>( { derefLvalue,
+                                                       const_cast<AASTNode *>(rvalue)
+                                                     }));
+        
+    }
+    /* If value on right is a pointer */
+    else if (lvalue->type().back() != syntax::pointerChar and
+               rvalue->type().back() == syntax::pointerChar) {
+        
+        /* Get type of dereferenced right value */
+        const std::string rvalueType = rvalue->type().substr(0, rvalue->type().size() - 1);
+        
+        /* Derefence value on the right side */
+        AASTOperator * derefRvalue = new AASTOperator("&", rvalueType,
+                                                      std::vector<AASTNode *>( { const_cast<AASTNode *>(rvalue) } ));
+        
+        /* Throw if types aren't equal */
+        if (not (isNumericalType(rvalueType) and isNumericalType(lvalue->type()))
+            or rvalueType != lvalue->type()) {
+            throw type_mismatch("Can't assign value of type " + lvalue->type() + " to variable of type " + rvalueType);
+        }
+        
+        return AASTOperator("=",
+                            lvalue->type(),
+                            std::vector<AASTNode *>( { const_cast<AASTNode *>(lvalue),
+                                                       derefRvalue,
+                                                     }));
         
     }
     
-    val.value = "(" + params[0].value;
-    val.type = params[0].type;
-    
-    for ( int i = 1; i < params.size() - 1; ++i ) {
-        
-        val.value += " " + oper + " " + params[i].value;
-        
-        if (params[i].value == "num") {
-            val.value = "num";
-        }
-        
+    /* Check if types are equal */
+    if (not (isNumericalType(lvalue->type()) and isNumericalType(rvalue->type()))
+        or lvalue->type() != rvalue->type()) {
+        throw type_mismatch("Can't assign value of type " + lvalue->type() + " to variable of type " + rvalue->type());
     }
-    val.value += " " + oper + " " + params.back().value + ")";
     
-    return val;
+    return AASTOperator("=",
+                        lvalue->type(),
+                        std::vector<AASTNode *>( { const_cast<AASTNode *>(lvalue),
+                                                   const_cast<AASTNode *>(rvalue)
+                                                 } ));
     
 }
 
@@ -267,12 +336,12 @@ std::vector<std::string> expr::inlineC(std::vector<parameter> &params) {
     
 }
 
-parameter expr::unaryOperator(parameter & param, std::string & op) {
+AASTOperator expr::unaryOperator(const AASTNode * param, const std::string & op) {
     
-    parameter val;
+    std::string type;
     
-    if (op == "compl" and param.type == "num") {
-        invalid_parameter("Invalid parameter in call (compl " + param.value +
+    if (op == "compl" and param->type() == "num") {
+        invalid_parameter("Invalid parameter in call (compl " + param->value() +
                           "): Operator compl doesn't accept parameters of type num");
     }
     
@@ -280,30 +349,28 @@ parameter expr::unaryOperator(parameter & param, std::string & op) {
     /* Arithmetical negation, binary complement incrementing and decrementing return value of the same type */
     /* Logical negation and size_of return an integer                                                       */
     if (op == "return") {
-        val.type = "void";
+        type = "void";
     } else if (op == "-" or op == "inc" or op == "dec" or op == "compl") {
-        val.type = param.type;
+        type = param->type();
     } else if (op == "&") {
-        val.type = param.type + syntax::pointerChar;
+        type = param->type() + syntax::pointerChar;
     } else {
-        val.type = syntax::intType;
+        type = syntax::intType;
     }
     
-    std::string oper = unary_operators_map.at(op);
     if (op == "-") {
         if (not isNumericalType(op)) {
-            invalid_call("(" + op + " " + param.value + ")", "Unary operator - must receive a parameter of numerical type");
+            invalid_call("(" + op + " " + param->value() + ")", "Unary operator - must receive a parameter of numerical type");
         }
-        val.value = "((" + param.value + ") * (-1))";
-    } else {
-        val.value = oper + "( " + param.value + " )";
     }
+    std::vector<AASTNode *> params;
+    AASTNode * p = const_cast<AASTNode*>(param);
+    params.emplace_back(p);
     
-    return val;
+    return AASTOperator(unary_operators_map.at(op), type, params);
     
 }
 
-parameter expr::parameterless_operator(std::string & op) {
-    parameter param(op, "void");
-    return param;
+AASTOperator expr::parameterless_operator(const std::string & op) {
+    return AASTOperator(op, "void", std::vector<AASTNode*>());
 }

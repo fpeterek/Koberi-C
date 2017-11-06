@@ -230,7 +230,7 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
             
             type = ((ASTVariable*)funcall.parameters[1])->name;
             
-            return (AASTNode *)new AASTValue(cast(p, type));
+            return cast(p, type);
             
         }
         
@@ -462,7 +462,7 @@ AASTFuncall Analyzer::getDestructor(AASTNode * object) {
     
     
     if (object->type() != m.className) {
-        object = (AASTNode *)new AASTValue(cast(object, m.className));
+        object = cast(object, m.className);
     }
     
     std::vector<AASTNode *> objectVector;
@@ -475,9 +475,154 @@ AASTFuncall Analyzer::getDestructor(AASTNode * object) {
 }
 
 
-AASTValue Analyzer::cast(AASTNode * valueToCast, const std::string & type) {
+AASTNode * Analyzer::cast(AASTNode * valueToCast, const std::string & type) {
     
-    return AASTValue("value", "type");
+    /* No cast needed if types are equal */
+    if (valueToCast->type() == type) {
+        return valueToCast;
+    }
+    
+    /* If both values are pointers, they can be casted via void*, allow cast */
+    else if ( syntax::isPointerType(valueToCast->type()) and syntax::isPointerType(type)) {
+        return new AASTCast(valueToCast, type);
+    }
+    
+    /* If both values are numerical types, allow cast */
+    else if (expr::isNumericalType(type) and expr::isNumericalType(valueToCast->type())) {
+        return new AASTCast(valueToCast, type);
+    }
+    
+    /* Check if classes are related, doesn't matter which one inherits from which */
+    /* If one class does inherit from another, cast via void*                     */
+    else if (_ast.hasSuperclass(valueToCast->type(), type) or
+             _ast.hasSuperclass(type, valueToCast->type())) {
+        
+        AASTOperator * objectAddress = new AASTOperator("&", type, std::vector<AASTNode *>( { valueToCast } ));
+        return new AASTCast(objectAddress, type);
+        
+    }
+    
+    throw invalid_cast(valueToCast->type(), type);
+    
+}
+
+AASTOperator Analyzer::analyzeOperator(const std::string & op, const std::vector<AASTNode *> & params) {
+    
+    const bool isParamless  = expr::isParameterlessOperator(op);
+    const bool isUnary      = expr::isUnaryOperator(op);
+    const bool isBinary     = expr::isBinaryOperator(op);
+    
+    if (isParamless) {
+        
+        if (params.size() and not (isUnary or isBinary)) {
+            throw invalid_call(op, _functionName, " Too many parameters");
+        }
+        
+        if (not params.size()) {
+            return expr::parameterless_operator(op);
+        }
+        
+    }
+    
+    if (isUnary) {
+        
+        if (not params.size()) {
+            throw invalid_call(op, _functionName, " Too few parameters");
+        } else if (params.size() > 1 and not isBinary) {
+            throw invalid_call(op, _functionName, " Too many parameters");
+        }
+        
+        if (params.size() == 1) {
+            return expr::unaryOperator(params[0], op);
+        }
+        
+    }
+    
+    if (isBinary) {
+        
+        if (params.size() < 2) {
+            throw invalid_call(op, _functionName, " Too few parameters");
+        }
+        
+        return expr::binaryOperator(params, op);
+        
+    }
+    
+    return AASTOperator("equals", "int", params);
+    
+}
+
+AASTConstruct Analyzer::analyzeConstruct(ASTConstruct & construct) {
+    
+    static const std::array<NodeType, 4> allowed_node_types = {
+        NodeType::Variable, NodeType::Literal, NodeType::MemberAccess, NodeType::FunCall
+    };
+    
+    if (contains(allowed_node_types, construct.condition->nodeType)) {
+        
+        throw invalid_syntax("Error: Invalid condition in construct " +
+                             construct.construct + " in function " + _functionName);
+    }
+    
+    AASTNode * condition = nullptr;
+    
+    /* Analyze condition if construct isn't else           */
+    /* Else doesn't have a condition, everything else does */
+    if (construct.construct != "else") {
+    
+        condition = analyzeFunctionNode(construct.condition);
+        if (not expr::isNumericalType(condition->type())) {
+            throw type_mismatch("Error: Conditions must be of numerical type. Construct: " +
+                                construct.construct + " Function: " + _functionName);
+        }
+        
+    }
+    
+    /* If construct is elif, expand to else if */
+    const std::string cstruct = construct.construct == "elif" ? "else if" : construct.construct;
+    
+    return AASTConstruct(cstruct, condition, analyzeScope(construct.childNodes));
+    
+}
+
+/* If type is to be inferred, inferred type is also stored in ast. */
+AASTDeclaration Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
+    
+    std::string decl;
+    
+    checkIdIsValid(declaration.name);
+    
+    std::string type = declaration.type;
+    AASTNode * value = nullptr;
+    
+    static const std::array<NodeType, 4> allowed_node_types = {
+        NodeType::Variable, NodeType::Literal, NodeType::MemberAccess, NodeType::FunCall
+    };
+    
+    if (contains(allowed_node_types, declaration.value->nodeType)) {
+        throw invalid_syntax("Error: Invalid value assigned to variable " + declaration.name +
+                             " in function " + _functionName);
+    }
+    
+    if (declaration.value != nullptr) {
+
+        value = analyzeFunctionNode(declaration.value);
+        
+        if (type == "var") {
+            type = value->value();
+        }
+        
+        if (syntax::isPointerType(type) and not syntax::isPointerType(value->type())) {
+            value = (AASTNode *)new AASTOperator("&", value->type() + syntax::pointerChar,
+                                                 std::vector<AASTNode *>( { value } ));
+        }
+        
+    }
+    
+    _ast.emplaceVariableIntoScope(parameter(declaration.name, type), declaration.parentScope);
+    
+    return AASTDeclaration("name", "type", nullptr);
+    
     
 }
 
