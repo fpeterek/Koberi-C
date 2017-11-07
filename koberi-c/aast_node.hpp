@@ -166,6 +166,7 @@ public:
     ~AASTOperator();
     
     std::string value(int baseIndent = 0) const;
+    const std::string & getOperator() const;
     
 };
 

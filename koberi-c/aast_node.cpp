@@ -236,11 +236,19 @@ AASTOperator::~AASTOperator() {
     
 }
 
+const std::string & AASTOperator::getOperator() const {
+    
+    return _operator;
+    
+}
+
 void unaryOperator(std::stringstream & stream, const std::string & op, const parameter & parameter);
 
 void binaryOperator(std::stringstream & stream,
                     const std::string & op,
-                    const std::vector<parameter> & parameters);
+                    std::vector<parameter> & parameters);
+
+void inlineC(std::stringstream & stream, const std::vector<parameter> values, const int indentLevel);
 
 std::string AASTOperator::value(int baseIndent) const {
     
@@ -249,6 +257,10 @@ std::string AASTOperator::value(int baseIndent) const {
     std::vector<parameter> values;
     for (AASTNode * param : _parameters) {
         values.emplace_back(param->value(baseIndent + 1), param->type());
+    }
+    
+    if (_operator == "_c") {
+        inlineC(stream, values, baseIndent);
     }
     
     if (not values.size()) {
@@ -267,11 +279,20 @@ std::string AASTOperator::value(int baseIndent) const {
     
 }
 
+void inlineC(std::stringstream & stream, const std::vector<parameter> values, const int indentLevel) {
+    
+    for (auto & i : values) {
+        stream << indent(indentLevel) << i.value << "\n";
+    }
+    
+}
+
 void unaryOperator(std::stringstream & stream, const std::string & op, const parameter & parameter) {
     
     if (op == "-") {
         stream << "((" << parameter.value << ") * (-1))";
-    } else if (op == "&") {
+    }
+    else if (op == "&") {
         
         if (syntax::isPointerType(parameter.type)) {
             stream << parameter.value;
@@ -279,58 +300,80 @@ void unaryOperator(std::stringstream & stream, const std::string & op, const par
             stream << "(&" << parameter.value << ")";
         }
         
-    } else {
+    }
+    else if (op == "new") {
+        stream << "((" + parameter.value +  ")malloc(sizeof(" + parameter.value + ")))";
+    }
+    else {
         stream << op << "( " << parameter.value << " )";
     }
     
 }
 
 void fmodOperator(std::stringstream & stream,
-                  const std::vector<parameter> & parameters) {
+                  std::vector<parameter> & parameters) {
     
+    if ( not parameters.size() ) {
+        return;
+    }
+    if ( parameters.size() == 1 ) {
+        stream << parameters[0].value;
+        return;
+        
+    }
     
+    parameter val;
+    val.value = "fmod(" + parameters[0].value + ", " + parameters[1].value + ")";
+    
+    auto iter = parameters.begin();
+    parameters.erase(iter);
+    parameters.erase(iter);
+    parameters.insert(iter, val.value);
+    
+    return fmodOperator(stream, parameters);
     
 }
 
-void ltGt(std::stringstream & stream,
-          const std::string & op,
-          const std::vector<parameter> & parameters) {
+void comparison(std::stringstream & stream,
+                const std::string & op,
+                const std::vector<parameter> & parameters) {
+    
+    for (size_t i = 1; i < parameters.size(); ++i) {
+        
+        stream << parameters[i - 1].value << " " << op << " " <<
+                  parameters[i].value << ((i < parameters.size() - 1) ? " && " : "");
+    
+    }
     
 }
 
 void set(std::stringstream & stream,
          const std::vector<parameter> & parameters) {
     
-}
-
-void equality(std::stringstream & stream,
-              const std::string & op,
-              const std::vector<parameter> & parameters) {
+    stream << parameters[0].value << " = " << parameters[1].value;
     
 }
 
 void dereference(std::stringstream & stream, const AASTNode * parameter) {
     
+    
+    
 }
 
 void binaryOperator(std::stringstream & stream,
                     const std::string & op,
-                    const std::vector<parameter> & parameters) {
+                    std::vector<parameter> & parameters) {
     
     if (op == "fmod") {
         return fmodOperator(stream, parameters);
     }
     
-    if (op == "<" or op == ">" or op == "<=" or op == ">=") {
-        return ltGt(stream, op, parameters);
+    if (op == "<" or op == ">" or op == "<=" or op == ">=" or op == "==" or op == "!=") {
+        return comparison(stream, op, parameters);
     }
     
-    if (op == "set") {
+    if (op == "=") {
         return set(stream, parameters);
-    }
-    
-    if (op == "equals" or op == "not_eq") {
-        return equality(stream, op == "equals" ? "==" : "!=", parameters);
     }
     
 }

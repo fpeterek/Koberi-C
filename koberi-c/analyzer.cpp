@@ -8,6 +8,10 @@
 
 #include "analyzer.hpp"
 
+Analyzer::Analyzer(TraversableAbstractSyntaxTree & ast, AnalyzedAbstractSyntaxTree & aast) : _ast(ast), _aast(aast) {
+    
+}
+
 void Analyzer::kobericMainCheck() {
     
     std::string type;
@@ -263,7 +267,7 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
         return (AASTNode *)new AASTOperator(analyzePrint(params));
     }
     if (name == "_c" and funcall.object == nullptr) {
-        return (AASTNode *)new AASTOperator(inlineC(params));
+        return (AASTNode *)new AASTOperator(inlineC(params, funcall));
     }
     
     {
@@ -271,6 +275,13 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
         /* If function exists, create valid C function call from provided parameters                  */
         std::vector<std::string> paramTypes;
         for (AASTNode * node : params) {
+            /* Derefence pointer if param is a pointer and address isn't accessed explicitely */
+            if (syntax::isPointerType(node->type()) and not (node->nodeType() == AASTNodeType::Operator
+                and ((AASTOperator*)node)->getOperator() == "&") ) {
+                
+                node = new AASTOperator("*", node->type().substr(0, node->type().size() - 1), std::vector<AASTNode*>({ node }));
+            
+            }
             paramTypes.emplace_back(node->type());
         }
         name = NameMangler::mangleName(name, paramTypes);
@@ -548,7 +559,9 @@ AASTOperator Analyzer::analyzeOperator(const std::string & op, const std::vector
         
     }
     
-    return AASTOperator("equals", "int", params);
+    // return AASTOperator("equals", "int", params);
+    
+    throw invalid_operator(op);
     
 }
 
@@ -623,6 +636,161 @@ AASTDeclaration Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
     
     return AASTDeclaration("name", "type", nullptr);
     
+}
+
+AASTValue Analyzer::analyzeMemberAccess(ASTMemberAccess & attribute) {
+    
+    if (attribute.accessOrder.size() < 1) {
+        throw invalid_attribute_access(_functionName, "Not enough parameters.");
+    }
+    
+    parameter attr;
+    
+    AASTNode * baseValue;
+    parameter baseVal;
+    
+    if ((*attribute.accessOrder[0]).nodeType == NodeType::FunCall) {
+        
+        ASTFunCall & fcall = *((ASTFunCall*)attribute.accessOrder[0]);
+        baseValue = analyzeFunCall(fcall);
+        baseVal.type = baseValue->type();
+        baseVal.value = baseValue->value();
+        
+    } else {
+        
+        baseVal.name = ((ASTVariable*)attribute.accessOrder[0])->name;
+        baseVal.type = _ast.getVarType(baseVal.name, attribute.parentScope);
+        baseValue = new AASTValue(baseVal.name, baseVal.type);
+        
+    }
+    
+    if (attribute.accessOrder.size() > 1) {
+        
+    } else {
+        attr.type = baseVal.type;
+    }
+    
+    const bool isPtr = syntax::isPointerType(baseVal.type);
+    
+    if (isPtr) {
+        baseVal.type.pop_back();
+        baseVal.name = "(*" + baseVal.name + ")";
+    }
+    
+    std::vector<ASTNode*> accessedVars;
+    accessedVars.emplace_back(attribute.accessOrder[0]);
+    
+    attr.value = baseVal.name + ".";
+    
+    for (size_t i = 1; i < attribute.accessOrder.size(); ++i) {
+        
+        std::string & a = ((ASTVariable*)attribute.accessOrder[i])->name;
+        accessedVars.emplace_back(attribute.accessOrder[i]);
+        
+        attr.type = checkAttributesAndReturnType(baseVal, accessedVars);
+        
+        const bool isMemberPointer = syntax::isPointerType(attr.type);
+        
+        attr.value += a + (isMemberPointer ? "->" : ".");
+        
+        
+        
+    }
+    
+    /* First item is dereferenced, so if the only item is self, remove pointer char to reflect this */
+    if (attribute.accessOrder.size() == 1 and syntax::isPointerType(attr.type)) {
+        attr.type.pop_back();
+    }
+    
+    /* Pop back twice if value ends with ->, otherwise pop back once, because value ends with . */
+    if (attr.value.back() == '>') {
+        attr.value.pop_back();
+    }
+    attr.value.pop_back();
+    
+    delete baseValue;
+    
+    return AASTValue(attr.value, attr.type);
+    
+}
+
+std::string Analyzer::checkAttributesAndReturnType(parameter & var, std::vector<ASTNode*> & attributes, unsigned int iter) {
+    
+    /* Probably unnecessary */
+    /* if (iter != attributes.size() - 1) {
+     checkIsClass(var.type);
+     } */
+    
+    parameter v = var;
+    
+    if (syntax::isPointerType(var.type)) {
+        v.type.pop_back();
+        v.value = "(*" + v.value + ")";
+    }
+    
+    checkIsClass(v.type);
+    
+    std::string & attribute = ((ASTVariable*)attributes[iter])->name;
+    
+    const _class & cls = _ast.getClass(v.type);
+    
+    if (not cls.hasVar(attribute)) {
+        throw invalid_attribute_access(_functionName, "Class " + cls.className + " has no attribute " + attribute);
+    }
+    
+    std::string type = cls.getVarType(attribute);
+    
+    if (iter == attributes.size() - 1) {
+        return type;
+    }
+    
+    if (syntax::isPointerType(type)) {
+        type.pop_back();
+    }
+    
+    parameter baseVar(attribute, type);
+    
+    return checkAttributesAndReturnType(baseVar, attributes, iter + 1);
+    
+}
+
+void Analyzer::checkIsClass(std::string & className) {
+    
+    if (not _ast.isClass(className)) {
+        throw invalid_attribute_access(_functionName, className + " is not a class.");
+    }
+    
+}
+
+AASTOperator Analyzer::inlineC(std::vector<AASTNode *> & parameters, ASTFunCall & fcall) {
+    
+    for (ASTNode * p : fcall.parameters) {
+        
+        if (p->nodeType != NodeType::Literal) {
+            throw invalid_syntax("Error: Inline C must receive string literals as parameters. ");
+        }
+        
+        ASTLiteral & lit = *(ASTLiteral*)p;
+        
+        if (lit.type != syntax::pointerForType("char")) {
+            throw invalid_syntax("Error: Inline C must receive string literals as parameters. ");
+        }
+        
+    }
+    
+    return AASTOperator("_c", "void", parameters);
+    
+}
+
+AASTOperator Analyzer::newObject(const std::string & type) {
+    
+    if (not _ast.isDataType(type)) {
+        throw undefined_class(type);
+    }
+    
+    AASTValue * param = new AASTValue(type, type);
+    
+    return AASTOperator("new", syntax::pointerForType(type), std::vector<AASTNode *>( { param } ));
     
 }
 

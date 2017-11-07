@@ -65,6 +65,8 @@ parameter expr::setNumValue(std::string & var, std::string & value) {
 
 AASTOperator expr::mod(const std::vector<AASTNode *> & params) {
     
+    std::string op = "%";
+    
     for (auto & param : params) {
         
         /* If at least one of the parameters is a floating point number, call fmod() */
@@ -73,12 +75,12 @@ AASTOperator expr::mod(const std::vector<AASTNode *> & params) {
         }
         
         if (param->type() == "num") {
-            return AASTOperator("fmod", "num", params);
+            op = "fmod";
         }
         
     }
     
-    return AASTOperator("%", "num", params);
+    return AASTOperator(op, "num", params);
     
 }
 

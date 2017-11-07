@@ -45,7 +45,7 @@ const char * missing_token::what() const throw() {
 }
 
 
-invalid_operator::invalid_operator(std::string & op) {
+invalid_operator::invalid_operator(const std::string & op) {
     
     _message = "Invalid operator " + op;
     

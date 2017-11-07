@@ -23,6 +23,7 @@ void KoberiC::compile(const std::string & filename) {
     handleImports(filename);
     tokenize(filename);
     parse();
+    analyze();
     translate();
     
 }
@@ -55,6 +56,12 @@ void KoberiC::parse() {
     /* After the AST is created, there is no need to store the tokens any longer */
     /* Deleting tokens to save memory.                                           */
     _tokens = std::vector<token>();
+    
+}
+
+void KoberiC::analyze() {
+    
+    _analyzer.analyze();
     
 }
 

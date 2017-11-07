@@ -61,6 +61,7 @@ class KoberiC {
     void handleImports(const std::string & file);
     void tokenize(const std::string & filename);
     void parse();
+    void analyze();
     void translate();
     
 public:

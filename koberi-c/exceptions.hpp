@@ -49,7 +49,7 @@ public:
     
     const char * what() const throw();
     
-    invalid_operator(std::string & op);
+    invalid_operator(const std::string & op);
     
 };
 

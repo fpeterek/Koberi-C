@@ -18,7 +18,7 @@
 #include "aast_node.hpp"
 #include "traversable_ast.hpp"
 #include "expressions.hpp"
-#include "exceptions.cpp"
+#include "exceptions.hpp"
 
 class Analyzer {
     
@@ -45,7 +45,7 @@ class Analyzer {
     
     AASTOperator analyzeOperator(const std::string & op, const std::vector<AASTNode *> & params);
     AASTOperator analyzePrint(std::vector<AASTNode *> & parameters);
-    AASTOperator inlineC(std::vector<AASTNode *> & parameters);
+    AASTOperator inlineC(std::vector<AASTNode *> & parameters, ASTFunCall & fcall);
     
     /* Casts objects to their superclasses/inheriting classes and int <-> num */
     AASTNode * cast(AASTNode * valueToCast, const std::string & type);
