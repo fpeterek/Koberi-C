@@ -68,7 +68,7 @@ std::string AASTScope::value(int baseIndent) const {
 
 AASTConstruct::AASTConstruct(const std::string & construct,
                              const AASTNode * condition,
-                             const AASTScope & body) : _construct(construct),
+                             const AASTScope * body) : _construct(construct),
                                                        _condition(condition),
                                                        _body(body),
                                                        AASTNode(AASTNodeType::Construct, "") { }
@@ -87,7 +87,7 @@ std::string AASTConstruct::value(int baseIndent) const {
         stream << "(" << _condition->value(baseIndent) << ")" << "\n";
     }
     
-    stream << _body.value(baseIndent + 1);
+    stream << _body->value(baseIndent + 1);
     
     return stream.str();
     
@@ -96,7 +96,7 @@ std::string AASTConstruct::value(int baseIndent) const {
 AASTFunction::AASTFunction(const std::string & name,
                            const std::string & type,
                            const std::vector<AASTDeclaration> & parameters,
-                           const AASTScope & body) : _mangledName(name),
+                           const AASTScope * body) : _mangledName(name),
                                                      _parameters(parameters),
                                                      _body(body),
                                                      AASTNode(AASTNodeType::Function, type) { }
@@ -105,7 +105,7 @@ std::string AASTFunction::value(int baseIndent) const {
     
     std::stringstream stream;
     
-    stream << declaration() << "\n" << _body.value(baseIndent + 1);
+    stream << declaration() << "\n" << _body->value(baseIndent + 1);
     
     return stream.str();
     

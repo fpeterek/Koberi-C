@@ -347,7 +347,7 @@ const char * missing_main::what() const throw() {
 }
 
 invalid_statement::invalid_statement(const std::string & functionName) :
-    message("Error: Invalid statment in function " + functionName + ". ") { }
+    message("Error: Invalid statement in function " + functionName + ". ") { }
 
 const char * invalid_statement::what() const throw() {
     

@@ -104,18 +104,20 @@ namespace expr {
     std::vector<std::string> inlineC(std::vector<parameter> & params);
     
     /* + - * / mod on ints, + - * / on nums */
-    AASTOperator binaryOperator(const std::vector<AASTNode *> & params, const std::string & op);
-    AASTOperator mod(const std::vector<AASTNode *> & params);
-    AASTOperator comparison(const std::vector<AASTNode *> & params, const std::string & op);
-    AASTOperator set(const AASTNode * lvalue, const AASTNode * rvalue);
+    AASTOperator * binaryOperator(const std::vector<AASTNode *> & params, const std::string & op);
+    AASTOperator * mod(const std::vector<AASTNode *> & params);
+    AASTOperator * comparison(const std::vector<AASTNode *> & params, const std::string & op);
+    AASTOperator * set(const AASTNode * lvalue, const AASTNode * rvalue);
     
     /* % in C can only be used on ints */
     parameter numMod(std::vector<parameter> & nums);
     
     parameter comparison(std::string & op, std::vector<parameter> & params);
     
-    AASTOperator unaryOperator(const AASTNode * param, const std::string & op);
-    AASTOperator parameterless_operator(const std::string & op);
+    AASTOperator * unaryOperator(const AASTNode * param, const std::string & op);
+    AASTOperator * parameterless_operator(const std::string & op);
+    
+    AASTOperator * dereference(const AASTNode * param);
 
 }
 

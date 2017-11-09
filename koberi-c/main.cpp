@@ -21,12 +21,12 @@ int main(int argc, const char * argv[]) {
     
     KoberiC ks;
     
-    try {
+    // try {
         ks.compile(TEST);
         // ks.compile(file);
-    } catch (std::exception & e) {
-        print(e.what());
-    }
+    //} catch (std::exception & e) {
+    //    print(e.what());
+    //}
     
 #ifdef PRINT_TOKENS
     ks.test();

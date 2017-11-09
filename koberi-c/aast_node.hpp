@@ -76,11 +76,11 @@ class AASTConstruct : public AASTNode {
     
     const std::string _construct;
     const AASTNode * _condition;
-    const AASTScope _body;
+    const AASTScope * _body;
     
 public:
     
-    AASTConstruct(const std::string & construct, const AASTNode * condition, const AASTScope & body);
+    AASTConstruct(const std::string & construct, const AASTNode * condition, const AASTScope * body);
     ~AASTConstruct();
     
     std::string value(int baseIndent = 0) const;
@@ -91,14 +91,14 @@ class AASTFunction : public AASTNode {
     
     const std::vector<AASTDeclaration> _parameters;
     const std::string _mangledName;
-    const AASTScope _body;
+    const AASTScope * _body;
     
 public:
     
     AASTFunction(const std::string & name,
                  const std::string & type,
                  const std::vector<AASTDeclaration> & parameters,
-                 const AASTScope & body);
+                 const AASTScope * body);
     
     std::string value(int baseIndent = 0) const;
     std::string declaration() const;

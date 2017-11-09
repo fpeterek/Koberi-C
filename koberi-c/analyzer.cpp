@@ -166,7 +166,7 @@ void Analyzer::analyzeFunction(ASTFunction & function) {
     
 }
 
-AASTScope Analyzer::analyzeScope(std::vector<ASTNode *> scopeNodes) {
+AASTScope * Analyzer::analyzeScope(std::vector<ASTNode *> scopeNodes) {
     
     std::vector<AASTNode *> body;
     
@@ -176,12 +176,12 @@ AASTScope Analyzer::analyzeScope(std::vector<ASTNode *> scopeNodes) {
     }
 
     /* After translating all body nodes, call destructors on scoped objects */
-    std::vector<AASTFuncall> destructors = destructScopedObjects(scopeNodes);
-    for (AASTFuncall & i : destructors) {
-        body.emplace_back(new AASTFuncall(i));
+    std::vector<AASTFuncall *> destructors = destructScopedObjects(scopeNodes);
+    for (AASTFuncall* i : destructors) {
+        body.emplace_back(i);
     }
     
-    return AASTScope(body);
+    return new AASTScope(body);
     
 }
 
@@ -198,12 +198,12 @@ AASTNode * Analyzer::analyzeFunctionNode(ASTNode * node) {
     } else if (node->nodeType == NodeType::Construct) {
         
         ASTConstruct * c = (ASTConstruct*)node;
-        functionNode = (AASTConstruct *) new AASTConstruct(analyzeConstruct(*c));
+        functionNode = analyzeConstruct(*c);
         
     } else if (node->nodeType == NodeType::Declaration) {
         
         ASTDeclaration * d = (ASTDeclaration*)node;
-        functionNode = (AASTDeclaration *) new AASTDeclaration(analyzeDeclaration(*d));
+        functionNode = analyzeDeclaration(*d);
         
     } else {
         
@@ -242,11 +242,11 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
     
     if (name == "new" and funcall.parameters.size() == 1 and funcall.object == nullptr) {
         type = ((ASTVariable*)funcall.parameters[0])->name;
-        return (AASTNode *)new AASTOperator(newObject(type));
+        return (AASTNode *)newObject(type);
     }
     
     std::vector<AASTNode *> params;
-    
+    print(1);
     for (auto & param : funcall.parameters) {
         params.emplace_back(getFuncallParameter(param));
     }
@@ -258,16 +258,16 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
     }
     
     if (name == "delete" and funcall.object == nullptr and params.size() == 1) {
-        return (AASTNode *)new AASTScope(deleteObject(params[0]));
+        return (AASTNode *)deleteObject(params[0]);
     }
     if (expr::isOperator(name) and funcall.object == nullptr) {
-        return (AASTNode *)new AASTOperator(analyzeOperator(name, params));
+        return (AASTNode *)analyzeOperator(name, params);
     }
     if (name == "print" and funcall.object == nullptr) {
-        return (AASTNode *)new AASTOperator(analyzePrint(params));
+        return (AASTNode *)analyzePrint(params);
     }
     if (name == "_c" and funcall.object == nullptr) {
-        return (AASTNode *)new AASTOperator(inlineC(params, funcall));
+        return (AASTNode *)inlineC(params, funcall);
     }
     
     {
@@ -292,9 +292,16 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
         AASTValue object = analyzeMemberAccess(*funcall.object);
         
         /* Use & operator to access address of self */
-        AASTOperator * op = new AASTOperator(analyzeOperator("&", { (AASTNode *)new AASTValue(object) }));
+        AASTOperator * op = analyzeOperator("&", { (AASTNode *)new AASTValue(object) });
         
         params.insert(params.begin(), op);
+        
+        std::string _class = object.type();
+        if (syntax::isPointerType(_class)) {
+            _class.pop_back();
+        }
+        
+        m = _ast.getMethodReturnType(name, object.type());
         
         type = m.type;
         
@@ -365,7 +372,7 @@ AASTNode * Analyzer::getFuncallParameter(ASTNode * node) {
     
 }
 
-AASTOperator Analyzer::analyzePrint(std::vector<AASTNode *> & parameters) {
+AASTOperator * Analyzer::analyzePrint(std::vector<AASTNode *> & parameters) {
     
     
     /* If no parameters are passed print \n */
@@ -384,11 +391,11 @@ AASTOperator Analyzer::analyzePrint(std::vector<AASTNode *> & parameters) {
         
     }
     
-    return AASTOperator("print", "", parameters);
+    return new AASTOperator("print", "", parameters);
     
 }
 
-AASTScope Analyzer::deleteObject(AASTNode * object) {
+AASTScope * Analyzer::deleteObject(AASTNode * object) {
     
     
     AASTFuncall * destructor = nullptr;
@@ -406,7 +413,7 @@ AASTScope Analyzer::deleteObject(AASTNode * object) {
         
         if (_ast.hasDestructor(type)) {
             
-            destructor = new AASTFuncall(getDestructor(object));
+            destructor = getDestructor(object);
             
         }
     }
@@ -427,11 +434,11 @@ AASTScope Analyzer::deleteObject(AASTNode * object) {
         body.emplace_back((AASTNode *)setToNull);
     }
     
-    return AASTScope(body);
+    return new AASTScope(body);
     
 }
 
-std::vector<AASTFuncall> Analyzer::destructScopedObjects(std::vector<ASTNode *> scopeNodes) {
+std::vector<AASTFuncall *> Analyzer::destructScopedObjects(std::vector<ASTNode *> scopeNodes) {
     
     /* Search for variable declarations. If any variables are declared in scope,         */
     /* check if they have destructors and call the destructors to delete local variables */
@@ -448,7 +455,7 @@ std::vector<AASTFuncall> Analyzer::destructScopedObjects(std::vector<ASTNode *> 
         }
     }
     
-    std::vector<AASTFuncall> destructorCalls;
+    std::vector<AASTFuncall *> destructorCalls;
     
     for (auto & i : declarations) {
         
@@ -464,24 +471,29 @@ std::vector<AASTFuncall> Analyzer::destructScopedObjects(std::vector<ASTNode *> 
     
 }
 
-AASTFuncall Analyzer::getDestructor(AASTNode * object) {
+AASTFuncall * Analyzer::getDestructor(AASTNode * object) {
     
-    method m = _ast.getMethodReturnType("destruct", object->type());
+    std::string _class = object->type();
+    if (syntax::isPointerType(_class)) {
+        _class.pop_back();
+    }
     
-    std::string destructorName = NameMangler::mangleName("destruct", std::vector<std::string>( { m.className } ));
-    destructorName = NameMangler::premangleMethodName(destructorName, m.className);
+    std::string destructorName = NameMangler::mangleName("destruct", std::vector<std::string>());
     
+    method m = _ast.getMethodReturnType(destructorName, _class);
     
-    if (object->type() != m.className) {
+    destructorName = NameMangler::premangleMethodName(destructorName, _class);
+    
+    if (_class != m.className) {
         object = cast(object, m.className);
     }
     
     std::vector<AASTNode *> objectVector;
     objectVector.emplace_back(object);
     
-    AASTNode * objectAddress = (AASTNode *)new AASTOperator(analyzeOperator("&", objectVector));
+    AASTNode * objectAddress = (AASTNode *)analyzeOperator("&", objectVector);
     
-    return AASTFuncall(destructorName, m.type, std::vector<AASTNode *>( { objectAddress } ));
+    return new AASTFuncall(destructorName, m.type, std::vector<AASTNode *>( { objectAddress } ));
     
 }
 
@@ -517,7 +529,7 @@ AASTNode * Analyzer::cast(AASTNode * valueToCast, const std::string & type) {
     
 }
 
-AASTOperator Analyzer::analyzeOperator(const std::string & op, const std::vector<AASTNode *> & params) {
+AASTOperator * Analyzer::analyzeOperator(const std::string & op, const std::vector<AASTNode *> & params) {
     
     const bool isParamless  = expr::isParameterlessOperator(op);
     const bool isUnary      = expr::isUnaryOperator(op);
@@ -565,13 +577,13 @@ AASTOperator Analyzer::analyzeOperator(const std::string & op, const std::vector
     
 }
 
-AASTConstruct Analyzer::analyzeConstruct(ASTConstruct & construct) {
+AASTConstruct * Analyzer::analyzeConstruct(ASTConstruct & construct) {
     
     static const std::array<NodeType, 4> allowed_node_types = {
         NodeType::Variable, NodeType::Literal, NodeType::MemberAccess, NodeType::FunCall
     };
     
-    if (contains(allowed_node_types, construct.condition->nodeType)) {
+    if (not contains(allowed_node_types, construct.condition->nodeType)) {
         
         throw invalid_syntax("Error: Invalid condition in construct " +
                              construct.construct + " in function " + _functionName);
@@ -583,9 +595,10 @@ AASTConstruct Analyzer::analyzeConstruct(ASTConstruct & construct) {
     /* Else doesn't have a condition, everything else does */
     if (construct.construct != "else") {
     
-        condition = analyzeFunctionNode(construct.condition);
-        if (not expr::isNumericalType(condition->type())) {
-            throw type_mismatch("Error: Conditions must be of numerical type. Construct: " +
+        condition = getFuncallParameter(construct.condition);
+        
+        if (not (expr::isNumericalType(condition->type()) or syntax::isPointerType(condition->type()))) {
+            throw type_mismatch("Error: Conditions must be of numerical or pointer type. Construct: " +
                                 construct.construct + " Function: " + _functionName);
         }
         
@@ -594,12 +607,12 @@ AASTConstruct Analyzer::analyzeConstruct(ASTConstruct & construct) {
     /* If construct is elif, expand to else if */
     const std::string cstruct = construct.construct == "elif" ? "else if" : construct.construct;
     
-    return AASTConstruct(cstruct, condition, analyzeScope(construct.childNodes));
+    return new AASTConstruct(cstruct, condition, analyzeScope(construct.childNodes));
     
 }
 
 /* If type is to be inferred, inferred type is also stored in ast. */
-AASTDeclaration Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
+AASTDeclaration * Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
     
     std::string decl;
     
@@ -612,17 +625,17 @@ AASTDeclaration Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
         NodeType::Variable, NodeType::Literal, NodeType::MemberAccess, NodeType::FunCall
     };
     
-    if (contains(allowed_node_types, declaration.value->nodeType)) {
-        throw invalid_syntax("Error: Invalid value assigned to variable " + declaration.name +
-                             " in function " + _functionName);
-    }
-    
     if (declaration.value != nullptr) {
 
-        value = analyzeFunctionNode(declaration.value);
+        if (not contains(allowed_node_types, declaration.value->nodeType)) {
+            throw invalid_syntax("Error: Invalid value assigned to variable " + declaration.name +
+                                 " in function " + _functionName);
+        }
+        
+        value = getFuncallParameter(declaration.value);
         
         if (type == "var") {
-            type = value->value();
+            type = value->type();
         }
         
         if (syntax::isPointerType(type) and not syntax::isPointerType(value->type())) {
@@ -634,7 +647,7 @@ AASTDeclaration Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
     
     _ast.emplaceVariableIntoScope(parameter(declaration.name, type), declaration.parentScope);
     
-    return AASTDeclaration("name", "type", nullptr);
+    return new AASTDeclaration("name", "type", nullptr);
     
 }
 
@@ -762,7 +775,7 @@ void Analyzer::checkIsClass(std::string & className) {
     
 }
 
-AASTOperator Analyzer::inlineC(std::vector<AASTNode *> & parameters, ASTFunCall & fcall) {
+AASTOperator * Analyzer::inlineC(std::vector<AASTNode *> & parameters, ASTFunCall & fcall) {
     
     for (ASTNode * p : fcall.parameters) {
         
@@ -778,11 +791,11 @@ AASTOperator Analyzer::inlineC(std::vector<AASTNode *> & parameters, ASTFunCall 
         
     }
     
-    return AASTOperator("_c", "void", parameters);
+    return new AASTOperator("_c", "void", parameters);
     
 }
 
-AASTOperator Analyzer::newObject(const std::string & type) {
+AASTOperator * Analyzer::newObject(const std::string & type) {
     
     if (not _ast.isDataType(type)) {
         throw undefined_class(type);
@@ -790,7 +803,7 @@ AASTOperator Analyzer::newObject(const std::string & type) {
     
     AASTValue * param = new AASTValue(type, type);
     
-    return AASTOperator("new", syntax::pointerForType(type), std::vector<AASTNode *>( { param } ));
+    return new AASTOperator("new", syntax::pointerForType(type), std::vector<AASTNode *>( { param } ));
     
 }
 
