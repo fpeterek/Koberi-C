@@ -81,13 +81,13 @@ std::string AASTConstruct::value(int baseIndent) const {
     
     std::stringstream stream;
     
-    stream << indent(baseIndent) << _construct;
+    stream << indent(baseIndent - 1) << _construct;
     
     if (_construct != "else") {
-        stream << "(" << _condition->value(baseIndent) << ")" << "\n";
+        stream << " (" << _condition->value(0) << ")";
     }
     
-    stream << _body->value(baseIndent + 1);
+    stream  << "\n" << _body->value(baseIndent);
     
     return stream.str();
     
@@ -105,7 +105,7 @@ std::string AASTFunction::value(int baseIndent) const {
     
     std::stringstream stream;
     
-    stream << declaration() << "\n" << _body->value(baseIndent + 1);
+    stream << declaration() << "\n" << _body->value(baseIndent);
     
     return stream.str();
     
@@ -121,7 +121,7 @@ std::string AASTFunction::declaration() const {
         
         const AASTDeclaration & param = _parameters[i];
         
-        stream << param.type() << " " << param.value() << (i < _parameters.size() - 1 ? ", " : "");
+        stream << param.value() << (i < _parameters.size() - 1 ? ", " : "");
         
     }
     
@@ -143,7 +143,7 @@ std::string AASTClass::value(int baseIndent) const {
     stream << "typedef struct " << _name << "\n" << "{" << "\n";
     
     for (const AASTDeclaration & attribute : _attributes) {
-        stream << indent(baseIndent) << attribute.value(baseIndent + 1) << ";";
+        stream << indent(baseIndent + 1) << attribute.value(baseIndent + 1) << ";\n";
     }
     
     stream << "} " << _name << ";" << "\n";
@@ -181,7 +181,7 @@ std::string AASTFuncall::value(int baseIndent) const {
     }
     
     stream << ")";
-    
+    std::cout << stream.str() << std::endl;
     return stream.str();
     
 }
@@ -215,8 +215,6 @@ std::string AASTDeclaration::value(int baseIndent) const {
     if (_value != nullptr) {
         stream << " = " << _value->value(baseIndent + 1);
     }
-    
-    stream << ";";
     
     return stream.str();
     

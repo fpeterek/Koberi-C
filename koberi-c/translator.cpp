@@ -39,24 +39,24 @@ void Translator::typedefs() {
 
 void Translator::translateClasses() {
     
-    const std::vector<AASTClass> & classes = _aast.getClasses();
+    const std::vector<AASTClass *> & classes = _aast.getClasses();
     
     _output << "\n\n" << "/* Classes */" << "\n\n";
     
-    for (auto & cls : classes) {
-        _output << cls.value() << std::endl;
+    for (AASTClass * cls : classes) {
+        _output << cls->value() << std::endl;
     }
     
 }
 
 void Translator::translateGlobals() {
     
-    const std::vector<AASTDeclaration> & declarations = _aast.getDeclarations();
+    const std::vector<AASTDeclaration *> & declarations = _aast.getDeclarations();
     
     _output << "\n\n" << "/* Global Variables */" << "\n\n";
     
-    for (auto & declaration : declarations) {
-        _output << declaration.value() << "\n";
+    for (AASTDeclaration * declaration : declarations) {
+        _output << declaration->value() << ";\n";
     }
     
     std::endl(_output);
@@ -67,11 +67,11 @@ void Translator::translateFunctionDeclarations() {
     
     _output << "\n\n" << "/* Function Declarations */" << "\n\n";
     
-    const std::vector<AASTFunction> & functions = _aast.getFunctions();
+    const std::vector<AASTFunction *> & functions = _aast.getFunctions();
     
-    for (auto & function : functions) {
+    for (AASTFunction * function : functions) {
         
-        _output << function.declaration() << ";\n";
+        _output << function->declaration() << ";\n";
         
     }
     
@@ -83,10 +83,10 @@ void Translator::translateFunctions() {
     
     _output << "\n\n" << "/* Function Definitionss */" << "\n\n";
     
-    const std::vector<AASTFunction> & functions = _aast.getFunctions();
+    const std::vector<AASTFunction *> & functions = _aast.getFunctions();
     
-    for (auto & function : functions) {
-        _output << function.value() << "\n" << std::endl;
+    for (AASTFunction * function : functions) {
+        _output << function->value() << "\n" << std::endl;
     }
     
 }

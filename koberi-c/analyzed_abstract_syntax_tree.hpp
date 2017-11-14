@@ -16,19 +16,21 @@
 
 class AnalyzedAbstractSyntaxTree {
     
-    std::vector<AASTClass> _classes;
-    std::vector<AASTDeclaration> _globalDeclarations;
-    std::vector<AASTFunction> _functions;
+    std::vector<AASTClass *> _classes;
+    std::vector<AASTDeclaration *> _globalDeclarations;
+    std::vector<AASTFunction *> _functions;
     
 public:
     
-    void emplaceClass(AASTClass & c);
-    void emplaceGlobalDeclaration(AASTDeclaration & declaration);
-    void emplaceFunction(AASTFunction & function);
+    void emplaceClass(AASTClass * c);
+    void emplaceGlobalDeclaration(AASTDeclaration * declaration);
+    void emplaceFunction(AASTFunction * function);
     
-    const std::vector<AASTClass> & getClasses();
-    const std::vector<AASTDeclaration> & getDeclarations();
-    const std::vector<AASTFunction> & getFunctions();
+    const std::vector<AASTClass *> & getClasses();
+    const std::vector<AASTDeclaration *> & getDeclarations();
+    const std::vector<AASTFunction *> & getFunctions();
+    
+    ~AnalyzedAbstractSyntaxTree();
     
 };
 

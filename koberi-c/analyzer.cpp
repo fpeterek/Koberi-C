@@ -50,7 +50,7 @@ void Analyzer::analyzeClasses() {
             
         }
         
-        AASTClass _class(cls.className, attributes);
+        AASTClass * _class = new AASTClass(cls.className, attributes);
         _aast.emplaceClass(_class);
         
     }
@@ -70,7 +70,7 @@ void Analyzer::analyzeGlobalVars() {
             ASTDeclaration * decl = (ASTDeclaration*)node;
             checkIdIsValid(decl->name);
             
-            AASTDeclaration declaration(decl->name, decl->type, nullptr);
+            AASTDeclaration * declaration = new AASTDeclaration(decl->name, decl->type, nullptr);
             _aast.emplaceGlobalDeclaration(declaration);
             
         }
@@ -160,7 +160,10 @@ void Analyzer::analyzeFunction(ASTFunction & function) {
         parameters.emplace_back(AASTDeclaration(params[i].name, params[i].type, nullptr));
     }
     
-    AASTFunction analyzedFunction(name, function.type, parameters, analyzeScope(function.childNodes));
+    AASTFunction * analyzedFunction = new AASTFunction(name,
+                                                       function.type,
+                                                       parameters,
+                                                       analyzeScope(function.childNodes));
     
     _aast.emplaceFunction(analyzedFunction);
     
@@ -246,7 +249,7 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
     }
     
     std::vector<AASTNode *> params;
-    print(1);
+    // print(1);
     for (auto & param : funcall.parameters) {
         params.emplace_back(getFuncallParameter(param));
     }
@@ -634,8 +637,9 @@ AASTDeclaration * Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
         
         value = getFuncallParameter(declaration.value);
         
-        if (type == "var") {
+        if (type == "var" or type == syntax::pointerForType("var")) {
             type = value->type();
+            declaration.type = type;
         }
         
         if (syntax::isPointerType(type) and not syntax::isPointerType(value->type())) {
