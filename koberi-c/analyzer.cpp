@@ -195,8 +195,7 @@ AASTNode * Analyzer::analyzeFunctionNode(ASTNode * node) {
     if (node->nodeType == NodeType::FunCall) {
         
         ASTFunCall * funcall = (ASTFunCall*)node;
-        const AASTFuncall & fcall = *((AASTFuncall *)analyzeFunCall(*funcall));
-        functionNode = (AASTNode *) new AASTFuncall(fcall);
+        functionNode = analyzeFunCall(*funcall);
         
     } else if (node->nodeType == NodeType::Construct) {
         
@@ -428,7 +427,7 @@ AASTScope * Analyzer::deleteObject(AASTNode * object) {
     
     
     if (object->nodeType() != AASTNodeType::Funcall) {
-        setToNull = new AASTOperator("set", "void", std::vector<AASTNode *>( { object } ));
+        setToNull = new AASTOperator("=", "void", std::vector<AASTNode *>( { object } ));
     }
     
     std::vector<AASTNode *> body = { (AASTNode *)destructor, (AASTNode *)free };

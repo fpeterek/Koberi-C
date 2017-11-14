@@ -246,7 +246,9 @@ void binaryOperator(std::stringstream & stream,
                     const std::string & op,
                     std::vector<parameter> & parameters);
 
-void inlineC(std::stringstream & stream, const std::vector<parameter> values, const int indentLevel);
+void inlineC(std::stringstream & stream, const std::vector<parameter> & values, const int indentLevel);
+
+void print(std::stringstream & stream, const std::vector<parameter> & values, const int indentLevel);
 
 std::string AASTOperator::value(int baseIndent) const {
     
@@ -261,7 +263,11 @@ std::string AASTOperator::value(int baseIndent) const {
         inlineC(stream, values, baseIndent);
     }
     
-    if (not values.size()) {
+    else if (_operator == "print") {
+        print(stream, values, baseIndent);
+    }
+    
+    else if (not values.size()) {
         stream << _operator;
     }
     
@@ -277,10 +283,88 @@ std::string AASTOperator::value(int baseIndent) const {
     
 }
 
-void inlineC(std::stringstream & stream, const std::vector<parameter> values, const int indentLevel) {
+void print(std::stringstream & stream, const std::vector<parameter> & values, const int indentLevel) {
+    
+    size_t c = 0;
+    
+    for (auto & p : values) {
+        
+        /* First value is indented automatically, others need to be indented manually */
+        if (c) {
+            stream << indent(indentLevel);
+        }
+        
+        if (p.type == syntax::pointerForType("char")) {
+            stream << "fputs(stdout, " + p.value + ")";
+        } else if (p.type == "char" or p.type == "uchar") {
+            stream << "putchar(" + p.value + ")";
+        } else if (p.type == "int") {
+            stream << "printf(\"%lld\", " + p.value + ")";
+        } else if (p.type == "uint") {
+            stream << "printf(\"%ull\", " + p.value + ")";
+        } else if (p.type == "num") {
+            stream << "printf(\"%f\", " + p.value + ")";
+        }
+        
+        ++c;
+        
+        if (c != values.size()) {
+            stream << ";\n";
+        }
+        
+    }
+    
+    
+}
+
+void removeEscape(std::string & str) {
+    
+    std::stringstream ss;
+    
+    bool isEscape = false;
+    for (char c : str) {
+        
+        if (c == '\\' and not isEscape) {
+            isEscape = true;
+        } else {
+            isEscape = false;
+        }
+        
+        if (isEscape) {
+            continue;
+        }
+        
+        ss << c;
+        
+    }
+    
+    str = ss.str();
+    
+}
+
+void inlineC(std::stringstream & stream, const std::vector<parameter> & values, const int indentLevel) {
+    
+    size_t c = 0;
     
     for (auto & i : values) {
-        stream << indent(indentLevel) << i.value << "\n";
+        
+        /* First value is indented automatically, others need to be indented manually */
+        if (c) {
+            stream << indent(indentLevel);
+        }
+        
+        /* Trim quotes " */
+        std::string val = i.value.c_str() + 1;
+        val.pop_back();
+        removeEscape(val);
+        
+        stream << val;
+        
+        ++c;
+        
+        if (c != values.size()) {
+            stream << "\n";
+        }
     }
     
 }
