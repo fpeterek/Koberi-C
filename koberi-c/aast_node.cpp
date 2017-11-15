@@ -383,6 +383,15 @@ void unaryOperator(std::stringstream & stream, const std::string & op, const par
         }
         
     }
+    else if (op == "*") {
+        
+        if (not syntax::isPointerType(parameter.type)) {
+            stream << parameter.value;
+        } else {
+            stream << "(*" << parameter.value << ")";
+        }
+        
+    }
     else if (op == "new") {
         stream << "((" + parameter.value +  "*)malloc(sizeof(" + parameter.value + ")))";
     }

@@ -276,10 +276,13 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
         /* Mangle name and get return type, if function doesn't exist, and exception should be thrown */
         /* If function exists, create valid C function call from provided parameters                  */
         std::vector<std::string> paramTypes;
-        for (AASTNode * node : params) {
+        for (AASTNode *& node : params) {
             /* Derefence pointer if param is a pointer and address isn't accessed explicitely */
-            if (syntax::isPointerType(node->type()) and not (node->nodeType() == AASTNodeType::Operator
-                and ((AASTOperator*)node)->getOperator() == "&") ) {
+            const bool paramIsPointer = syntax::isPointerType(node->type());
+            const bool addrIsExplicitelyAccessed = node->nodeType() == AASTNodeType::Operator and
+                                                   ((AASTOperator*)node)->getOperator() == "&";
+            
+            if (paramIsPointer and not addrIsExplicitelyAccessed ) {
                 
                 node = new AASTOperator("*", node->type().substr(0, node->type().size() - 1), std::vector<AASTNode*>({ node }));
             
