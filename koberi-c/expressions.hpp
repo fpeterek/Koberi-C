@@ -95,15 +95,17 @@ namespace expr {
     bool isNumericalType(const std::string & type);
     
     
-    AASTOperator * binaryOperator(const std::vector<AASTNode *> & params, const std::string & op);
-    AASTOperator * mod(const std::vector<AASTNode *> & params);
-    AASTOperator * comparison(const std::vector<AASTNode *> & params, const std::string & op);
+    AASTOperator * binaryOperator(std::vector<AASTNode *> & params, const std::string & op);
+    AASTOperator * mod(std::vector<AASTNode *> & params);
+    AASTOperator * comparison(std::vector<AASTNode *> & params, const std::string & op);
     AASTOperator * set(const AASTNode * lvalue, const AASTNode * rvalue);
     
-    AASTOperator * unaryOperator(const AASTNode * param, const std::string & op);
+    AASTOperator * unaryOperator(AASTNode * param, const std::string & op);
     AASTOperator * parameterless_operator(const std::string & op);
     
-    AASTOperator * dereference(const AASTNode * param);
+    AASTOperator * reference(const AASTNode * param);
+    
+    AASTNode * dereferencePtr(AASTNode * param);
 
 }
 

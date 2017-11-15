@@ -43,7 +43,7 @@ class Analyzer {
     /* Analyzes a function call, mangles the name */
     AASTNode * analyzeFunCall(ASTFunCall & funcall);
     
-    AASTOperator * analyzeOperator(const std::string & op, const std::vector<AASTNode *> & params);
+    AASTOperator * analyzeOperator(const std::string & op, std::vector<AASTNode *> & params);
     AASTOperator * analyzePrint(std::vector<AASTNode *> & parameters);
     AASTOperator * inlineC(std::vector<AASTNode *> & parameters, ASTFunCall & fcall);
     

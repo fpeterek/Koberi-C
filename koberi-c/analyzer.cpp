@@ -277,16 +277,8 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
         /* If function exists, create valid C function call from provided parameters                  */
         std::vector<std::string> paramTypes;
         for (AASTNode *& node : params) {
-            /* Derefence pointer if param is a pointer and address isn't accessed explicitely */
-            const bool paramIsPointer = syntax::isPointerType(node->type());
-            const bool addrIsExplicitelyAccessed = node->nodeType() == AASTNodeType::Operator and
-                                                   ((AASTOperator*)node)->getOperator() == "&";
             
-            if (paramIsPointer and not addrIsExplicitelyAccessed ) {
-                
-                node = new AASTOperator("*", node->type().substr(0, node->type().size() - 1), std::vector<AASTNode*>({ node }));
-            
-            }
+            node = expr::dereferencePtr(node);
             paramTypes.emplace_back(node->type());
         }
         name = NameMangler::mangleName(name, paramTypes);
@@ -297,7 +289,8 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
         AASTValue object = analyzeMemberAccess(*funcall.object);
         
         /* Use & operator to access address of self */
-        AASTOperator * op = analyzeOperator("&", { (AASTNode *)new AASTValue(object) });
+        std::vector<AASTNode *> param = { (AASTNode *)new AASTValue(object) };
+        AASTOperator * op = analyzeOperator("&", param);
         
         params.insert(params.begin(), op);
         
@@ -542,7 +535,7 @@ AASTNode * Analyzer::cast(AASTNode * valueToCast, const std::string & type) {
     
 }
 
-AASTOperator * Analyzer::analyzeOperator(const std::string & op, const std::vector<AASTNode *> & params) {
+AASTOperator * Analyzer::analyzeOperator(const std::string & op, std::vector<AASTNode *> & params) {
     
     const bool isParamless  = expr::isParameterlessOperator(op);
     const bool isUnary      = expr::isUnaryOperator(op);

@@ -19,6 +19,30 @@ std::string indent(int i) {
     
 }
 
+std::string translateType(const std::string & type) {
+    
+    std::string t = type;
+    const bool isPtr = syntax::isPointerType(t);
+    if (isPtr) {
+        t.pop_back();
+    }
+    
+    if (t == "int") {
+        t = syntax::intType;
+    } else if (t == "uint") {
+        t = syntax::uintType;
+    } else if (t == "num") {
+        t = syntax::floatType;
+    }
+    
+    if (isPtr) {
+        t.append( std::string(1, syntax::pointerChar) );
+    }
+    
+    return t;
+    
+}
+
 AASTNode::AASTNode(AASTNodeType nodeType, const std::string & dataType) : _nodeType(nodeType),
                                                                           _type(dataType) { }
 
@@ -115,7 +139,7 @@ std::string AASTFunction::declaration() const {
     
     std::stringstream stream;
     
-    stream << type() << " " << _mangledName << "(";
+    stream << translateType(type()) << " " << _mangledName << "(";
     
     for (size_t i = 0; i < _parameters.size(); ++i) {
         
@@ -210,7 +234,7 @@ std::string AASTDeclaration::value(int baseIndent) const {
     
     std::stringstream stream;
     
-    stream << type() << " " << _name;
+    stream << translateType(type()) << " " << _name;
     
     if (_value != nullptr) {
         stream << " = " << _value->value(baseIndent + 1);
@@ -295,7 +319,7 @@ void print(std::stringstream & stream, const std::vector<parameter> & values, co
         }
         
         if (p.type == syntax::pointerForType("char")) {
-            stream << "fputs(stdout, " + p.value + ")";
+            stream << "fputs(" + p.value + ", stdout)";
         } else if (p.type == "char" or p.type == "uchar") {
             stream << "putchar(" + p.value + ")";
         } else if (p.type == "int") {
