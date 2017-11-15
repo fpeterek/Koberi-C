@@ -421,8 +421,7 @@ AASTScope * Analyzer::deleteObject(AASTNode * object) {
     
     free = new AASTFuncall("free", "void", std::vector<AASTNode *>( { objectAddress } ));
     
-    
-    if (object->nodeType() != AASTNodeType::Funcall) {
+    if (object->nodeType() == AASTNodeType::Value) {
         AASTValue * null_ptr = new AASTValue("0", syntax::pointerForType("void"));
         setToNull = new AASTOperator("=", "void", std::vector<AASTNode *>( { object , null_ptr } ));
     }
