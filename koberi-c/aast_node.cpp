@@ -49,7 +49,7 @@ std::string AASTScope::value(int baseIndent) const {
     
     std::stringstream stream;
     
-    stream << indent(baseIndent) << "{" << "\n";
+    stream << "\n" << indent(baseIndent) << "{" << "\n";
     
     for (AASTNode * node : _body) {
         const bool appendSemicolon = not (node->nodeType() == AASTNodeType::Construct or
@@ -87,7 +87,7 @@ std::string AASTConstruct::value(int baseIndent) const {
         stream << " (" << _condition->value(0) << ")";
     }
     
-    stream  << "\n" << _body->value(baseIndent);
+    stream << _body->value(baseIndent);
     
     return stream.str();
     
@@ -105,7 +105,7 @@ std::string AASTFunction::value(int baseIndent) const {
     
     std::stringstream stream;
     
-    stream << declaration() << "\n" << _body->value(baseIndent);
+    stream << declaration() << _body->value(baseIndent);
     
     return stream.str();
     
@@ -384,7 +384,7 @@ void unaryOperator(std::stringstream & stream, const std::string & op, const par
         
     }
     else if (op == "new") {
-        stream << "((" + parameter.value +  ")malloc(sizeof(" + parameter.value + ")))";
+        stream << "((" + parameter.value +  "*)malloc(sizeof(" + parameter.value + ")))";
     }
     else {
         stream << op << "( " << parameter.value << " )";

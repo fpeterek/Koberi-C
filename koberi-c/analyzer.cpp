@@ -427,11 +427,18 @@ AASTScope * Analyzer::deleteObject(AASTNode * object) {
     
     
     if (object->nodeType() != AASTNodeType::Funcall) {
-        setToNull = new AASTOperator("=", "void", std::vector<AASTNode *>( { object } ));
+        AASTValue * null_ptr = new AASTValue("0", syntax::pointerForType("void"));
+        setToNull = new AASTOperator("=", "void", std::vector<AASTNode *>( { object , null_ptr } ));
     }
     
-    std::vector<AASTNode *> body = { (AASTNode *)destructor, (AASTNode *)free };
+    std::vector<AASTNode *> body;
     
+    if (destructor != nullptr) {
+        body.emplace_back((AASTNode *)destructor);
+    }
+    if (destructor != nullptr) {
+        body.emplace_back((AASTNode *)free);
+    }
     if (setToNull != nullptr) {
         body.emplace_back((AASTNode *)setToNull);
     }
@@ -650,7 +657,7 @@ AASTDeclaration * Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
     
     _ast.emplaceVariableIntoScope(parameter(declaration.name, type), declaration.parentScope);
     
-    return new AASTDeclaration("name", "type", nullptr);
+    return new AASTDeclaration(declaration.name, type, nullptr);
     
 }
 
