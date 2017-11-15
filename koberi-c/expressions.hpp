@@ -94,25 +94,11 @@ namespace expr {
     
     bool isNumericalType(const std::string & type);
     
-    /* Can't use an std::map for these functions, because they accept different parameters */
     
-    parameter variableDeclaration(std::string & type, std::string & name, std::string & value);
-    parameter variableDeclaration(std::string & type, std::string & name);
-    parameter setNumValue(std::string & var, std::string & value);
-    
-    std::vector<std::string> print(std::vector<parameter> & params); /* Print string to stdout */
-    std::vector<std::string> inlineC(std::vector<parameter> & params);
-    
-    /* + - * / mod on ints, + - * / on nums */
     AASTOperator * binaryOperator(const std::vector<AASTNode *> & params, const std::string & op);
     AASTOperator * mod(const std::vector<AASTNode *> & params);
     AASTOperator * comparison(const std::vector<AASTNode *> & params, const std::string & op);
     AASTOperator * set(const AASTNode * lvalue, const AASTNode * rvalue);
-    
-    /* % in C can only be used on ints */
-    parameter numMod(std::vector<parameter> & nums);
-    
-    parameter comparison(std::string & op, std::vector<parameter> & params);
     
     AASTOperator * unaryOperator(const AASTNode * param, const std::string & op);
     AASTOperator * parameterless_operator(const std::string & op);
