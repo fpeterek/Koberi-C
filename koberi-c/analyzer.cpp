@@ -491,7 +491,7 @@ AASTFuncall * Analyzer::getDestructor(AASTNode * object) {
     
     method m = _ast.getMethodReturnType(destructorName, _class);
     
-    destructorName = NameMangler::premangleMethodName(destructorName, _class);
+    destructorName = NameMangler::premangleMethodName(destructorName, m.className);
     
     if (_class != m.className) {
         object = cast(object, m.className);
@@ -530,7 +530,8 @@ AASTNode * Analyzer::cast(AASTNode * valueToCast, const std::string & type) {
              _ast.hasSuperclass(type, valueToCast->type())) {
         
         AASTOperator * objectAddress = new AASTOperator("&", type, std::vector<AASTNode *>( { valueToCast } ));
-        return new AASTCast(objectAddress, type);
+        AASTCast * pointerCast = new AASTCast(objectAddress, syntax::pointerForType(type));
+        return new AASTOperator("*", type, std::vector<AASTNode *>( { pointerCast } ));
         
     }
     

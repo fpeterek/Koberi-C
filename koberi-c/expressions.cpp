@@ -125,7 +125,7 @@ AASTOperator * expr::set(const AASTNode * lvalue, const AASTNode * rvalue) {
         lvalueType.pop_back();
         
         /* Derefence value on the left side */
-        AASTOperator * derefLvalue = new AASTOperator("&", lvalueType,
+        AASTOperator * derefLvalue = new AASTOperator("*", lvalueType,
                                                  std::vector<AASTNode *>( { const_cast<AASTNode *>(lvalue) } ));
         
         /* Throw if types aren't equal */
@@ -149,7 +149,7 @@ AASTOperator * expr::set(const AASTNode * lvalue, const AASTNode * rvalue) {
         rvalueType.pop_back();
         
         /* Derefence value on the right side */
-        AASTOperator * derefRvalue = new AASTOperator("&", rvalueType,
+        AASTOperator * derefRvalue = new AASTOperator("*", rvalueType,
                                                       std::vector<AASTNode *>( { const_cast<AASTNode *>(rvalue) } ));
         
         /* Throw if types aren't equal */
