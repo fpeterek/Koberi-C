@@ -653,7 +653,7 @@ AASTDeclaration * Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
     
     _ast.emplaceVariableIntoScope(parameter(declaration.name, type), declaration.parentScope);
     
-    return new AASTDeclaration(declaration.name, type, nullptr);
+    return new AASTDeclaration(declaration.name, type, value);
     
 }
 
