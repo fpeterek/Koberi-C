@@ -417,7 +417,7 @@ AASTScope * Analyzer::deleteObject(AASTNode * object) {
     }
 
     AASTOperator * objectAddress =
-        new AASTOperator("&", syntax::pointerForType(object->type()), std::vector<AASTNode *>( {object} ));
+        new AASTOperator("&", syntax::pointerForType(type), std::vector<AASTNode *>( {object} ));
     
     free = new AASTFuncall("free", "void", std::vector<AASTNode *>( { objectAddress } ));
     
@@ -431,7 +431,7 @@ AASTScope * Analyzer::deleteObject(AASTNode * object) {
     if (destructor != nullptr) {
         body.emplace_back((AASTNode *)destructor);
     }
-    if (destructor != nullptr) {
+    if (free != nullptr) {
         body.emplace_back((AASTNode *)free);
     }
     if (setToNull != nullptr) {
@@ -489,7 +489,11 @@ AASTFuncall * Analyzer::getDestructor(AASTNode * object) {
     destructorName = NameMangler::premangleMethodName(destructorName, m.className);
     
     if (_class != m.className) {
-        object = cast(object, m.className);
+        if (syntax::isPointerType(object->type())) {
+            object = cast(object, syntax::pointerForType(m.className));
+        } else {
+            object = cast(object, m.className);
+        }
     }
     
     std::vector<AASTNode *> objectVector;
