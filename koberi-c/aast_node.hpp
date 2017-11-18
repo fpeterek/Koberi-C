@@ -14,6 +14,9 @@
 #include <sstream>
 #include <vector>
 
+#include "syntax.hpp"
+#include "parameter.hpp"
+
 #define INDENT "    " /* Use four spaces to indent */
 
 enum class AASTNodeType {
@@ -25,7 +28,8 @@ enum class AASTNodeType {
     Funcall,
     Value,
     Declaration,
-    Operator
+    Operator,
+    Cast
     
 };
 
@@ -37,6 +41,7 @@ class AASTFuncall;
 class AASTValue;
 class AASTDeclaration;
 class AASTOperator;
+class AASTCast;
 
 class AASTNode {
     
@@ -46,12 +51,12 @@ class AASTNode {
 public:
     
     AASTNode(AASTNodeType nodeType, const std::string & dataType);
-    virtual ~AASTNode() = 0;
+    virtual ~AASTNode();
     
     AASTNodeType nodeType() const;
     std::string type() const;
     
-    virtual std::string value(int baseIndent) const = 0;
+    virtual std::string value(int baseIndent = 0) const = 0;
     
 };
 
@@ -63,7 +68,7 @@ public:
     
     AASTScope(const std::vector<AASTNode *> & body);
     ~AASTScope();
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -71,14 +76,14 @@ class AASTConstruct : public AASTNode {
     
     const std::string _construct;
     const AASTNode * _condition;
-    const AASTScope _body;
+    const AASTScope * _body;
     
 public:
     
-    AASTConstruct(const std::string & construct, const AASTNode * condition, const AASTScope & body);
+    AASTConstruct(const std::string & construct, const AASTNode * condition, const AASTScope * body);
     ~AASTConstruct();
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -86,16 +91,17 @@ class AASTFunction : public AASTNode {
     
     const std::vector<AASTDeclaration> _parameters;
     const std::string _mangledName;
-    const AASTScope _body;
+    const AASTScope * _body;
     
 public:
     
     AASTFunction(const std::string & name,
                  const std::string & type,
                  const std::vector<AASTDeclaration> & parameters,
-                 const AASTScope & body);
+                 const AASTScope * body);
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
+    std::string declaration() const;
     
 };
 
@@ -108,7 +114,7 @@ public:
     
     AASTClass(const std::string & name, const std::vector<AASTDeclaration> & attributes);
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
 };
 
 class AASTFuncall : public AASTNode {
@@ -121,7 +127,7 @@ public:
     AASTFuncall(const std::string & name, const std::string & type, const std::vector<AASTNode *> parameters);
     ~AASTFuncall();
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -132,7 +138,7 @@ class AASTValue : public AASTNode {
 public:
     
     AASTValue(const std::string & value, const std::string & type);
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -145,7 +151,7 @@ public:
     
     AASTDeclaration(const std::string & name, const std::string & type, const AASTNode * value);
     ~AASTDeclaration();
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
     
 };
 
@@ -159,7 +165,22 @@ public:
     AASTOperator(const std::string & op, const std::string & type, const std::vector<AASTNode *> parameters);
     ~AASTOperator();
     
-    std::string value(int baseIndent) const;
+    std::string value(int baseIndent = 0) const;
+    const std::string & getOperator() const;
+    
+};
+
+class AASTCast : public AASTNode {
+    
+    const AASTNode * _value;
+    const std::string _desiredType;
+    
+public:
+    
+    AASTCast(const AASTNode * value, const std::string desiredType);
+    ~AASTCast();
+    
+    std::string value(int baseIndent = 0) const;
     
 };
 

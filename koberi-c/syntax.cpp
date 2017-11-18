@@ -58,3 +58,7 @@ std::string syntax::pointerForType(const std::string & type) {
     return t;
     
 }
+
+bool syntax::isPointerType(const std::string & type) {
+    return type.size() and type.back() == pointerChar;
+}

@@ -18,10 +18,10 @@
 #include <array>
 
 #include "exceptions.hpp"
-#include "print.hpp"
 #include "parameter.hpp"
 #include "contains.hpp"
 #include "syntax.hpp"
+#include "aast_node.hpp"
 
 
 namespace expr {
@@ -93,35 +93,18 @@ namespace expr {
     
     bool isNumericalType(const std::string & type);
     
-    /* Can't use an std::map for these functions, because they accept different parameters */
     
-    parameter variableDeclaration(std::string & type, std::string & name, std::string & value);
-    parameter variableDeclaration(std::string & type, std::string & name);
-    parameter setNumValue(std::string & var, std::string & value);
+    AASTOperator * binaryOperator(std::vector<AASTNode *> & params, const std::string & op);
+    AASTOperator * mod(std::vector<AASTNode *> & params);
+    AASTOperator * comparison(std::vector<AASTNode *> & params, const std::string & op);
+    AASTOperator * set(const AASTNode * lvalue, const AASTNode * rvalue);
     
-    std::vector<std::string> print(std::vector<parameter> & params); /* Print string to stdout */
-    std::vector<std::string> inlineC(std::vector<parameter> & params);
+    AASTOperator * unaryOperator(AASTNode * param, const std::string & op);
+    AASTOperator * parameterless_operator(const std::string & op);
     
-    /* + - * / mod on ints, + - * / on nums */
-    parameter binaryOperator(std::vector<parameter> & params, std::string & op);
-    /* % in C can only be used on ints */
-    parameter numMod(std::vector<parameter> & nums);
+    AASTOperator * reference(const AASTNode * param);
     
-    parameter comparison(std::string & op, std::vector<parameter> & params);
-    
-    
-    parameter conversionToNum(parameter & param);
-    parameter intToNum(parameter & param);
-    parameter strToNum(parameter & param);
-    parameter voidToNum(parameter & param);
-    
-    parameter conversionToInt(parameter & param);
-    parameter numToInt(parameter & param);
-    parameter strToInt(parameter & param);
-    parameter voidToInt(parameter & param);
-    
-    parameter unaryOperator(parameter & param, std::string & op);
-    parameter parameterless_operator(std::string & op);
+    AASTNode * dereferencePtr(AASTNode * param);
 
 }
 

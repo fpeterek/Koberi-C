@@ -25,12 +25,13 @@
 
 #include "tokenizer.hpp"
 #include "expressions.hpp"
-#include "print.hpp"
 #include "exceptions.hpp"
 #include "token.hpp"
 #include "syntax.hpp"
 #include "parser.hpp"
 #include "traversable_ast.hpp"
+#include "analyzer.hpp"
+#include "analyzed_abstract_syntax_tree.hpp"
 #include "translator.hpp"
 #include "import_system.hpp"
 
@@ -45,6 +46,8 @@ class KoberiC {
     Tokenizer _tokenizer;
     Parser _parser;
     TraversableAbstractSyntaxTree _ast;
+    AnalyzedAbstractSyntaxTree _aast;
+    Analyzer _analyzer;
     Translator _translator;
     
     
@@ -57,6 +60,7 @@ class KoberiC {
     void handleImports(const std::string & file);
     void tokenize(const std::string & filename);
     void parse();
+    void analyze();
     void translate();
     
 public:

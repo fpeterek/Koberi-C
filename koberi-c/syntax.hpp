@@ -29,7 +29,6 @@ namespace syntax {
     const std::string uintType = "uint_type";
     const char pointerChar = '*';
     
-    
     const std::array<std::string, 10> operators = {
         
         "+", "-",
@@ -54,6 +53,7 @@ namespace syntax {
     bool isOperatorChar(char param);
     
     std::string pointerForType(const std::string & type);
+    bool isPointerType(const std::string & type);
     
 }
 

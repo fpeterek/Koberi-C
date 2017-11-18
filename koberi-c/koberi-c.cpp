@@ -9,7 +9,10 @@
 #include "koberi-c.hpp"
 
 
-KoberiC::KoberiC() : _tokenizer(_tokens), _parser(_tokens, _ast), _translator(_ast) {
+KoberiC::KoberiC() : _tokenizer(_tokens),
+                     _parser(_tokens, _ast),
+                     _analyzer(_ast, _aast),
+                     _translator(_ast, _aast) {
     
 }
 
@@ -20,6 +23,7 @@ void KoberiC::compile(const std::string & filename) {
     handleImports(filename);
     tokenize(filename);
     parse();
+    analyze();
     translate();
     
 }
@@ -55,6 +59,12 @@ void KoberiC::parse() {
     
 }
 
+void KoberiC::analyze() {
+    
+    _analyzer.analyze();
+    
+}
+
 void KoberiC::translate() {
     
     _translator.translate();
@@ -78,7 +88,7 @@ void KoberiC::test() {
     
     for (auto & i : _tokens) {
         
-        print("Token { " + i.value + " }");
+        std::cout << "Token { " << i.value + " }" << std::endl;
         
         if (i.value == "(") ++c;
         if (i.value == ")") --c;

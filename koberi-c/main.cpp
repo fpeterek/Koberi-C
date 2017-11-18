@@ -12,20 +12,25 @@ static const std::string TEST = "testing_script.koberice";
 
 int main(int argc, const char * argv[]) {
     
-    /*if (argc < 2) {
+#ifndef DEBUG_COMPILE_TEST
+    if (argc < 2) {
         std::cout << "Error: No file provided. Compilation terminated. " << std::endl;
         return -1;
     }
     
-    std::string file = argv[1]; */
+    std::string file = argv[1];
+#endif
     
     KoberiC ks;
     
     try {
+#ifdef DEBUG_COMPILE_TEST
         ks.compile(TEST);
-        // ks.compile(file);
+#else
+        ks.compile(file);
+#endif
     } catch (std::exception & e) {
-        print(e.what());
+        std::cout << e.what() << std::endl;
     }
     
 #ifdef PRINT_TOKENS
