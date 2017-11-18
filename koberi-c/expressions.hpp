@@ -93,6 +93,9 @@ namespace expr {
     
     bool isNumericalType(const std::string & type);
     
+    void setVerbose(bool value);
+    bool isVerbose();
+    
     
     AASTOperator * binaryOperator(std::vector<AASTNode *> & params, const std::string & op);
     AASTOperator * mod(std::vector<AASTNode *> & params);

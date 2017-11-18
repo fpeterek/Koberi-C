@@ -8,6 +8,18 @@
 
 #include "expressions.hpp"
 
+namespace expr {
+    bool is_verbose = false;
+}
+
+void expr::setVerbose(bool value) {
+    expr::is_verbose = value;
+}
+
+bool expr::isVerbose() {
+    return expr::is_verbose;
+}
+
 bool expr::isConstruct(const std::string & construct) {
     
     return contains(constructs, construct);
