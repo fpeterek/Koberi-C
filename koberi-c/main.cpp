@@ -18,7 +18,24 @@ int main(int argc, const char * argv[]) {
         return -1;
     }
     
-    std::string file = argv[1];
+    std::vector<std::string> args;
+    
+    for (int i = 1; i < argc; ++i) {
+        args.emplace_back(argv[i]);
+    }
+    
+    std::string & file = args[0];
+    
+    for (auto & a : args) {
+        if (a == "-v") {
+            expr::setVerbose(true);
+        }
+        else {
+            std::cout << "Unknown parameter: " << a << std::endl;
+            return -1;
+        }
+    }
+    
 #endif
     
     KoberiC ks;
@@ -37,8 +54,7 @@ int main(int argc, const char * argv[]) {
     ks.test();
 #endif
     
-     // */
-     
     return 0;
     
 }
+
