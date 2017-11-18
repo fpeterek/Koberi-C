@@ -88,7 +88,7 @@ void KoberiC::test() {
     
     for (auto & i : _tokens) {
         
-        print("Token { " + i.value + " }");
+        std::cout << "Token { " << i.value + " }" << std::endl;
         
         if (i.value == "(") ++c;
         if (i.value == ")") --c;
