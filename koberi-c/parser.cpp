@@ -447,6 +447,16 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     
     std::vector<parameter> params;
     
+    if (expr::isVerbose()) {
+        std::cout << "Parsing function " << "(" << type << " " << name << "(";
+        
+        for (auto & p : params) {
+            std::cout << p.type << " " << p.name << " ";
+        }
+        
+        std::cout << "))" << std::endl;
+    }
+    
     parseParams(funBeginning + 3, params);
     
     /* Emplace function into ast                                                 */
@@ -598,6 +608,10 @@ void Parser::classDefinition(unsigned long long defBeginning, unsigned long long
     
     std::string name = _tokens[defBeginning + 2].value;
     
+    if (expr::isVerbose()) {
+        std::cout << "\n" << "Parsing class " << name << std::endl;
+    }
+    
     std::string superclass;
     
     /* Assume class doesn't inherit from anything so fourth token is paren */
@@ -623,6 +637,10 @@ void Parser::classDefinition(unsigned long long defBeginning, unsigned long long
     }
     
     parseClassMembers(firstDeclaration, name);
+    
+    if (expr::isVerbose()) {
+        std::endl(std::cout);
+    }
     
 }
 

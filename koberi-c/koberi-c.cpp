@@ -44,12 +44,22 @@ void KoberiC::tokenize(const std::string & filename) {
     std::vector<std::string> files = _importSystem.getImportedFiles();
     
     for (long i = files.size() - 1; i >= 0; --i) {
+        
         _tokenizer.tokenizeFile(files[i]);
+        
+        if (expr::isVerbose()) {
+            std::cout << "Tokenizing file " << files[i] << std::endl;
+        }
+        
     }
     
 }
 
 void KoberiC::parse() {
+    
+    if (expr::isVerbose()) {
+        std::cout << "\n" << "Parsing..." << std::endl;
+    }
     
     _parser.parse();
     
@@ -61,11 +71,20 @@ void KoberiC::parse() {
 
 void KoberiC::analyze() {
     
+    if (expr::isVerbose()) {
+        std::cout << "\n" << "Analyzing..." << std::endl;
+    }
+    
     _analyzer.analyze();
     
 }
 
 void KoberiC::translate() {
+    
+    if (expr::isVerbose()) {
+        std::cout << "\n" << "Translating..." << std::endl;
+    }
+    
     
     _translator.translate();
     
@@ -76,6 +95,10 @@ void KoberiC::parseInputFileName(const std::string & filename) {
     size_t extensionIndex = filename.rfind(".");
     
     _filename = filename.substr(0, extensionIndex) + ".c";
+    
+    if (expr::isVerbose()) {
+        std::cout << "\n" << "Handling imports..." << "\n";
+    }
     
     _translator.setOutputFile(_filename);
     

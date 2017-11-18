@@ -33,6 +33,11 @@ void Analyzer::kobericMainCheck() {
 
 void Analyzer::analyzeClasses() {
     
+    if (expr::isVerbose()) {
+        std::cout << "\n" << "Analyzing classes..." << "\n" << std::endl;
+    }
+    
+    
     const std::unordered_map<std::string, _class> & classes = _ast.getClasses();
     const std::vector<std::string> & classOrder = _ast.getClassOrder();
     
@@ -142,6 +147,16 @@ void Analyzer::analyzeFunction(ASTFunction & function) {
     _functionName = function.name;
     
     const std::vector<parameter> & params = function.parameters;
+    
+    if (expr::isVerbose()) {
+        std::cout << "Analyzing function " << "(" << function.type << " " << _functionName << "(";
+        
+        for (auto & p : params) {
+            std::cout << p.type << " " << p.name << " ";
+        }
+        
+        std::cout << "))" << std::endl;
+    }
     
     /* Mangle name by parameters and class name */
     std::string name = NameMangler::mangleName(function.name, params);

@@ -38,6 +38,10 @@ int main(int argc, const char * argv[]) {
     
 #endif
     
+#ifdef SET_VERBOSE
+    expr::setVerbose(true);
+#endif
+    
     KoberiC ks;
     
     try {
