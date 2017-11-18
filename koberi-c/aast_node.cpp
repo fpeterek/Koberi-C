@@ -205,7 +205,6 @@ std::string AASTFuncall::value(int baseIndent) const {
     }
     
     stream << ")";
-    std::cout << stream.str() << std::endl;
     return stream.str();
     
 }
@@ -457,7 +456,7 @@ void comparison(std::stringstream & stream,
         
         stream << parameters[i - 1].value << " " << op << " " <<
                   parameters[i].value << ((i < parameters.size() - 1) ? " && " : "");
-    
+        
     }
     
 }
@@ -493,71 +492,6 @@ void binaryOperator(std::stringstream & stream,
     
 }
 
-/* old expr::binary_operator
- 
- if (op == "mod") {
- 
- for (auto & param : params) {
- 
- // If at least one of the parameters is a floating point number, call fmod()
-if (param.type == "num") {
-    return expr::numMod(params);
-}
-
-}
-
-}
-
-if (op == ">" or op == ">=" or op == "<" or op == "<=" or op == "equals" or op == "not_eq") {
-    return comparison(op, params);
-}
-
-if (op == "set" and params.size() != 2) {
-    std::string str = "(set";
-    for (auto & i : params) {
-        str += " " + i.value;
-    }
-    str += ")";
-    throw invalid_operator(str);
-}
-
-parameter val;
-val.type = "void";
-
-const std::string oper = binary_operators_map.at(op);
-
-if (op == "set" and params[0].type.back() == syntax::pointerChar and params[1].type.back() != syntax::pointerChar) {
-    params[0].value = "(*" + params[0].value + ")";
-} else if (op == "set" and params[0].type.back() != syntax::pointerChar and params[1].type.back() == syntax::pointerChar) {
-    
-    if (params[0].value.substr(0, 2) == "(*" and params[0].value.back() == ')') {
-        params[0].value = params[0].value.substr(2);
-        params[0].value.pop_back();
-    } else {
-        throw invalid_parameter("Cannot assign value of type " + params[1].type +
-                                " to variable of type " + params[0].type);
-    }
-    
-}
-
-val.value = "(" + params[0].value;
-val.type = params[0].type;
-
-for ( int i = 1; i < params.size() - 1; ++i ) {
-    
-    val.value += " " + oper + " " + params[i].value;
-    
-    if (params[i].value == "num") {
-        val.value = "num";
-    }
-    
-}
-val.value += " " + oper + " " + params.back().value + ")";
-
-return val;
- 
- */
-
 AASTCast::AASTCast(const AASTNode * value, const std::string desiredType) :
                 _value(value),
                 _desiredType(desiredType),
@@ -580,3 +514,4 @@ std::string AASTCast::value(int baseIndent) const {
     return stream.str();
     
 }
+
