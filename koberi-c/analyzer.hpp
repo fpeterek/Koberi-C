@@ -27,6 +27,12 @@ class Analyzer {
     
     /* Used to store name of current function to make error messages slightly more useful */
     std::string _functionName;
+    std::string _functionType;
+    
+    std::string currentFunction();
+    
+    /* Stores all currently declared variables so destructors can be called on all declared variables. */
+    std::vector<ASTDeclaration *> _declarations;
     
     void analyzeClasses();
     void analyzeGlobalVars();
@@ -45,6 +51,7 @@ class Analyzer {
     
     AASTOperator * analyzeOperator(const std::string & op, std::vector<AASTNode *> & params);
     AASTOperator * analyzePrint(std::vector<AASTNode *> & parameters);
+    AASTScope * analyzeReturn(std::vector<AASTNode *> & parameters);
     AASTOperator * inlineC(std::vector<AASTNode *> & parameters, ASTFunCall & fcall);
     
     /* Casts objects to their superclasses/inheriting classes and int <-> num */

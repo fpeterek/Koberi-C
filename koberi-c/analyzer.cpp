@@ -145,11 +145,13 @@ void Analyzer::analyzeFunctions() {
 void Analyzer::analyzeFunction(ASTFunction & function) {
     
     _functionName = function.name;
+    _functionType = function.type;
+    _declarations = std::vector<ASTDeclaration *>();
     
     const std::vector<parameter> & params = function.parameters;
     
     if (expr::isVerbose()) {
-        std::cout << "Analyzing function " << "(" << function.type << " " << _functionName << "(";
+        std::cout << "Analyzing function " << "(" << _functionType << " " << _functionName << "(";
         
         for (auto & p : params) {
             std::cout << p.type << " " << p.name << " ";
@@ -190,12 +192,18 @@ AASTScope * Analyzer::analyzeScope(std::vector<ASTNode *> scopeNodes) {
     
     /* Translate all body nodes */
     for (ASTNode * node : scopeNodes) {
+        
+        if (node->nodeType == NodeType::Declaration) {
+            _declarations.emplace_back((ASTDeclaration *)node);
+        }
+        
         body.emplace_back(analyzeFunctionNode(node));
     }
 
     /* After translating all body nodes, call destructors on scoped objects */
     std::vector<AASTFuncall *> destructors = destructScopedObjects(scopeNodes);
     for (AASTFuncall* i : destructors) {
+        _declarations.pop_back();
         body.emplace_back(i);
     }
     
@@ -224,7 +232,7 @@ AASTNode * Analyzer::analyzeFunctionNode(ASTNode * node) {
         
     } else {
         
-        throw invalid_statement(_functionName);
+        throw invalid_statement(currentFunction());
         
     }
     
@@ -263,19 +271,22 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
     }
     
     std::vector<AASTNode *> params;
-    // print(1);
+    
     for (auto & param : funcall.parameters) {
         params.emplace_back(getFuncallParameter(param));
     }
     
     for (AASTNode * param : params) {
         if (param->type() == "") {
-            throw invalid_parameter(_functionName, funcall.function, param->value());
+            throw invalid_parameter(currentFunction(), funcall.function, param->value());
         }
     }
     
     if (name == "delete" and funcall.object == nullptr and params.size() == 1) {
         return (AASTNode *)deleteObject(params[0]);
+    }
+    if (name == "return" and funcall.object == nullptr) {
+        return (AASTNode *)analyzeReturn(params);
     }
     if (expr::isOperator(name) and funcall.object == nullptr) {
         return (AASTNode *)analyzeOperator(name, params);
@@ -381,7 +392,7 @@ AASTNode * Analyzer::getFuncallParameter(ASTNode * node) {
         
     }
     
-    throw invalid_syntax("Invalid parameter in a function call in function: " + _functionName);
+    throw invalid_syntax("Invalid parameter in a function call in function: " + currentFunction());
     
 }
 
@@ -399,13 +410,59 @@ AASTOperator * Analyzer::analyzePrint(std::vector<AASTNode *> & parameters) {
         
         if (type != "char" and (not syntax::isPointerType(type)) and
             type != "int" and type != "uint" and type != "num") {
-            throw invalid_parameter(_functionName, "(print)", node->value());
+            throw invalid_parameter(currentFunction(), "(print)", node->value());
         }
         
     }
     
     return new AASTOperator("print", "", parameters);
     
+}
+
+AASTScope * Analyzer::analyzeReturn(std::vector<AASTNode *> & parameters) {
+    
+    /* Make sure no more than one value is being returned */
+    if (parameters.size() > 1) {
+        throw invalid_call("(return)", currentFunction(), "Too many parameters.");
+    }
+    
+    /* Check type */
+    if (parameters.size()) {
+        
+        if (not (expr::isNumericalType(parameters.front()->type()) and expr::isNumericalType(_functionType))
+            and _functionType != parameters.front()->type()) {
+            
+            throw type_mismatch("Returning value of invalid type in function " + currentFunction() +
+                                " Expected: " + _functionType + " Got: " + parameters.front()->type());
+            
+        }
+        
+    } else {
+        
+        if (_functionType != "void") {
+            throw type_mismatch("Returning value of invalid type in function " + currentFunction() +
+                                " Expected: " + _functionType + " Got: void");
+        }
+        
+    }
+    
+    /* Call destructors */
+    std::vector<AASTNode *> calls;
+    
+    for (auto & i : _declarations) {
+        
+        if (_ast.isClass(i->type) and (not syntax::isPointerType(i->type))  and _ast.hasDestructor(i->type)) {
+            
+            AASTNode * object = (AASTNode *)new AASTValue(i->name, i->type);
+            calls.emplace_back((AASTNode *)getDestructor(object));
+            
+        }
+    }
+    
+    
+    calls.emplace_back((AASTNode *)new AASTOperator("return", "void", parameters));
+    
+    return new AASTScope(calls);
 }
 
 AASTScope * Analyzer::deleteObject(AASTNode * object) {
@@ -562,7 +619,7 @@ AASTOperator * Analyzer::analyzeOperator(const std::string & op, std::vector<AAS
     if (isParamless) {
         
         if (params.size() and not (isUnary or isBinary)) {
-            throw invalid_call(op, _functionName, " Too many parameters");
+            throw invalid_call(op, currentFunction(), " Too many parameters");
         }
         
         if (not params.size()) {
@@ -574,9 +631,9 @@ AASTOperator * Analyzer::analyzeOperator(const std::string & op, std::vector<AAS
     if (isUnary) {
         
         if (not params.size()) {
-            throw invalid_call(op, _functionName, " Too few parameters");
+            throw invalid_call(op, currentFunction(), " Too few parameters");
         } else if (params.size() > 1 and not isBinary) {
-            throw invalid_call(op, _functionName, " Too many parameters");
+            throw invalid_call(op, currentFunction(), " Too many parameters");
         }
         
         if (params.size() == 1) {
@@ -588,14 +645,12 @@ AASTOperator * Analyzer::analyzeOperator(const std::string & op, std::vector<AAS
     if (isBinary) {
         
         if (params.size() < 2) {
-            throw invalid_call(op, _functionName, " Too few parameters");
+            throw invalid_call(op, currentFunction(), " Too few parameters");
         }
         
         return expr::binaryOperator(params, op);
         
     }
-    
-    // return AASTOperator("equals", "int", params);
     
     throw invalid_operator(op);
     
@@ -610,7 +665,7 @@ AASTConstruct * Analyzer::analyzeConstruct(ASTConstruct & construct) {
     if (not contains(allowed_node_types, construct.condition->nodeType)) {
         
         throw invalid_syntax("Error: Invalid condition in construct " +
-                             construct.construct + " in function " + _functionName);
+                             construct.construct + " in function " + currentFunction());
     }
     
     AASTNode * condition = nullptr;
@@ -623,7 +678,7 @@ AASTConstruct * Analyzer::analyzeConstruct(ASTConstruct & construct) {
         
         if (not (expr::isNumericalType(condition->type()) or syntax::isPointerType(condition->type()))) {
             throw type_mismatch("Error: Conditions must be of numerical or pointer type. Construct: " +
-                                construct.construct + " Function: " + _functionName);
+                                construct.construct + " Function: " + currentFunction());
         }
         
     }
@@ -653,7 +708,7 @@ AASTDeclaration * Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
 
         if (not contains(allowed_node_types, declaration.value->nodeType)) {
             throw invalid_syntax("Error: Invalid value assigned to variable " + declaration.name +
-                                 " in function " + _functionName);
+                                 " in function " + currentFunction());
         }
         
         value = getFuncallParameter(declaration.value);
@@ -679,7 +734,7 @@ AASTDeclaration * Analyzer::analyzeDeclaration(ASTDeclaration & declaration) {
 AASTValue Analyzer::analyzeMemberAccess(ASTMemberAccess & attribute) {
     
     if (attribute.accessOrder.size() < 1) {
-        throw invalid_attribute_access(_functionName, "Not enough parameters.");
+        throw invalid_attribute_access(currentFunction(), "Not enough parameters.");
     }
     
     parameter attr;
@@ -773,7 +828,7 @@ std::string Analyzer::checkAttributesAndReturnType(parameter & var, std::vector<
     const _class & cls = _ast.getClass(v.type);
     
     if (not cls.hasVar(attribute)) {
-        throw invalid_attribute_access(_functionName, "Class " + cls.className + " has no attribute " + attribute);
+        throw invalid_attribute_access(currentFunction(), "Class " + cls.className + " has no attribute " + attribute);
     }
     
     std::string type = cls.getVarType(attribute);
@@ -795,7 +850,7 @@ std::string Analyzer::checkAttributesAndReturnType(parameter & var, std::vector<
 void Analyzer::checkIsClass(std::string & className) {
     
     if (not _ast.isClass(className)) {
-        throw invalid_attribute_access(_functionName, className + " is not a class.");
+        throw invalid_attribute_access(currentFunction(), className + " is not a class.");
     }
     
 }
@@ -830,6 +885,10 @@ AASTOperator * Analyzer::newObject(const std::string & type) {
     
     return new AASTOperator("new", syntax::pointerForType(type), std::vector<AASTNode *>( { param } ));
     
+}
+
+std::string Analyzer::currentFunction() {
+    return "(" + _functionType + " " + _functionName + ")";
 }
 
 void Analyzer::analyze() {

@@ -506,9 +506,9 @@ std::string AASTCast::value(int baseIndent) const {
     std::stringstream stream;
     
     if (syntax::isPointerType(_desiredType)) {
-        stream << "((" << _desiredType << ")(void *)" << _value->value() << ")";
+        stream << "((" << translateType(_desiredType) << ")(void *)" << _value->value() << ")";
     } else {
-        stream << "((" << _desiredType << ")" << _value->value() << ")";
+        stream << "((" << translateType(_desiredType) << ")" << _value->value() << ")";
     }
     
     return stream.str();
