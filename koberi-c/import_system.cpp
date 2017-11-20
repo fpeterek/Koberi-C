@@ -36,7 +36,7 @@ void trimStr(std::string & orig) {
     
 }
 
-std::vector<std::string> splitStr(const std::string & str) {
+std::vector<std::string> splitImport(const std::string & str) {
     
     std::vector<std::string> substrings;
     
@@ -49,11 +49,36 @@ std::vector<std::string> splitStr(const std::string & str) {
         std::string substr;
         std::getline(ss, substr, delimiter);
         
-        if (substr.size()) {
+        if (substrings.size() and substrings.back().back() != '"' ) {
+            /* Delimiter " " was removed, put it back */
+            substrings.back() += " " + substr;
+        }
+        
+        else if (substr.size()) {
             substrings.emplace_back(substr);
         }
         
     }
+    
+    /* Trim quotes */
+    for (auto & i : substrings) {
+        
+        /* Check for missing " */
+        if (i.back() != '"' or i.front() != '"') {
+            throw missing_token('"');
+        }
+        
+        i = i.substr(1);
+        i.pop_back();
+    }
+    
+    return substrings;
+    
+}
+
+std::vector<std::string> splitExtern(const std::string & str) {
+    
+    std::vector<std::string> substrings;
     
     return substrings;
     
@@ -115,11 +140,14 @@ void ImportSystem::parseImports(const std::string & filename) {
             /* Trim comments from line */
             line = line.substr(0, line.find(";"));
             
-            std::vector<std::string> split = splitStr(line);
+            std::string statement = line.substr(0, line.find(" "));
+            line = line.substr(line.find(" "));
             
-            if (split[0] == "#import") {
+            if (statement == "#import") {
+                std::vector<std::string> split = splitImport(line);
                 imports = importFiles(split);
-            } else if (split[0] == "#extern") {
+            } else if (statement == "#extern") {
+                std::vector<std::string> split = splitExtern(line);
                 types = importTypes(split);
             }
             
