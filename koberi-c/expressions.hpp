@@ -47,7 +47,7 @@ namespace expr {
         "const", "static", "double", "float", "register", "restrict", "signed",
         "volatile", "var",
         /* Constructs */
-        "if", "else", "elif", "while", "for", "do", "switch", "case", "default"
+        "if", "else", "elif", "while", "dowhile", "for", "do", "switch", "case", "default"
         /* Operators */
         "return", "break", "continue", "size_of", "sizeof", "inc", "dec", "equals",
         "not_eq", "and", "or", "not", "compl", "set", "lshift", "rshift", "xor", "bit_or",
@@ -58,7 +58,7 @@ namespace expr {
         "_c", "new", "delete"
     };
     
-    const std::array<std::string, 4> constructs = { "if", "elsif", "else", "while" };
+    const std::array<std::string, 5> constructs = { "if", "elif", "else", "while", "dowhile" };
     
     const std::unordered_map<std::string /* Kobeři-C function */, std::string /* C operator */ > unary_operators_map = {
     

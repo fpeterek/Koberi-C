@@ -105,13 +105,25 @@ std::string AASTConstruct::value(int baseIndent) const {
     
     std::stringstream stream;
     
-    stream << indent(baseIndent - 1) << _construct;
+    std::string construct = _construct;
     
-    if (_construct != "else") {
+    if (_construct == "elif") {
+        construct = "else if";
+    } else if (_construct == "dowhile") {
+        construct = "do";
+    }
+    
+    stream << indent(baseIndent - 1) << construct;
+    
+    if (construct != "else" and construct != "do") {
         stream << " (" << _condition->value(0) << ")";
     }
     
     stream << _body->value(baseIndent);
+    
+    if (_construct == "dowhile") {
+        stream << indent(baseIndent) << "while (" << _condition->value(0) << ");";
+    }
     
     return stream.str();
     
