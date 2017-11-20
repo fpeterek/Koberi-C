@@ -426,12 +426,30 @@ AASTScope * Analyzer::analyzeReturn(std::vector<AASTNode *> & parameters) {
         throw invalid_call("(return)", currentFunction(), "Too many parameters.");
     }
     
+    std::vector<AASTNode *> calls;
+    
+    AASTDeclaration * declaration = nullptr;
+    AASTNode * retval = nullptr;
+    
+    bool returnIsValue = parameters.size() and parameters.front()->nodeType() == AASTNodeType::Value;
+    
+    if (parameters.size() and not returnIsValue) {
+        /* Store return value in a temporary variable that won't be destructed */
+        declaration = new AASTDeclaration("__RetVal", parameters.front()->type(), parameters.front());
+        retval = new AASTValue("__RetVal", declaration->type());
+        
+        calls.emplace_back(declaration);
+    }
+    else if (parameters.size()) {
+        retval = parameters.front();
+    }
+    
     /* Check type */
-    if (parameters.size()) {
+    if (retval != nullptr) {
         
         try {
             
-            parameters.front() = cast(parameters.front(), _functionType);
+            retval = cast(parameters.front(), _functionType);
             
         } catch (const invalid_cast & e) {
             
@@ -449,24 +467,16 @@ AASTScope * Analyzer::analyzeReturn(std::vector<AASTNode *> & parameters) {
         
     }
     
-    std::vector<AASTNode *> calls;
-    
-    AASTDeclaration * declaration = nullptr;
-    AASTValue * retval = nullptr;
-    
-    if (parameters.size()) {
-        /* Store return value in a temporary variable that won't be destructed */
-        declaration = new AASTDeclaration("__RetVal", parameters.front()->type(), parameters.front());
-        retval = new AASTValue("__RetVal", declaration->type());
-        
-        calls.emplace_back(declaration);
-    }
-    
     /* Call destructors */
     
     for (auto & i : _declarations) {
         
         if (_ast.isClass(i->type) and (not syntax::isPointerType(i->type))  and _ast.hasDestructor(i->type)) {
+            
+            /* Don't destruct returned value */
+            if (returnIsValue and parameters.front()->value() == i->name) {
+                continue;
+            }
             
             AASTNode * object = (AASTNode *)new AASTValue(i->name, i->type);
             calls.emplace_back((AASTNode *)getDestructor(object));
