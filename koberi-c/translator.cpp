@@ -17,12 +17,11 @@ void Translator::libraries() {
     
     _output << "/* Libraries */" << "\n\n";
     
-    _output << "#include <stdio.h>"  << "\n";
-    _output << "#include <stdlib.h>" << "\n";
-    _output << "#include <time.h>"   << "\n";
-    _output << "#include <math.h>"   << "\n";
-    _output << "#include <string.h>" << "\n";
-    _output << "#include <stdint.h>" << "\n";
+    std::vector<std::string> clibs = _aast.getImportedLibs();
+    
+    for (auto & i : clibs) {
+        _output << "#include " << i << "\n";
+    }
     
 }
 

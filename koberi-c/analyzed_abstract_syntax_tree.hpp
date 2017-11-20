@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <vector>
+#include <functional>
 
 #include "aast_node.hpp"
 
@@ -20,7 +21,12 @@ class AnalyzedAbstractSyntaxTree {
     std::vector<AASTDeclaration *> _globalDeclarations;
     std::vector<AASTFunction *> _functions;
     
+    std::vector<std::string> * _cLibs;
+    
 public:
+    
+    void setImportedLibs(std::vector<std::string> & libs);
+    const std::vector<std::string> & getImportedLibs();
     
     void emplaceClass(AASTClass * c);
     void emplaceGlobalDeclaration(AASTDeclaration * declaration);

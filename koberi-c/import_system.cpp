@@ -80,6 +80,49 @@ std::vector<std::string> splitExtern(const std::string & str) {
     
     std::vector<std::string> substrings;
     
+    std::string substr;
+    
+    for (size_t i = 0; i < str.size(); ++i) {
+        
+        if (str[i] == '<' or str[i] == '"') {
+            
+            const char endChar = str[i] == '<' ? '>' : '"';
+            const size_t start = i;
+            
+            while (true) {
+                
+                if (++i == str.size()) {
+                    throw missing_token(endChar);
+                }
+                
+                if (str[i] == endChar) {
+                    break;
+                }
+                
+            }
+            
+            substrings.emplace_back(str.substr(start, i - start + 1));
+            
+        }
+        else if (isspace(str[i])) {
+            continue;
+        }
+        else {
+            
+            const size_t start = i;
+            
+            while (++i < str.size()) {
+                if (isspace(str[i])) {
+                    break;
+                }
+            }
+            
+            substrings.emplace_back(str.substr(start, i - start));
+            
+        }
+        
+    }
+    
     return substrings;
     
 }
@@ -90,13 +133,21 @@ bool ImportSystem::isImported(const std::string & filename) {
     
 }
 
+void ImportSystem::importLib(const std::string & lib) {
+    importInto(_cLibs, lib);
+}
+
 void ImportSystem::importType(const std::string & type) {
+    importInto(_externTypes, type);
+}
+
+void ImportSystem::importInto(std::vector<std::string> & collection, const std::string & value) {
     
-    if (contains(_externTypes, type)) {
+    if (contains(collection, value)) {
         return;
     }
     
-    _externTypes.emplace_back(type);
+    collection.emplace_back(value);
     
 }
 
@@ -121,6 +172,8 @@ void ImportSystem::parseImports(const std::string & filename) {
     std::string line;
     std::vector<std::string> imports;
     std::vector<std::string> types;
+    std::vector<std::string> stdLibs;
+    std::vector<std::string> libs;
     
     while (not file.eof()) {
         
@@ -149,6 +202,8 @@ void ImportSystem::parseImports(const std::string & filename) {
             } else if (statement == "#extern") {
                 std::vector<std::string> split = splitExtern(line);
                 types = importTypes(split);
+                stdLibs = importLibraries(split, true);
+                libs = importLibraries(split);
             }
             
         } else {
@@ -166,15 +221,19 @@ void ImportSystem::parseImports(const std::string & filename) {
     for (auto & i : types) {
         importType(i);
     }
-    
+    for (auto & i : stdLibs) {
+        importLib(i);
+    }
+    for (auto & i : libs) {
+        importLib(i);
+    }
 }
 
 std::vector<std::string> ImportSystem::importFiles(const std::vector<std::string> & files) {
     
     std::vector<std::string> imports;
     
-    /* Start at index one because files[0] is #import */
-    for (size_t i = 1; i < files.size(); ++i) {
+    for (size_t i = 0; i < files.size(); ++i) {
         imports.emplace_back(files[i]);
     }
     
@@ -186,8 +245,11 @@ std::vector<std::string> ImportSystem::importTypes(const std::vector<std::string
     
     std::vector<std::string> imports;
     
-    /* Start at index one because types[0] is #extern */
-    for (size_t i = 1; i < types.size(); ++i) {
+    for (size_t i = 0; i < types.size(); ++i) {
+        
+        if (types[i].front() == '"' or types[i].front() == '<') {
+            continue;
+        }
         
         if (not syntax::isValidIdChar(types[i].front())) {
             throw bad_type("Error: Cannot import data type " + types[i] + ". ");
@@ -209,6 +271,22 @@ std::vector<std::string> ImportSystem::importTypes(const std::vector<std::string
     
 }
 
+std::vector<std::string> ImportSystem::importLibraries(const std::vector<std::string> & libs, bool isStdLib) {
+    
+    std::vector<std::string> libraries;
+    
+    const char endChar = isStdLib ? '>' : '"';
+    
+    for (auto & i : libs) {
+        if (i.back() == endChar) {
+            libraries.emplace_back(i);
+        }
+    }
+    
+    return libraries;
+    
+}
+
 const std::vector<std::string> & ImportSystem::getImportedFiles() {
     
     return _importedFiles;
@@ -218,5 +296,11 @@ const std::vector<std::string> & ImportSystem::getImportedFiles() {
 const std::vector<std::string> & ImportSystem::getExternTypes() {
     
     return _externTypes;
+    
+}
+
+const std::vector<std::string> & ImportSystem::getCLibs() {
+    
+    return _cLibs;
     
 }

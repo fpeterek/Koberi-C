@@ -24,12 +24,18 @@ class ImportSystem {
     std::vector<std::string> _importedFiles;
     std::vector<std::string> _externTypes;
     
+    std::vector<std::string> _cLibs = { "<stdio.h>", "<stdlib.h>", "<time.h>", "<math.h>", "<string.h>", "<stdint.h>" };
+    
     bool isImported(const std::string & filename);
     
     void importType(const std::string & type);
+    void importLib(const std::string & lib);
+    
+    void importInto(std::vector<std::string> & collection, const std::string & value);
     
     std::vector<std::string> importFiles(const std::vector<std::string> & files);
     std::vector<std::string> importTypes(const std::vector<std::string> & types);
+    std::vector<std::string> importLibraries(const std::vector<std::string> & libs, bool isStdLib = false);
     
 public:
     
@@ -39,6 +45,7 @@ public:
     
     const std::vector<std::string> & getImportedFiles();
     const std::vector<std::string> & getExternTypes();
+    const std::vector<std::string> & getCLibs();
     
 };
 

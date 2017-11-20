@@ -24,6 +24,14 @@ AnalyzedAbstractSyntaxTree::~AnalyzedAbstractSyntaxTree() {
     
 }
 
+void AnalyzedAbstractSyntaxTree::setImportedLibs(std::vector<std::string> & libs) {
+    _cLibs = &libs;
+}
+
+const std::vector<std::string> & AnalyzedAbstractSyntaxTree::getImportedLibs() {
+    return *_cLibs;
+}
+
 void AnalyzedAbstractSyntaxTree::emplaceClass(AASTClass * c) {
     _classes.emplace_back(c);
 }
