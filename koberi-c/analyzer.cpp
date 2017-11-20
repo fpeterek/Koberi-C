@@ -429,8 +429,11 @@ AASTScope * Analyzer::analyzeReturn(std::vector<AASTNode *> & parameters) {
     /* Check type */
     if (parameters.size()) {
         
-        if (not (expr::isNumericalType(parameters.front()->type()) and expr::isNumericalType(_functionType))
-            and _functionType != parameters.front()->type()) {
+        try {
+            
+            parameters.front() = cast(parameters.front(), _functionType);
+            
+        } catch (const invalid_cast & e) {
             
             throw type_mismatch("Returning value of invalid type in function " + currentFunction() +
                                 " Expected: " + _functionType + " Got: " + parameters.front()->type());
@@ -446,8 +449,20 @@ AASTScope * Analyzer::analyzeReturn(std::vector<AASTNode *> & parameters) {
         
     }
     
-    /* Call destructors */
     std::vector<AASTNode *> calls;
+    
+    AASTDeclaration * declaration = nullptr;
+    AASTValue * retval = nullptr;
+    
+    if (parameters.size()) {
+        /* Store return value in a temporary variable that won't be destructed */
+        declaration = new AASTDeclaration("__RetVal", parameters.front()->type(), parameters.front());
+        retval = new AASTValue("__RetVal", declaration->type());
+        
+        calls.emplace_back(declaration);
+    }
+    
+    /* Call destructors */
     
     for (auto & i : _declarations) {
         
@@ -459,8 +474,11 @@ AASTScope * Analyzer::analyzeReturn(std::vector<AASTNode *> & parameters) {
         }
     }
     
-    
-    calls.emplace_back((AASTNode *)new AASTOperator("return", "void", parameters));
+    if (retval != nullptr) {
+        calls.emplace_back((AASTNode *)new AASTOperator("return", "void", { retval }));
+    } else {
+        calls.emplace_back((AASTNode *)new AASTOperator("return", "void", parameters));
+    }
     
     return new AASTScope(calls);
 }
