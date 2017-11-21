@@ -201,9 +201,11 @@ void ImportSystem::parseImports(const std::string & filename) {
                 imports = importFiles(split);
             } else if (statement == "#extern") {
                 std::vector<std::string> split = splitExtern(line);
+                std::vector<std::string> std = importLibraries(split, true);
+                std::vector<std::string> lib = importLibraries(split);
+                stdLibs.insert(stdLibs.end(), std.begin(), std.end());
+                libs.insert(libs.end(), lib.begin(), lib.end());
                 types = importTypes(split);
-                stdLibs = importLibraries(split, true);
-                libs = importLibraries(split);
             }
             
         } else {
@@ -293,13 +295,13 @@ const std::vector<std::string> & ImportSystem::getImportedFiles() {
     
 }
 
-const std::vector<std::string> & ImportSystem::getExternTypes() {
+std::vector<std::string> & ImportSystem::getExternTypes() {
     
     return _externTypes;
     
 }
 
-const std::vector<std::string> & ImportSystem::getCLibs() {
+std::vector<std::string> & ImportSystem::getCLibs() {
     
     return _cLibs;
     

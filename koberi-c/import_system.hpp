@@ -44,8 +44,8 @@ public:
     void appendExtensions();
     
     const std::vector<std::string> & getImportedFiles();
-    const std::vector<std::string> & getExternTypes();
-    const std::vector<std::string> & getCLibs();
+    std::vector<std::string> & getExternTypes();
+    std::vector<std::string> & getCLibs();
     
 };
 

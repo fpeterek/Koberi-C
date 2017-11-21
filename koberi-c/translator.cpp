@@ -17,7 +17,7 @@ void Translator::libraries() {
     
     _output << "/* Libraries */" << "\n\n";
     
-    std::vector<std::string> clibs = _aast.getImportedLibs();
+    const std::vector<std::string> & clibs = _aast.getImportedLibs();
     
     for (auto & i : clibs) {
         _output << "#include " << i << "\n";
