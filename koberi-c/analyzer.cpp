@@ -404,12 +404,14 @@ AASTOperator * Analyzer::analyzePrint(std::vector<AASTNode *> & parameters) {
         parameters.emplace_back((AASTNode *)new AASTValue("\"\n\"", syntax::pointerForType("char")));
     }
     
+    const std::vector<std::string> valid_types = { "char", "uchar", "int", "uint", "num",
+                                                    syntax::intType, syntax::uintType, syntax::floatType };
+    
     for (AASTNode * node : parameters) {
         
         const std::string & type = node->type();
         
-        if (type != "char" and (not syntax::isPointerType(type)) and
-            type != "int" and type != "uint" and type != "num") {
+        if (not syntax::isPointerType(type) and not contains(valid_types, type)) {
             throw invalid_parameter(currentFunction(), "(print)", node->value());
         }
         
