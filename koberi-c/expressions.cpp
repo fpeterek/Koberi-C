@@ -242,7 +242,7 @@ AASTOperator * expr::unaryOperator(AASTNode * param, const std::string & op) {
     } else if (op == "&") {
         return reference(param);
     } else {
-        type = syntax::intType;
+        type = "int";
     }
     
     if (op == "-") {

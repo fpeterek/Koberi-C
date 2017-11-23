@@ -333,11 +333,11 @@ void print(std::stringstream & stream, const std::vector<parameter> & values, co
             stream << "fputs(" + p.value + ", stdout)";
         } else if (p.type == "char" or p.type == "uchar") {
             stream << "putchar(" + p.value + ")";
-        } else if (p.type == "int" or p.type == syntax::intType) {
+        } else if (p.type == "int") {
             stream << "printf(\"%lld\", " + p.value + ")";
-        } else if (p.type == "uint" or p.type == syntax::uintType) {
+        } else if (p.type == "uint") {
             stream << "printf(\"%ull\", " + p.value + ")";
-        } else if (p.type == "num" or p.type == syntax::floatType) {
+        } else if (p.type == "num") {
             stream << "printf(\"%f\", " + p.value + ")";
         }
         
