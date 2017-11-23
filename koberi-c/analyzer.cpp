@@ -265,6 +265,19 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
         
     }
     
+    /* If parameter of size_of is a data type, handle it separately, otherwise leave it up to generic operator handling */
+    if (name == "size_of" and funcall.parameters.size() == 1 and funcall.object == nullptr) {
+        
+        if (funcall.parameters[0]->nodeType == NodeType::Variable) {
+            
+            ASTVariable & v = *(ASTVariable*)funcall.parameters[0];
+            
+            if (_ast.isDataType(v.name)) {
+                return new AASTOperator("sizeof", "int", { new AASTValue(v.name, v.name) });
+            }
+        }
+    }
+    
     if (name == "new" and funcall.parameters.size() == 1 and funcall.object == nullptr) {
         type = ((ASTVariable*)funcall.parameters[0])->name;
         return (AASTNode *)newObject(type);
@@ -395,6 +408,8 @@ AASTNode * Analyzer::getFuncallParameter(ASTNode * node) {
     throw invalid_syntax("Invalid parameter in a function call in function: " + currentFunction());
     
 }
+
+// AASTOperator * Analyzer::size_of(const std::string & val) {}
 
 AASTOperator * Analyzer::analyzePrint(std::vector<AASTNode *> & parameters) {
     

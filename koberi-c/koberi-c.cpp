@@ -85,7 +85,7 @@ void KoberiC::translate() {
         std::cout << "\n" << "Translating..." << std::endl;
     }
     
-    
+    _translator.setOutputFile(_filename);
     _translator.translate();
     
 }
@@ -99,8 +99,6 @@ void KoberiC::parseInputFileName(const std::string & filename) {
     if (expr::isVerbose()) {
         std::cout << "\n" << "Handling imports..." << "\n";
     }
-    
-    _translator.setOutputFile(_filename);
     
 }
 
