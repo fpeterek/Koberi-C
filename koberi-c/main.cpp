@@ -8,11 +8,16 @@
 
 #include "koberi-c.hpp"
 
+#ifdef DEBUG_COMPILE_TEST
 static const std::string TEST = "testing_script.koberice";
+#endif
 
 int main(int argc, const char * argv[]) {
     
 #ifndef DEBUG_COMPILE_TEST
+    
+    /* Parse command line arguments */
+    
     if (argc < 2) {
         std::cout << "Error: No file provided. Compilation terminated. " << std::endl;
         return -1;
@@ -39,12 +44,14 @@ int main(int argc, const char * argv[]) {
 #endif
     
 #ifdef SET_VERBOSE
+    /* Verbose mode is automatically on when this macro is defined. Used for debugging purposes. */
     expr::setVerbose(true);
 #endif
     
     KoberiC ks;
     
     try {
+        /* If this macro is defined, compile a testing file, don't parse cl args, used for debugging */
 #ifdef DEBUG_COMPILE_TEST
         ks.compile(TEST);
 #else

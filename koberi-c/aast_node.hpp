@@ -9,7 +9,6 @@
 #ifndef aast_node_hpp
 #define aast_node_hpp
 
-#include <stdio.h>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -18,6 +17,9 @@
 #include "parameter.hpp"
 
 #define INDENT "    " /* Use four spaces to indent */
+
+/* Set of self-translating AnalyzedAST nodes     */
+/* Nodes recursively translate themselves into C */
 
 enum class AASTNodeType {
     
@@ -43,6 +45,7 @@ class AASTDeclaration;
 class AASTOperator;
 class AASTCast;
 
+/* Abstract base class */
 class AASTNode {
     
     const AASTNodeType _nodeType;
@@ -60,6 +63,7 @@ public:
     
 };
 
+/* A scope -> {} */
 class AASTScope : public AASTNode {
     
     const std::vector<AASTNode *> _body;
@@ -72,6 +76,7 @@ public:
     
 };
 
+/* Language constructs used for control flow -> while, dowhile, if/elif/else */
 class AASTConstruct : public AASTNode {
     
     const std::string _construct;
@@ -87,6 +92,7 @@ public:
     
 };
 
+/* Function and member function definitions */
 class AASTFunction : public AASTNode {
     
     const std::vector<AASTDeclaration> _parameters;
@@ -105,6 +111,7 @@ public:
     
 };
 
+/* Class definitions */
 class AASTClass : public AASTNode {
     
     const std::vector<AASTDeclaration> _attributes;
@@ -117,6 +124,7 @@ public:
     std::string value(int baseIndent = 0) const;
 };
 
+/* Function calls */
 class AASTFuncall : public AASTNode {
     
     const std::vector<AASTNode *> _parameters;
@@ -131,6 +139,7 @@ public:
     
 };
 
+/* Literals, variables or type names */
 class AASTValue : public AASTNode {
     
     const std::string _value;
@@ -142,6 +151,7 @@ public:
     
 };
 
+/* Variable declarations */
 class AASTDeclaration : public AASTNode {
     
     const std::string _name;
@@ -155,6 +165,7 @@ public:
     
 };
 
+/* Operator calls */
 class AASTOperator : public AASTNode {
   
     const std::vector<AASTNode *> _parameters;
@@ -170,6 +181,7 @@ public:
     
 };
 
+/* Type casts */
 class AASTCast : public AASTNode {
     
     const AASTNode * _value;

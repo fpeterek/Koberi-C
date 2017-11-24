@@ -27,8 +27,8 @@ void trimBack(std::string & orig) {
     
 }
 
-/* TrimStr() modifies the original string to save stack space */
-/* The original string isn't needed anymore, anyway           */
+/* TrimStr() modifies the original string to save memory */
+/* The original string isn't needed anymore, anyway      */
 void trimStr(std::string & orig) {
     
     trimFront(orig);
@@ -36,6 +36,7 @@ void trimStr(std::string & orig) {
     
 }
 
+/* Parses an #import statement and returns it's parameters as a vector */
 std::vector<std::string> splitImport(const std::string & str) {
     
     std::vector<std::string> substrings;
@@ -49,6 +50,7 @@ std::vector<std::string> splitImport(const std::string & str) {
         std::string substr;
         std::getline(ss, substr, delimiter);
         
+        /* In case file path contains spaces */
         if (substrings.size() and substrings.back().back() != '"' ) {
             /* Delimiter " " was removed, put it back */
             substrings.back() += " " + substr;
@@ -76,6 +78,7 @@ std::vector<std::string> splitImport(const std::string & str) {
     
 }
 
+/* Parses an #extern statement and returns it's parameters as a vector */
 std::vector<std::string> splitExtern(const std::string & str) {
     
     std::vector<std::string> substrings;
@@ -175,6 +178,7 @@ void ImportSystem::parseImports(const std::string & filename) {
     std::vector<std::string> stdLibs;
     std::vector<std::string> libs;
     
+    /* Parse import statements */
     while (not file.eof()) {
         
         std::getline(file, line);
@@ -197,15 +201,18 @@ void ImportSystem::parseImports(const std::string & filename) {
             line = line.substr(line.find(" "));
             
             if (statement == "#import") {
-                std::vector<std::string> split = splitImport(line);
-                imports = importFiles(split);
+                
+                imports = splitImport(line);
+                
             } else if (statement == "#extern") {
+                
                 std::vector<std::string> split = splitExtern(line);
                 std::vector<std::string> std = importLibraries(split, true);
                 std::vector<std::string> lib = importLibraries(split);
                 stdLibs.insert(stdLibs.end(), std.begin(), std.end());
                 libs.insert(libs.end(), lib.begin(), lib.end());
                 types = importTypes(split);
+                
             }
             
         } else {
@@ -214,6 +221,7 @@ void ImportSystem::parseImports(const std::string & filename) {
         
     }
     
+    /* Import files and data types */
     for (auto & i : imports) {
         if (not isImported(i)) {
             parseImports(i);
@@ -229,18 +237,6 @@ void ImportSystem::parseImports(const std::string & filename) {
     for (auto & i : libs) {
         importLib(i);
     }
-}
-
-std::vector<std::string> ImportSystem::importFiles(const std::vector<std::string> & files) {
-    
-    std::vector<std::string> imports;
-    
-    for (size_t i = 0; i < files.size(); ++i) {
-        imports.emplace_back(files[i]);
-    }
-    
-    return imports;
-    
 }
 
 std::vector<std::string> ImportSystem::importTypes(const std::vector<std::string> & types) {

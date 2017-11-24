@@ -19,6 +19,7 @@ std::string indent(int i) {
     
 }
 
+/* Translates type from Kobeři-C type to C type */
 std::string translateType(const std::string & type) {
     
     std::string t = type;
@@ -352,6 +353,9 @@ void print(std::stringstream & stream, const std::vector<parameter> & values, co
     
 }
 
+/* Inline C requires escaped escape sequences to use escape sequences in inline C  */
+/* because inline C is written as string literals                                  */
+/* Remove one level of escaping to allow usage of escape sequences inside inline C */
 void removeEscape(std::string & str) {
     
     std::stringstream ss;
@@ -436,6 +440,7 @@ void unaryOperator(std::stringstream & stream, const std::string & op, const par
     
 }
 
+/* % operator can't be used on floats in C, fmod() needs to be called instead */
 void fmodOperator(std::stringstream & stream,
                   std::vector<parameter> & parameters) {
     
@@ -477,12 +482,6 @@ void set(std::stringstream & stream,
          const std::vector<parameter> & parameters) {
     
     stream << parameters[0].value << " = " << parameters[1].value;
-    
-}
-
-void dereference(std::stringstream & stream, const AASTNode * parameter) {
-    
-    
     
 }
 

@@ -9,6 +9,8 @@
 #include "expressions.hpp"
 
 namespace expr {
+    /* Variable is_verbose needs to be be inaccessible from outside      */
+    /* If it were defined in a header file, it would cause linker errors */
     bool is_verbose = false;
 }
 
@@ -82,9 +84,10 @@ AASTOperator * expr::mod(std::vector<AASTNode *> & params) {
         node = dereferencePtr(node);
     }
     
+    /* If at least one of the parameters is a floating point number, call fmod() */
     for (auto & param : params) {
         
-        /* If at least one of the parameters is a floating point number, call fmod() */
+        /* Mod can't be called on non-numerical types */
         if (not expr::isNumericalType(param->type())) {
             throw invalid_call("mod", "Error: can't call mod on non-numerical types. ");
         }

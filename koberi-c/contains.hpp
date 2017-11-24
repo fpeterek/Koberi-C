@@ -9,18 +9,15 @@
 #ifndef contains_hpp
 #define contains_hpp
 
-#include <stdio.h>
-#include <vector>
-#include <array>
-#include <iostream>
+/* Returns true if an item can be found inside a collecion, otherwise returns false          */
+/* Works on any collection which implements iterators and holds                              */
+/* types which implement the equality operator                                               */
+/* Shouldn't be used on trees (eg. std::map) as trees don't require iteration over all items */
 
-
-/* Returns true if item can be found in a vector, otherwise returns false */
-
-template <typename Container, typename Type>
-bool contains(const Container & container, const Type & item) {
+template <typename Collection, typename Type>
+bool contains(const Collection & collection, const Type & item) {
     
-    for (auto & i : container) {
+    for (auto & i : collection) {
         
         if (item == i) { return true; }
         

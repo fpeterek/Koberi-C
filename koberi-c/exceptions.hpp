@@ -9,10 +9,11 @@
 #ifndef exceptions_hpp
 #define exceptions_hpp
 
-#include <stdio.h>
-#include <iostream>
-#include <string>
 #include <sstream>
+
+/* Kobeři-C exceptions */
+
+/* Many exceptions are subject to be rewritten */
 
 /* TODO: Rewrite exceptions with unmodifiable error messages to use a static string to store their messages */
 

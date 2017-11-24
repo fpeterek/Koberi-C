@@ -17,6 +17,10 @@ std::string NameMangler::mangleName(const std::string & name, const std::vector<
     for (const auto & param : params) {
         
         mangledName.append("_" + param.type);
+        
+        /* Function names can't contain asterisks, so a different way of indicating */
+        /* that the parameter is a pointer is needed                                */
+        /* Append __ptr if parameter is a pointer                                   */
         if (mangledName.back() == '*') {
             mangledName.pop_back();
             mangledName.append("__ptr");
@@ -36,6 +40,10 @@ std::string NameMangler::mangleName(const std::string & name, const std::vector<
     for (const auto & param : paramTypes) {
         
         mangledName.append("_" + param);
+        
+        /* Function names can't contain asterisks, so a different way of indicating */
+        /* that the parameter is a pointer is needed                                */
+        /* Append __ptr if parameter is a pointer                                   */
         if (mangledName.back() == '*') {
             mangledName.pop_back();
             mangledName.append("__ptr");

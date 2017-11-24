@@ -9,17 +9,21 @@
 #ifndef ast_hpp
 #define ast_hpp
 
-#include <stdio.h>
-#include <iostream>
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <functional>
 
 #include "ast_node.hpp"
 #include "exceptions.hpp"
 #include "class.hpp"
 #include "contains.hpp"
 #include "name_mangler.hpp"
+
+/* Class AbstractSyntaxTree, which holds parsed code                 */
+/* AbstractSyntaxTree is meant to create the tree and hold the data  */
+/* Not to work with it                                               */
+/* Check out TraverseableAbstractSyntaxTree for a class with methods */
+/* which allow you to work with the tree                             */
 
 class AbstractSyntaxTree {
     
@@ -34,6 +38,9 @@ protected:
     
     const std::vector<std::string> _primitiveTypes = { "num", "int", "uint", "char", "uchar", "void" };
     
+    /* Checks if said type exists, if not, throws exception */
+    /* If a pointer type is passes to this method,          */
+    /* it checks if the pointer points to a valid type      */
     void checkType(const std::string & type);
     
     /* Stores classes */
@@ -46,15 +53,18 @@ protected:
     /* Defines the global scope, since the global scope has no parent, parentScope points to 0 */
     ASTScope _globalScope;
     
-    /* Pointer to the current scope */
-    /* I could also use an std::reference_wrapper, but that would probably create even more cluttered code than a pointer */
+    /* Pointer to the current scope - scope that's currently being worked with                                    */
+    /* Could be an std::reference_wrapper, but that would probably create even more cluttered code than a pointer */
     ASTScope * _currentScope;
     
     
 public:
     AbstractSyntaxTree();
     
+    /* Imports extern types imported via #extern statement */
     void addExternTypes(const std::vector<std::string> & types);
+    
+    /* Tree building methods */
     
     void addMethod(const parameter & method, const std::string & className);
     void addMethod(const std::string & methodType, const std::string & methodName, const std::string & className);
@@ -82,8 +92,16 @@ public:
                             const std::string & name,
                             ASTNode * value = nullptr);
     
+    /* Methods, which create constructs, which have their own scope, such as if... */
+    /* enter the scope of those constructs                                         */
+    /* This method reverses the effect and should be called after parsing of such  */
+    /* construct is completed                                                      */
     void leaveScope();
     
+    /* Emplaces variable into it's scope once the variable is declared */
+    /* Used to store name and type of a declared variable              */
+    /* This method should be called once the variable is declared      */
+    /* so it can't be accessed before declaration                      */
     void emplaceVariableIntoScope(const parameter & var, ASTScope * scope);
     
 };

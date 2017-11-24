@@ -854,11 +854,6 @@ AASTValue Analyzer::analyzeMemberAccess(ASTMemberAccess & attribute) {
 
 std::string Analyzer::checkAttributesAndReturnType(parameter & var, std::vector<ASTNode*> & attributes, unsigned int iter) {
     
-    /* Probably unnecessary */
-    /* if (iter != attributes.size() - 1) {
-     checkIsClass(var.type);
-     } */
-    
     parameter v = var;
     
     if (syntax::isPointerType(var.type)) {

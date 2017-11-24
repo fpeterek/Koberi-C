@@ -22,8 +22,6 @@ void Tokenizer::openFile(const std::string & filename) {
     _input.open(filename);
     if (not _input) { throw file_not_opened(filename); }
     
-    // _filename = filename; /* Pointless now, but it might be necessary in the future */
-    
 }
 
 void Tokenizer::readLine() {

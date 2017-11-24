@@ -9,26 +9,33 @@
 #ifndef syntax_hpp
 #define syntax_hpp
 
-#include <stdio.h>
-#include <iostream>
+#include <string>
 #include <unordered_map>
 #include <array>
 
+/* Namespace which holds information regarding basic Kobeři-C syntax */
+
 namespace syntax {
     
+    /* File extension for Kobeři-C files */
     const std::string fileExtension = ".koberice";
     
+    /* Holds special operator characters */
     const std::array<char, 9> operatorChar = {
         
         '=', '+', '-', '*', '/', '%', '<', '>', '&'
         
     };
     
-    const std::string floatType = "num_type";
+    /* Holds names of C typedefs for Kobeři-C data types */
+    const std::string floatType = "flt_type";
     const std::string intType = "int_type";
     const std::string uintType = "uint_type";
+    
+    /* Character used to declare pointers */
     const char pointerChar = '*';
     
+    /* Holds operators made up of special operator characters */
     const std::array<std::string, 10> operators = {
         
         "+", "-",
@@ -46,13 +53,18 @@ namespace syntax {
         
     };
     
+    /* Returns true if param is a character between '0' and '9' */
     bool isNum(char param);
-    bool isValidIdChar(char param); /* Returns true if character is a valid character for a var/func name */
+    /* Returns true if character is a valid character for a var/func name */
+    bool isValidIdChar(char param);
     bool isWhiteSpace(char param);
-    bool isOperator(std::string & param); /* Returns true if string is a koberi-c operator */
+    /* Returns true if string is a koberi-c operator comprised of operator characters */
+    bool isOperator(std::string & param);
     bool isOperatorChar(char param);
     
+    /* Returns pointer type for type (type + pointerChar) */
     std::string pointerForType(const std::string & type);
+    /* Returns true if last character is pointerChar */
     bool isPointerType(const std::string & type);
     
 }

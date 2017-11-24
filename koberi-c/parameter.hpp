@@ -9,8 +9,13 @@
 #ifndef parameter_hpp
 #define parameter_hpp
 
-#include <stdio.h>
 #include <string>
+
+/* Holds two values - value and data type                            */
+/* Kinda like a tuple, except the values have a name                 */
+/* Used to store variable names/literal values etc. and their types  */
+/* It got it's name because it was originally used to store function */
+/* parameters, though it's probably used in other situations, too    */
 
 struct parameter {
     

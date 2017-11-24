@@ -9,14 +9,21 @@
 #ifndef name_mangler_hpp
 #define name_mangler_hpp
 
-#include <stdio.h>
 #include <vector>
 #include <string>
 
 #include "parameter.hpp"
 
+/* NameMangler class, which mangles function names by parameters and classes */
+/* Mangling by parameters allows for function/method overloading             */
+/* Mangling by class name allows different classes to have a member function */
+/* with the exact same name and parameters                                   */
+/* NameMangler only has static members, because there's no need for it to be */
+/* instantiated                                                              */
+
 class NameMangler {
     
+    /* Prefix, which is prepended to all Kobeři-C functions */
     const static std::string prefix;
     
 public:

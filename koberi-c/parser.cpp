@@ -660,7 +660,7 @@ void Parser::classDefinition(unsigned long long defBeginning, unsigned long long
  
 ;;; Global variable
 (int var1)             ; Allowed
-(int var2 10)          ; Allowed
+(int var2)             ; Not Allowed
 (int var3 (+ 10 10))   ; Not Allowed, global variables must be initialized with a literal or not at all
 (int var4 ())          ; Function Definition
 (int var5 (int param)) ; Function Definition

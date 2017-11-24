@@ -9,19 +9,8 @@
 #ifndef koberi_c_hpp
 #define koberi_c_hpp
 
-/* Most of these are most likely included already, but whatever */
-/*                                                              */
-/*                    ( [compiler do-magic] )                   */
-/*                                                              */
-/****************************************************************/
-
-#include <stdio.h>
 #include <iostream>
 #include <vector>
-#include <fstream>
-#include <unordered_map>
-#include <cctype>
-#include <array>
 
 #include "tokenizer.hpp"
 #include "expressions.hpp"
@@ -37,6 +26,9 @@
 
 #include "debug_macro_definitions.hpp"
 
+/* KoberiC class, which holds instances of all modules, initializes them, */
+/* makes calls to member functions of these modules and ensures           */
+/* input file is compiled                                                 */
 
 class KoberiC {
     

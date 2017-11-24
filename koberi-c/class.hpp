@@ -9,13 +9,16 @@
 #ifndef class_hpp
 #define class_hpp
 
-#include <stdio.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
 
 #include "parameter.hpp"
 #include "exceptions.hpp"
+
+/* Class struct                                                                           */
+/* Abstraction for Kobeři-C classes, all classes are stored as an instance of this struct */
+/* Allows for easy look-up of methods/attributes and superclasses                         */
 
 struct _class {
     

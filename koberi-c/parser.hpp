@@ -9,16 +9,9 @@
 #ifndef parser_hpp
 #define parser_hpp
 
-#include <stdio.h>
 #include <iostream>
 #include <vector>
-#include <list>
-#include <unordered_map>
-#include <map>
 #include <cmath>
-#include <fstream>
-#include <sstream>
-#include <functional>
 
 #include "syntax.hpp"
 #include "token.hpp"
@@ -32,8 +25,10 @@
 
 class Parser {
     
+    /* Reference to AST */
     TraversableAbstractSyntaxTree & _ast;
     
+    /* Reference to a vector of tokens created by Tokenizer */
     std::vector<token> & _tokens;
 
     /* Gets type of a literal */
@@ -42,54 +37,61 @@ class Parser {
     /* Checks if token at index is a literal */
     bool isLiteral(unsigned long long tokenIndex);
     
-    /* Creates a new literal from a token                                             */
-    /* The code appears multiple times in the parser, so I'm turning it into a method */
+    /* Creates a new literal from a token */
     ASTLiteral createLiteral(unsigned long long literalIndex);
     
-    /* parseSexp() parses a single s-expression and emplaces it into the AST */
+    /* Parses a single s-expression and emplaces it into the AST */
     void parseSexp(unsigned long long sexpBeginning);
     
+    /* Parses a construct, emplaces it into AST and leaves it's scope once it's done */
     void parseConstruct(unsigned long long constructBeginning, unsigned long long constructEnd);
+    
+    /* Parses calls to functions or operators */
     ASTFunCall parseFunCall(unsigned long long callBeginning, unsigned long long callEnd);
     
-    /* Accepts a reference so when the function execution finishes, the iterator is set at the end of member access */
-    /* And member access parameters aren't parsed as separate variables                                             */
+    /* Parses member access operator[]                                                                              */
+    /* Accepts a reference so when the function execution finishes, the iterator is set to the end of member access */
+    /* and member access parameters aren't parsed as separate variables                                             */
     ASTMemberAccess parseMemberAccess(unsigned long long & exprBeginning);
     
+    /* Finds index of the end of an s-expression */
     unsigned long long findSexpEnd(unsigned long long sexpBeginning);
     
-    /* Similar to parseSexps(), but adjusted to work properly on classes */
+    /* Parses member functions and class attributes */
     void parseClassMembers(unsigned long long firstSexp, std::string & className);
     
-    /* Similar to parseSexp(), but only parses class attributes and global variables */
+    /* Parses global functions */
     parameter parseVariable(unsigned long long sexpBeginning);
     
     /* Parse sexps finds s-expressions and passes them to parseSexp(), a method which parses single s-expressions  */
     void parseSexps(unsigned long long firstSexp);
     
-    /* Calls varDeclaration() or funDeclaration(), */
-    /* exists to increase code readability and     */
-    /* modularity                                  */
-    void declaration(unsigned long long declBeginning, unsigned long long declEnd);
-    
-    void globalVarDeclaration(unsigned long long declBeginning, unsigned long long declEnd);    /* Declares a global variable,
-                                                                                             called from parseDeclarations() */
+    /* Declares a global variable, called from parseDeclarations() */
+    void globalVarDeclaration(unsigned long long declBeginning, unsigned long long declEnd);
     
     /* Declares a local variable */
     void localVarDeclaration(unsigned long long declBeginning, unsigned long long declEnd);
 
+    /* Parses a class definition and emplaces it into AST */
     void classDefinition(unsigned long long defBeginning, unsigned long long defEnd);
     
     /* parseFun() is capable of parsing normal functions, as well as member functions */
     /* If className is an empty string, function will be treated as a normal function */
     /* Otherwise the function will be treated as a member function of class className */
     void parseFun(unsigned long long funBeginning, unsigned long long funEnd, const std::string className = "");
+    
     /* Here I am, here I am, the Method Man */
     void parseMethod(const unsigned long long methodBeginning, const std::string & className);
+    
+    /* Parses function call parameters */
     void parseParams(unsigned long long beginning, std::vector<parameter> & params);
     
-    void parseDefinitions(); /* Parse definitions */
-    void definition(unsigned long long defBeginning, unsigned long long defEnd); /* Same as declaration() */
+    /* Iterates over definitions and parses them */
+    void parseDefinitions();
+    
+    /* Determines whether a definition is a class/function/global variable definition */
+    /* and calls method which parses such definition                                  */
+    void definition(unsigned long long defBeginning, unsigned long long defEnd);
     
 public:
     Parser(std::vector<token> & vectorRef, TraversableAbstractSyntaxTree & ast);

@@ -9,16 +9,15 @@
 #ifndef Analyzer_hpp
 #define Analyzer_hpp
 
-#include <stdio.h>
-#include <iostream>
-#include <tuple>
-#include <functional>
-
 #include "analyzed_abstract_syntax_tree.hpp"
 #include "aast_node.hpp"
 #include "traversable_ast.hpp"
 #include "expressions.hpp"
 #include "exceptions.hpp"
+
+/* Analyzer class which iterates over AST nodes and analyzes them        */
+/* Analyzer handles name mangling, type inferrence, type checking etc... */
+/* Analyzer creates an AnalyzedAbstractSyntaxTree                        */
 
 class Analyzer {
     
@@ -29,6 +28,7 @@ class Analyzer {
     std::string _functionName;
     std::string _functionType;
     
+    /* Concatenates '(', function type, function name and ')' */
     std::string currentFunction();
     
     /* Stores all currently declared variables so destructors can be called on all declared variables. */
@@ -51,7 +51,12 @@ class Analyzer {
     
     AASTOperator * analyzeOperator(const std::string & op, std::vector<AASTNode *> & params);
     AASTOperator * analyzePrint(std::vector<AASTNode *> & parameters);
+    
+    /* Analyzes return operator - checks if type matches function return type */
+    /* Casts returned value to function's return type if possible             */
     AASTScope * analyzeReturn(std::vector<AASTNode *> & parameters);
+    
+    /* Analyzes inline C */
     AASTOperator * inlineC(std::vector<AASTNode *> & parameters, ASTFunCall & fcall);
     
     /* Casts objects to their superclasses/inheriting classes and int <-> num */
@@ -60,11 +65,14 @@ class Analyzer {
     /* New operator, which creates a new object on heap */
     AASTOperator * newObject(const std::string & type);
     
-    /* Deletes an object by calling destructor and deallocating memory                        */
-    /* Funcall is destructor, first operator is free and second operator sets pointer to NULL */
-    // std::tuple<AASTFuncall*, AASTOperator, AASTOperator> deleteObject(parameter & object, const bool isFuncall);
+    /* Deletes an object by calling destructor and deallocating memory              */
+    /* Returns a scope which calls object's destructor, frees it's allocated memory */
+    /* and sets object pointer to NULL                                              */
+    /* Not all steps are always possible when deleting objects                      */
+    /* deleteObjects() only handles these steps if they're possible to perform      */
     AASTScope * deleteObject(AASTNode * object);
     
+    /* Analyzes a function call parameter */
     AASTNode * getFuncallParameter(ASTNode * node);
     
     /* Analyzes a scope ( {...} ) */
@@ -73,6 +81,7 @@ class Analyzer {
     /* Calls constructors on all objects with constructors from the current scope */
     std::vector<AASTFuncall *> destructScopedObjects(std::vector<ASTNode *> scopeNodes);
     
+    /* Returns a destructor call for object passed as a parameter */
     AASTFuncall * getDestructor(AASTNode * object);
     
     /* Analyzes a single node found inside function bodies (construct, declaration, funcall) */
@@ -81,14 +90,19 @@ class Analyzer {
     /* Analyzes constructs */
     AASTConstruct * analyzeConstruct(ASTConstruct & construct);
     
-    /* If, else if, while are syntactically the same, only the keyword is different */
+    /* If, else if, while, dowhile are syntactically the same, only the keyword is different */
     AASTConstruct * analyzeIfWhile(ASTConstruct & construct);
+    /* Else if different because it doesn't have a condition */
     AASTConstruct * analyzeElse(ASTConstruct & construct);
     
+    /* Analyzes variable declarations, deduces type if possible */
     AASTDeclaration * analyzeDeclaration(ASTDeclaration & declaration);
     
     AASTValue analyzeMemberAccess(ASTMemberAccess & attribute);
+    /* Checks if nth parameter of member access has attribute n+1 and returns type of member access operator */
     std::string checkAttributesAndReturnType(parameter & var, std::vector<ASTNode*> & attributes, unsigned int iter = 1);
+    
+    /* Finds type of variable and returns variable name and type as parameter */
     parameter getVariable(ASTVariable & variable);
     
     /* Checks if parameter is an existing class, throws invalid_attribute_access exception if parameter isn't a class */
@@ -97,8 +111,10 @@ class Analyzer {
     /* Checks if id is a valid identifier for variable names */
     void checkIdIsValid(const std::string & id);
     
+    /* Dereferences pointers using C * operator */
     AASTNode * dereference(const std::string & param);
     
+    /* Check if type is a pointer type */
     bool isPointer(const std::string & type);
     
     

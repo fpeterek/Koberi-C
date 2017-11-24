@@ -8,6 +8,8 @@
 
 #include "ast_node.hpp"
 
+ASTNode::~ASTNode() { }
+
 ASTDeclaration::ASTDeclaration(ASTScope * parent,
                                const std::string & paramType,
                                const std::string & paramName,
@@ -32,47 +34,7 @@ ASTScope::~ASTScope() {
     
     for (ASTNode * childNode : childNodes) {
         
-        switch (childNode -> nodeType) {
-                
-            case NodeType::Scope:
-                delete (ASTScope*)childNode;
-                break;
-                
-            case NodeType::FunCall:
-                delete (ASTFunCall*)childNode;
-                break;
-                
-            case NodeType::Declaration:
-                delete (ASTDeclaration*)childNode;
-                break;
-                
-            case NodeType::Function:
-                delete (ASTFunction*)childNode;
-                break;
-                
-            case NodeType::Construct:
-                delete (ASTConstruct*)childNode;
-                break;
-                
-            case NodeType::MemberAccess:
-                delete (ASTMemberAccess*)childNode;
-                break;
-                
-            /* These two cases should never occur, but I'm putting them here just to be sure */
-            /* Can't risk creating memory leaks if someone emplaces these somewhere          */
-            case NodeType::Variable:
-                delete (ASTVariable*)childNode;
-                break;
-                
-            case NodeType::Literal:
-                delete (ASTLiteral*)childNode;
-                break;
-                
-            default:
-                delete childNode;
-                break;
-                
-        }
+        delete childNode;
         
     }
     
@@ -104,48 +66,7 @@ ASTConstruct::ASTConstruct(ASTScope * parent,
 
 ASTConstruct::~ASTConstruct() {
     
-    switch (condition -> nodeType) {
-            
-        case NodeType::Variable:
-            delete (ASTVariable*)condition;
-            break;
-            
-        case NodeType::Literal:
-            delete (ASTLiteral*)condition;
-            break;
-            
-        case NodeType::FunCall:
-            delete (ASTFunCall*)condition;
-            break;
-            
-        case NodeType::MemberAccess:
-            delete (ASTMemberAccess*)condition;
-            break;
-            
-            /* These cases should never occur, but I'm putting them here just to be sure     */
-            /* Can't risk creating memory leaks if someone emplaces these somewhere          */
-
-        case NodeType::Scope:
-            delete (ASTScope*)condition;
-            break;
-            
-        case NodeType::Declaration:
-            delete (ASTDeclaration*)condition;
-            break;
-            
-        case NodeType::Function:
-            delete (ASTFunction*)condition;
-            break;
-            
-        case NodeType::Construct:
-            delete (ASTConstruct*)condition;
-            break;
-            
-        default:
-            delete condition;
-            break;
-            
-    }
+    delete condition;
     
 }
 
@@ -274,47 +195,7 @@ ASTFunCall::~ASTFunCall() {
     
     for (ASTNode * param : parameters) {
         
-        switch (param -> nodeType) {
-                
-            case NodeType::Variable:
-                delete (ASTVariable*)param;
-                break;
-                
-            case NodeType::Literal:
-                delete (ASTLiteral*)param;
-                break;
-                
-            case NodeType::MemberAccess:
-                delete (ASTMemberAccess*)param;
-                break;
-                
-            case NodeType::FunCall:
-                delete (ASTFunCall*)param;
-                break;
-                
-                /* These cases should never occur, but I'd rather be safe than sorry */
-                
-            case NodeType::Scope:
-                delete (ASTScope*)param;
-                break;
-                
-            case NodeType::Declaration:
-                delete (ASTDeclaration*)param;
-                break;
-                
-            case NodeType::Function:
-                delete (ASTFunction*)param;
-                break;
-                
-            case NodeType::Construct:
-                delete (ASTConstruct*)param;
-                break;
-                
-            default:
-                delete param;
-                break;
-                
-        }
+        delete param;
         
     }
     
@@ -448,45 +329,7 @@ ASTMemberAccess::~ASTMemberAccess() {
     
     for (ASTNode * param : accessOrder) {
         
-        switch (param -> nodeType) {
-                
-            case NodeType::Variable:
-                delete (ASTVariable*)param;
-                break;
-                
-            case NodeType::Literal:
-                delete (ASTLiteral*)param;
-                break;
-                
-            case NodeType::MemberAccess:
-                delete (ASTMemberAccess*)param;
-                break;
-                
-            case NodeType::FunCall:
-                delete (ASTFunCall*)param;
-                break;
-                
-            case NodeType::Scope:
-                delete (ASTScope*)param;
-                break;
-                
-            case NodeType::Declaration:
-                delete (ASTDeclaration*)param;
-                break;
-                
-            case NodeType::Function:
-                delete (ASTFunction*)param;
-                break;
-                
-            case NodeType::Construct:
-                delete (ASTConstruct*)param;
-                break;
-                
-            default:
-                delete param;
-                break;
-                
-        }
+        delete param;
         
     }
     

@@ -116,13 +116,29 @@ std::string TraversableAbstractSyntaxTree::getVarType(const std::string & varNam
 
 std::string TraversableAbstractSyntaxTree::getFunctionReturnType(const std::string & funName) {
     
-    return _functions.at(funName);
+    try {
+        
+        return _functions.at(funName);
+    
+    } catch (const std::out_of_range & e) {
+    
+        throw undeclared_function_call(funName);
+    
+    }
     
 }
 
 const _class & TraversableAbstractSyntaxTree::getClass(const std::string & className) {
     
-    return _classes.at(className);
+    try {
+        
+        return _classes.at(className);
+    
+    } catch (const std::out_of_range & e) {
+        
+        throw undefined_class(className);
+        
+    }
     
 }
 

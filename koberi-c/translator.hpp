@@ -10,7 +10,6 @@
 #define translator_hpp
 
 #include <fstream>
-#include <iostream>
 #include <vector>
 
 #include "traversable_ast.hpp"
@@ -23,6 +22,10 @@
 
 #define INDENT "    " /* Uses four spaces to indent */
 
+/* AnalyzedAST nodes are self translating */
+/* Translator handles #include directives, makes sure all nodes are translated          */
+/* in correct order, all classes are defined, all functions are forward declared etc... */
+
 class Translator {
     
     TraversableAbstractSyntaxTree & _ast;
@@ -31,16 +34,23 @@ class Translator {
     /* Used to store name of current function to make error messages slightly more useful */
     std::string _functionName;
 
-    
+    /* Creates C int main(int, char**) function, which calls Kobeři-C main function (int main ()) */
     void main();
     
+    /* Output file stream */
     std::ofstream _output;
     
+    /* Outputs library imports */
     void libraries();
+    /* Outputs typedefs */
     void typedefs();
+    /* Translates classes */
     void translateClasses();
+    /* Translates forward function declarations */
     void translateFunctionDeclarations();
+    /* Translates global variable declarations */
     void translateGlobals();
+    /* Translates functions and member functions */
     void translateFunctions();
     
     
@@ -48,6 +58,7 @@ public:
     
     Translator(TraversableAbstractSyntaxTree & ast, AnalyzedAbstractSyntaxTree & aast);
     
+    /* Sets output file and opens file stream */
     void setOutputFile(const std::string & filename);
     
     void translate();

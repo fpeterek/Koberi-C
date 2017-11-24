@@ -9,13 +9,15 @@
 #ifndef ast_node_hpp
 #define ast_node_hpp
 
-#include <stdio.h>
-#include <functional>
+#include <string>
 #include <vector>
 #include <unordered_map>
 
 #include "parameter.hpp"
 #include "exceptions.hpp"
+
+/* AbstractSyntaxTree nodes                         */
+/* Used to store parsed Kobeři-C code inside a tree */
 
 /* C++11 has ways of checking the type of a variable at runtime, but I'm going to use an enum instead */
 enum class NodeType {
@@ -35,14 +37,13 @@ enum class NodeType {
 
 struct ASTScope;
 
-/* This should be an abstract class, but to create an abstract class (or a struct, in this case), */
-/* I'd need to create a virtual method                                                            */
-/* But there's no place for methods here, so I'll make this instantiable                          */
-/* Avoid using it if possible                                                                     */
+
 struct ASTNode {
     
     ASTScope * parentScope; /* Can't use a reference because the global scope needs to point at 0 */
     NodeType nodeType;
+    
+    virtual ~ASTNode() = 0;
     
 };
 
