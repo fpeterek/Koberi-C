@@ -34,7 +34,7 @@ struct token {
     tokType type;
     std::string value;
     
-    token(tokType t, std::string val);
+    token(tokType t, const std::string & val);
     token();
     
     bool operator== (tokType comparedType);

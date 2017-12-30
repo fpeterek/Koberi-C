@@ -9,7 +9,7 @@
 #include "token.hpp"
 
 
-token::token(tokType t, std::string val) {
+token::token(tokType t, const std::string & val) {
     
     type = t; value = val;
     
