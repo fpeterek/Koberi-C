@@ -26,6 +26,8 @@ void KoberiC::compile(const std::string & filename) {
     analyze();
     translate();
     
+    std::cout << "Compilation successfully finished. " << std::endl;
+    
 }
 
 void KoberiC::handleImports(const std::string & file) {
