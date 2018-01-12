@@ -16,7 +16,7 @@ Kobeři-C finally introduces this well-known feature from languages like C++. Wh
 ### Automatic function declarations
 Kobeři-C functions are automatically forward declared. This means you don't have to declare functions before using them. Just write the function wherever you want and call it from anywhere you want. 
 ### Classes with methods and inheritance
-Yet another feature introduced in Kobeři-C is also well known from other languages. Classes. With methods, which accept a reference to an object. And although Kobeři-C doesn't support polymorphism, it does support inheritance. Create a new class and inherit all attributes and methods from an already existing class.
+Yet another feature introduced in Kobeři-C is also well known from other languages. Classes. With methods, which accept a reference to an object. And although polymorphism has yet to be implemented, Kobeři-C does support inheritance. Create a new class and inherit all attributes and methods from an already existing class. V-tables are planned for next iterations of the Kobeři-C compiler.
 ### Type deduction
 A small, but helpful feature, type deduction can make a programmer's life easier. Use the var keyword to define a variable and the compiler will automatically deduce the type from the value assigned to the variable. 
 ### Syntactic sugar
