@@ -12,7 +12,6 @@
 unexpected_token::unexpected_token(char tok) {
     
     _message = "Unexpected token: ";
-    // _message += std::to_string(tok);
     _message += { tok, 0 };
     
 }
@@ -33,7 +32,6 @@ const char * unexpected_token::what() const throw() {
 missing_token::missing_token(char tok) {
     
     _message = "Missing token ";
-    // _message += std::to_string(tok);
     _message += { tok, 0 };
 
 }
@@ -286,9 +284,11 @@ const char * no_such_member::what() const throw() {
 exiting_global_scope::exiting_global_scope() {
     
     std::stringstream message;
+    
     message << "Error: Attempting to exit global scope. "
             << "This error message should never find it's way towards the end-user. "
             << "If you happen to be an end-user and you see this message, something has gone wrong.";
+    
     _message = message.str();
     
 }
@@ -330,7 +330,9 @@ const char * compiler_error::what() const throw() {
     
 }
 
-invalid_main::invalid_main() : message("Error: (main ()) must return int. ") { }
+invalid_main::invalid_main() : message("Error: (main ()) must return int. ") {
+
+}
 
 const char * invalid_main::what() const throw() {
     
@@ -338,7 +340,9 @@ const char * invalid_main::what() const throw() {
     
 }
 
-missing_main::missing_main() : message("Error: Missing (int main ()). ") { }
+missing_main::missing_main() : message("Error: Missing (int main ()). ") {
+
+}
 
 const char * missing_main::what() const throw() {
     
@@ -347,7 +351,9 @@ const char * missing_main::what() const throw() {
 }
 
 invalid_statement::invalid_statement(const std::string & functionName) :
-    message("Error: Invalid statement in function " + functionName + ". ") { }
+    message("Error: Invalid statement in function " + functionName + ". ") {
+    
+}
 
 const char * invalid_statement::what() const throw() {
     
@@ -355,7 +361,9 @@ const char * invalid_statement::what() const throw() {
     
 }
 
-type_mismatch::type_mismatch(const std::string & msg) : message(msg) { }
+type_mismatch::type_mismatch(const std::string & msg) : message(msg) {
+
+}
 
 const char * type_mismatch::what() const throw() {
     
@@ -369,9 +377,13 @@ invalid_parameter::invalid_parameter(const std::string & functionName,
                                      const std::string & parameter)
                                     : message("Invalid parameter " + parameter +
                                               " in call to " + funcall +
-                                              " in function " + functionName) { }
+                                              " in function " + functionName) {
+                                    
+}
 
-invalid_parameter::invalid_parameter(const std::string & msg) : message(msg) { }
+invalid_parameter::invalid_parameter(const std::string & msg) : message(msg) {
+
+}
 
 
 const char * invalid_parameter::what() const throw() {
@@ -386,11 +398,15 @@ invalid_call::invalid_call(const std::string & funcall,
                            const std::string & msg)
                             : message("Invalid call to " + funcall +
                                       " in function " + functionName +
-                                      ": " + msg) { }
+                                      ": " + msg) {
+                                
+}
 
 invalid_call::invalid_call(const std::string & funcall,
                            const std::string & msg)
-                            : message("Invalid call to " + funcall + ": " + msg) { }
+                            : message("Invalid call to " + funcall + ": " + msg) {
+                                
+}
 
 const char * invalid_call::what() const throw() {
     
@@ -456,6 +472,7 @@ type_deduction_error::type_deduction_error(const std::string & varName, const st
                              + " could not be automatically deduced.") {
     
 }
+
 const char * type_deduction_error::what() const throw() {
     
     return _message.c_str();

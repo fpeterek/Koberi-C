@@ -253,6 +253,7 @@ AASTOperator * expr::unaryOperator(AASTNode * param, const std::string & op) {
             invalid_call("(" + op + " " + param->value() + ")", "Unary operator - must receive a parameter of numerical type");
         }
     }
+    
     param = dereferencePtr(param);
     std::vector<AASTNode *> params = { param };
     

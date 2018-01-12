@@ -99,6 +99,7 @@ class undeclared_function_call : public std::exception {
 public:
     
     const char * what() const throw();
+    
     undeclared_function_call(const std::string & function);
     undeclared_function_call(const std::string & method, const std::string & className);
     
@@ -111,6 +112,7 @@ class undefined_variable : public std::exception {
 public:
     
     const char * what() const throw();
+    
     undefined_variable(const std::string & var_name);
     
 };
@@ -122,6 +124,7 @@ class bad_type : public std::exception {
 public:
     
     const char * what() const throw();
+    
     bad_type(const std::string & message);
     bad_type(const std::string && message);
     
@@ -134,6 +137,7 @@ class invalid_syntax : public std::exception {
 public:
     
     const char * what() const throw();
+    
     invalid_syntax(const std::string & message);
     invalid_syntax(const std::string && message);
     
@@ -146,6 +150,7 @@ class undefined_class : public std::exception {
 public:
     
     const char * what() const throw();
+    
     undefined_class(const std::string & className);
     undefined_class(const std::string && className);
     
@@ -158,6 +163,7 @@ class redefinition_of_class : public std::exception {
 public:
     
     const char * what() const throw();
+    
     redefinition_of_class(const std::string & className);
     
 };
@@ -169,6 +175,7 @@ class not_a_class : public std::exception {
 public:
     
     const char * what() const throw();
+    
     not_a_class(const std::string & id);
     not_a_class(const std::string && id);
     
@@ -254,6 +261,7 @@ class not_a_scope : public std::exception {
     static const std::string message;
     
 public:
+    
     const char * what() const throw();
     
 };
@@ -265,6 +273,7 @@ class compiler_error : public std::exception {
 public:
     
     compiler_error(const std::string & message);
+    
     const char * what() const throw();
     
 };
@@ -276,6 +285,7 @@ class invalid_main : public std::exception {
 public:
     
     invalid_main();
+    
     const char * what() const throw();
     
 };
@@ -287,6 +297,7 @@ class missing_main : public std::exception {
 public:
     
     missing_main();
+    
     const char * what() const throw();
     
 };
@@ -298,6 +309,7 @@ class invalid_statement : public std::exception {
 public:
     
     invalid_statement(const std::string & functionName);
+    
     const char * what() const throw();
     
 };
@@ -309,6 +321,7 @@ class type_mismatch : public std::exception {
 public:
     
     type_mismatch(const std::string & msg);
+    
     const char * what() const throw();
     
 };
@@ -321,6 +334,7 @@ public:
     
     invalid_parameter(const std::string & functionName, const std::string & funcall, const std::string & parameter);
     invalid_parameter(const std::string & msg);
+    
     const char * what() const throw();
     
 };
@@ -333,6 +347,7 @@ public:
     
     invalid_call(const std::string & funcall, const std::string & functionName, const std::string & msg);
     invalid_call(const std::string & funcall, const std::string & msg);
+    
     const char * what() const throw();
     
 };
@@ -345,6 +360,7 @@ public:
     
     invalid_attribute_access(const std::string & functionName, const std::string & msg);
     invalid_attribute_access(const std::string & msg);
+    
     const char * what() const throw();
     
 };
@@ -356,6 +372,7 @@ class invalid_cast : public std::exception {
 public:
     
     invalid_cast(const std::string & origType, const std::string & newType);
+    
     const char * what() const throw();
     
 };
@@ -367,6 +384,7 @@ class invalid_char_literal : public std::exception {
 public:
     
     invalid_char_literal(const std::string & literal);
+    
     const char * what() const throw();
     
 };
@@ -378,6 +396,7 @@ class invalid_identifier : public std::exception {
 public:
     
     invalid_identifier(const std::string & identifier);
+    
     const char * what() const throw();
 
 };
@@ -389,6 +408,7 @@ class type_deduction_error : public std::exception {
 public:
     
     type_deduction_error(const std::string & varName, const std::string & function);
+    
     const char * what() const throw();
     
 };

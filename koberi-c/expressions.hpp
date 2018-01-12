@@ -41,11 +41,13 @@ namespace expr {
     
     /* An array of all operators combined */
     const std::array<std::string, 30> operators = {
+        
         "return", "break", "continue",
         "size_of", "inc", "dec", "not", "compl",
         "+", "-", "*", "/", "mod", "set", "equals", "not_eq", ">",
         "<", ">=", "<=", "and", "or", "bit_and", "bit_or", "xor", "lshift", "rshift",
         "&", "new", "delete"
+        
     };
     
     /* C and Kobeři-C keywords, which can't be used as identifiers */
