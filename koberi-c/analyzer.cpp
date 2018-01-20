@@ -466,7 +466,7 @@ AASTScope * Analyzer::analyzeReturn(std::vector<AASTNode *> & parameters) {
         
         try {
             
-            retval = cast(parameters.front(), _functionType);
+            retval = cast(retval, _functionType);
             
         } catch (const invalid_cast & e) {
             
@@ -502,6 +502,7 @@ AASTScope * Analyzer::analyzeReturn(std::vector<AASTNode *> & parameters) {
     }
     
     if (retval != nullptr) {
+        
         calls.emplace_back((AASTNode *)new AASTOperator("return", "void", { retval }));
     } else {
         calls.emplace_back((AASTNode *)new AASTOperator("return", "void", parameters));
