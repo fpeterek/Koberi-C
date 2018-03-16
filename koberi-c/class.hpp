@@ -16,6 +16,15 @@
 #include "parameter.hpp"
 #include "exceptions.hpp"
 
+struct _method {
+    
+    /* Vtable index */
+    uint32_t pointerIndex;
+    /* Actual type of function pointer, eg. void (*)(class*) */
+    std::string pointerType;
+    
+};
+
 /* Class struct                                                                           */
 /* Abstraction for Kobeři-C classes, all classes are stored as an instance of this struct */
 /* Allows for easy look-up of methods/attributes and superclasses                         */
@@ -27,7 +36,12 @@ struct _class {
     
     /* Implementing this as a vector because I want the attributes sorted */
     std::vector<parameter> attributes;
-    std::unordered_map<std::string, std::string> methods;
+    
+    /* Only holds methods of a certain class, but not methods of it's superclasses */
+    std::unordered_map<std::string /* mangledName */, std::string> methods;
+    
+    /* Holds vtable with all methods, including inherited methods */
+    std::unordered_map<std::string /* mangledName */, _method> vtable;
     
     std::string getVarType(const std::string & name) const;
     bool hasVar(const std::string & name) const;

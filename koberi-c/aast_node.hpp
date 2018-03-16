@@ -116,6 +116,7 @@ class AASTClass : public AASTNode {
     
     const std::vector<AASTDeclaration> _attributes;
     const std::string _name;
+    const std::string vtable;
     
 public:
     
