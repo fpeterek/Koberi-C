@@ -338,7 +338,7 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
             _class.pop_back();
         }
         
-        m = _ast.getMethodReturnType(name, object.type());
+        m = _ast.getMethodReturnType(name, _class);
         
         type = m.type;
         
