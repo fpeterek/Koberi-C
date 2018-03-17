@@ -331,8 +331,6 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
         std::vector<AASTNode *> param = { (AASTNode *)new AASTValue(object) };
         AASTOperator * op = analyzeOperator("&", param);
         
-        params.insert(params.begin(), op);
-        
         std::string _class = object.type();
         if (syntax::isPointerType(_class)) {
             _class.pop_back();
@@ -341,6 +339,19 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
         m = _ast.getMethodReturnType(name, _class);
         
         type = m.type;
+        
+        /* Virtual call if method is called on a pointer */
+        if (syntax::isPointerType(object.type())) {
+            params.insert(params.begin(), op);
+            return virtualFunCall(object, name, type, params);
+        }
+        
+        /* Cast object to superclass instance if needed */
+        if (syntax::pointerForType(m.className) != op->type()) {
+            params.insert(params.begin(), cast(op, syntax::pointerForType(m.className)));
+        } else {
+            params.insert(params.begin(), op);
+        }
         
     } else {
         type = _ast.getFunctionReturnType(name);
@@ -351,6 +362,28 @@ AASTNode * Analyzer::analyzeFunCall(ASTFunCall & funcall) {
     }
     
     return (AASTNode *)new AASTFuncall(name, type, params);
+    
+}
+
+AASTNode * Analyzer::virtualFunCall(const AASTValue & object,
+                                    const std::string & funName,
+                                    const std::string & type,
+                                    const std::vector<AASTNode *> & params) {
+    
+    std::string objectType = object.type();
+    /* Type is pointer, remove last character because we need the actual class */
+    objectType.pop_back();
+    const _class & c = _ast.getClass(objectType);
+    
+    const _method m = c.vtable.at(funName);
+    
+    const std::string cast = "(" + m.pointerType + ")";
+    const std::string pointerAccess = params[0]->value() + "->vtable[" + std::to_string(m.pointerIndex) + "]";
+    const std::string method = "(" + cast + pointerAccess + ")";
+    
+    AASTFuncall * fcall = new AASTFuncall(method, type, params);
+    
+    return (AASTNode *)fcall;
     
 }
 

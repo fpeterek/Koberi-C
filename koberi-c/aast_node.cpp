@@ -195,7 +195,9 @@ std::string AASTClass::value(int baseIndent) const {
 
 std::string AASTClass::vtable() const {
     
-    std::string table = "void (*" + NameMangler::premangleMethodName("vtable", _name) +"[])(void) = {\n";
+    /* Inserting whitespace after { so when trailing commas are being removed, the whitespace */
+    /* Character will be removed instead of the brace { */
+    std::string table = "void (*" + NameMangler::premangleMethodName("vtable", _name) +"[])(void) = { \n";
     
     std::vector<std::string> methods;
     

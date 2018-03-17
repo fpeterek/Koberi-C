@@ -49,6 +49,10 @@ class Analyzer {
     /* Analyzes a function call, mangles the name */
     AASTNode * analyzeFunCall(ASTFunCall & funcall);
     
+    /* Creates a call to a virtual function -> function called via a v-table */
+    AASTNode * virtualFunCall(const AASTValue & object, const std::string & funName,
+                              const std::string & type, const std::vector<AASTNode *> & params);
+    
     AASTOperator * analyzeOperator(const std::string & op, std::vector<AASTNode *> & params);
     AASTOperator * analyzePrint(std::vector<AASTNode *> & parameters);
     
