@@ -19,6 +19,7 @@
 		4E2B3A9E1DC79BDA00700208 /* token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A9C1DC79BDA00700208 /* token.cpp */; };
 		4E2B3AA11DC79C0500700208 /* exceptions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3A9F1DC79C0500700208 /* exceptions.cpp */; };
 		4E2B3AA71DC79C7900700208 /* expressions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B3AA51DC79C7900700208 /* expressions.cpp */; };
+		4E33C119205D33CB0054F6CF /* vtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E33C117205D33CB0054F6CF /* vtable.cpp */; };
 		4E3E613B1F24ACA600FBE7A1 /* name_mangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E3E61391F24ACA600FBE7A1 /* name_mangler.cpp */; };
 		4E425D3F1E916F330090F591 /* ast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E425D3D1E916F330090F591 /* ast.cpp */; };
 		4E425D421E91719D0090F591 /* ast_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E425D401E91719D0090F591 /* ast_node.cpp */; };
@@ -67,6 +68,8 @@
 		4E2B3AA51DC79C7900700208 /* expressions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = expressions.cpp; sourceTree = "<group>"; };
 		4E2B3AA61DC79C7900700208 /* expressions.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = expressions.hpp; sourceTree = "<group>"; };
 		4E2B3AA81DC79CE000700208 /* debug_macro_definitions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debug_macro_definitions.hpp; sourceTree = "<group>"; };
+		4E33C117205D33CB0054F6CF /* vtable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = vtable.cpp; sourceTree = "<group>"; };
+		4E33C118205D33CB0054F6CF /* vtable.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = vtable.hpp; sourceTree = "<group>"; };
 		4E3E61391F24ACA600FBE7A1 /* name_mangler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = name_mangler.cpp; sourceTree = "<group>"; };
 		4E3E613A1F24ACA600FBE7A1 /* name_mangler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = name_mangler.hpp; sourceTree = "<group>"; };
 		4E425D3D1E916F330090F591 /* ast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ast.cpp; sourceTree = "<group>"; };
@@ -135,6 +138,7 @@
 			children = (
 				4E2B3A891DC79ADB00700208 /* main.cpp */,
 				4E2B3AA81DC79CE000700208 /* debug_macro_definitions.hpp */,
+				4E33C11A205D33D40054F6CF /* Vtable */,
 				4E425D491E9189630090F591 /* Class */,
 				4E425D471E91821E0090F591 /* Helpers */,
 				4E425D481E91822B0090F591 /* Kobeři-C */,
@@ -207,6 +211,15 @@
 				4E2B3AA61DC79C7900700208 /* expressions.hpp */,
 			);
 			name = Expressions;
+			sourceTree = "<group>";
+		};
+		4E33C11A205D33D40054F6CF /* Vtable */ = {
+			isa = PBXGroup;
+			children = (
+				4E33C117205D33CB0054F6CF /* vtable.cpp */,
+				4E33C118205D33CB0054F6CF /* vtable.hpp */,
+			);
+			name = Vtable;
 			sourceTree = "<group>";
 		};
 		4E3E613C1F24ACAD00FBE7A1 /* Name Mangler */ = {
@@ -355,6 +368,7 @@
 				4E425D3F1E916F330090F591 /* ast.cpp in Sources */,
 				4E2B3A921DC79B0C00700208 /* koberi-c.cpp in Sources */,
 				4E2B3AA71DC79C7900700208 /* expressions.cpp in Sources */,
+				4E33C119205D33CB0054F6CF /* vtable.cpp in Sources */,
 				4E425D461E9176F10090F591 /* parameter.cpp in Sources */,
 				4E2B3A951DC79B3500700208 /* syntax.cpp in Sources */,
 				4EFEFD851F23E78C003AF308 /* translator.cpp in Sources */,

@@ -169,15 +169,19 @@ std::string AASTFunction::declaration() const {
 }
 
 AASTClass::AASTClass(const std::string & name,
-                     const std::vector<AASTDeclaration> & attributes) : _name(name),
-                                                                        _attributes(attributes),
-                                                                        AASTNode(AASTNodeType::Class, name) { }
+                     const std::vector<AASTDeclaration> & attributes,
+                     const VTable & vt) : _name(name),
+                                          _attributes(attributes),
+                                          _vtable(vt),
+                                          AASTNode(AASTNodeType::Class, name) { }
 
 std::string AASTClass::value(int baseIndent) const {
     
     std::stringstream stream;
     
     stream << "typedef struct " << _name << "\n" << "{" << "\n";
+    
+    stream << indent(baseIndent + 1) << "void (**vtable)(void)" << ";\n";
     
     for (const AASTDeclaration & attribute : _attributes) {
         stream << indent(baseIndent + 1) << attribute.value(baseIndent + 1) << ";\n";
@@ -186,6 +190,38 @@ std::string AASTClass::value(int baseIndent) const {
     stream << "} " << _name << ";" << "\n";
     
     return stream.str();
+    
+}
+
+std::string AASTClass::vtable() const {
+    
+    std::string table = "void (*" + NameMangler::premangleMethodName("vtable", _name) +"[])(void) = {\n";
+    
+    std::vector<std::string> methods;
+    
+    for (size_t i = 0; i < _vtable.size(); ++i) {
+        methods.emplace_back("");
+    }
+    
+    for (const auto & m : _vtable) {
+        
+        const std::string & mname = m.first;
+        const _method & method = m.second;
+        
+        methods[method.pointerIndex] = "(void (*)(void))" + NameMangler::premangleMethodName(mname, method.className);
+        
+    }
+    
+    for (const auto & m : methods) {
+        table += indent(1) + m + ",\n";
+    }
+    
+    /* Remove trailing whitespace and comma */
+    table.pop_back(); table.pop_back();
+    
+    table += "\n}";
+    
+    return table;
     
 }
 

@@ -78,6 +78,20 @@ void Translator::translateFunctionDeclarations() {
     
 }
 
+void Translator::translateVtables() {
+    
+    _output << "\n\n" << "/* Virtual method tables */" << "\n\n";
+    
+    const auto & classes = _aast.getClasses();
+    
+    for (const AASTClass * c : classes) {
+        
+        _output << c->vtable() << ";\n" << std::endl;
+        
+    }
+    
+}
+
 void Translator::translateFunctions() {
     
     _output << "\n\n" << "/* Function Definitionss */" << "\n\n";
@@ -117,6 +131,7 @@ void Translator::translate() {
     translateClasses();
     translateGlobals();
     translateFunctionDeclarations();
+    translateVtables();
     translateFunctions();
     
     main();

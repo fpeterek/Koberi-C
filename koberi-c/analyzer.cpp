@@ -55,7 +55,7 @@ void Analyzer::analyzeClasses() {
             
         }
         
-        AASTClass * _class = new AASTClass(cls.className, attributes);
+        AASTClass * _class = new AASTClass(cls.className, attributes, cls.vtable);
         _aast.emplaceClass(_class);
         
     }

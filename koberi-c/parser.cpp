@@ -469,7 +469,7 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
         std::string mangledName = NameMangler::mangleName(name, params);
         
         try {
-            _ast.addMethod(type, mangledName, className);
+            _ast.addMethod(type, mangledName, className, params);
         } catch (const redefinition_of_function & e) {
             throw redefinition_of_function(_tokens[funBeginning + 2].value, className);
         }

@@ -66,8 +66,9 @@ public:
     
     /* Tree building methods */
     
-    void addMethod(const parameter & method, const std::string & className);
-    void addMethod(const std::string & methodType, const std::string & methodName, const std::string & className);
+    void addMethod(const parameter & method, const std::string & className, const std::vector<parameter> & params);
+    void addMethod(const std::string & methodType, const std::string & methodName,
+                   const std::string & className, const std::vector<parameter> & params);
     
     void addClassAttribute(const parameter & attribute, const std::string & className);
     void addClassAttribute(const std::string & type, const std::string & name, const std::string & className);

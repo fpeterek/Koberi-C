@@ -36,11 +36,34 @@ void AbstractSyntaxTree::addExternTypes(const std::vector<std::string> & types) 
     
 }
 
-void AbstractSyntaxTree::addMethod(const parameter & method, const std::string & className) {
-    addMethod(method.type, method.name, className);
+/* Gets data type of function pointer, eg. void (*)(class*) */
+std::string getMethodPointerType(const std::string & methodType,
+                                 const std::string & className,
+                                 const std::vector<parameter> & params) {
+    
+    std::string type = methodType + " (*)(" + className + "*, ";
+    
+    for (const auto & param : params) {
+        type += param.type + ", ";
+    }
+    
+    /* Remove trailing space and comma */
+    type.pop_back(); type.pop_back();
+    
+    type += ")";
+    
+    return type;
+    
 }
 
-void AbstractSyntaxTree::addMethod(const std::string & methodType, const std::string & methodName, const std::string & className) {
+void AbstractSyntaxTree::addMethod(const parameter & method, const std::string & className,
+                                   const std::vector<parameter> & params) {
+    
+    addMethod(method.type, method.name, className, params);
+}
+
+void AbstractSyntaxTree::addMethod(const std::string & methodType, const std::string & methodName,
+                                   const std::string & className, const std::vector<parameter> & params) {
     
     try {
         _class & c = _classes.at(className);
@@ -50,6 +73,15 @@ void AbstractSyntaxTree::addMethod(const std::string & methodType, const std::st
         }
         
         c.methods[methodName] = methodType;
+        
+        _method m;
+        
+        m.className = className;
+        m.pointerIndex = c.vtable.count(methodName) ? c.vtable[methodName].pointerIndex : c.vtable.size();
+        m.pointerType = getMethodPointerType(methodType, className, params);
+        
+        c.vtable[methodName] = m;
+        
     } catch (const std::out_of_range & e) {
         throw compiler_error("Compiler error: defining method for unexisting class. ");
     }
@@ -204,6 +236,7 @@ void AbstractSyntaxTree::emplaceClass(const std::string & className,
         
         try {
             c.attributes = _classes.at(superClass).attributes;
+            c.vtable = _classes.at(superClass).vtable;
         }
         catch (std::out_of_range) {
             throw undefined_class(superClass);

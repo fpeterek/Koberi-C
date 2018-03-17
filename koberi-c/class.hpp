@@ -15,15 +15,7 @@
 
 #include "parameter.hpp"
 #include "exceptions.hpp"
-
-struct _method {
-    
-    /* Vtable index */
-    uint32_t pointerIndex;
-    /* Actual type of function pointer, eg. void (*)(class*) */
-    std::string pointerType;
-    
-};
+#include "vtable.hpp"
 
 /* Class struct                                                                           */
 /* Abstraction for Kobeři-C classes, all classes are stored as an instance of this struct */
@@ -41,7 +33,7 @@ struct _class {
     std::unordered_map<std::string /* mangledName */, std::string> methods;
     
     /* Holds vtable with all methods, including inherited methods */
-    std::unordered_map<std::string /* mangledName */, _method> vtable;
+    VTable vtable;
     
     std::string getVarType(const std::string & name) const;
     bool hasVar(const std::string & name) const;

@@ -15,6 +15,8 @@
 
 #include "syntax.hpp"
 #include "parameter.hpp"
+#include "vtable.hpp"
+#include "name_mangler.hpp"
 
 #define INDENT "    " /* Use four spaces to indent */
 
@@ -116,13 +118,15 @@ class AASTClass : public AASTNode {
     
     const std::vector<AASTDeclaration> _attributes;
     const std::string _name;
-    const std::string vtable;
+    const VTable _vtable;
     
 public:
     
-    AASTClass(const std::string & name, const std::vector<AASTDeclaration> & attributes);
+    AASTClass(const std::string & name, const std::vector<AASTDeclaration> & attributes, const VTable & vtable);
     
     std::string value(int baseIndent = 0) const;
+    std::string vtable() const;
+    
 };
 
 /* Function calls */

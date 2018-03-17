@@ -48,6 +48,8 @@ class Translator {
     void translateClasses();
     /* Translates forward function declarations */
     void translateFunctionDeclarations();
+    /* Creates vtables for classes */
+    void translateVtables();
     /* Translates global variable declarations */
     void translateGlobals();
     /* Translates functions and member functions */
