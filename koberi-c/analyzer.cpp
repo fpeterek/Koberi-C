@@ -811,15 +811,10 @@ AASTValue Analyzer::analyzeMemberAccess(ASTMemberAccess & attribute) {
     
     const bool isPtr = syntax::isPointerType(baseVal.type);
     
-    if (isPtr) {
-        baseVal.type.pop_back();
-        baseVal.name = "(*" + baseVal.name + ")";
-    }
-    
     std::vector<ASTNode*> accessedVars;
     accessedVars.emplace_back(attribute.accessOrder[0]);
     
-    attr.value = baseVal.name + ".";
+    attr.value = baseVal.name + (isPtr ? "->" : ".");
     
     for (size_t i = 1; i < attribute.accessOrder.size(); ++i) {
         
@@ -832,14 +827,12 @@ AASTValue Analyzer::analyzeMemberAccess(ASTMemberAccess & attribute) {
         
         attr.value += a + (isMemberPointer ? "->" : ".");
         
-        
-        
     }
     
     /* First item is dereferenced, so if the only item is self, remove pointer char to reflect this */
-    if (attribute.accessOrder.size() == 1 and syntax::isPointerType(attr.type)) {
+    /*if (attribute.accessOrder.size() == 1 and syntax::isPointerType(attr.type)) {
         attr.type.pop_back();
-    }
+    }*/
     
     /* Pop back twice if value ends with ->, otherwise pop back once, because value ends with . */
     if (attr.value.back() == '>') {
