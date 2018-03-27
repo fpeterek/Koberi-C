@@ -539,6 +539,20 @@ void binaryOperator(std::stringstream & stream,
         return set(stream, parameters);
     }
     
+    std::string str = "(";
+    
+    for (size_t i = 0; i < parameters.size(); ++i) {
+        str += parameters[i].value + " " + op + " ";
+    }
+    
+    /* Pop back two spaces and operator, which were appended at the end of last loop */
+    for (char i = 0; i < op.length() + 2; ++i) {
+        str.pop_back();
+    }
+    
+    str += ")";
+    stream << str;
+    
 }
 
 AASTCast::AASTCast(const AASTNode * value, const std::string desiredType) :

@@ -478,19 +478,19 @@ AASTScope * Analyzer::analyzeReturn(std::vector<AASTNode *> & parameters) {
     
     std::vector<AASTNode *> calls;
     
-    AASTDeclaration * declaration = nullptr;
+    // AASTDeclaration * declaration = nullptr;
     AASTNode * retval = nullptr;
     
     bool returnIsValue = parameters.size() and parameters.front()->nodeType() == AASTNodeType::Value;
     
-    if (parameters.size() and not returnIsValue) {
+    //if (parameters.size() and not returnIsValue) {
         /* Store return value in a temporary variable that won't be destructed */
-        declaration = new AASTDeclaration("__RetVal", parameters.front()->type(), parameters.front());
+    /*    declaration = new AASTDeclaration("__RetVal", parameters.front()->type(), parameters.front());
         retval = new AASTValue("__RetVal", declaration->type());
         
         calls.emplace_back(declaration);
-    }
-    else if (parameters.size()) {
+    }*/
+    /*else*/ if (parameters.size()) {
         retval = parameters.front();
     }
     
