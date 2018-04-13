@@ -35,6 +35,9 @@ public:
     /* Premangles method names by class name, but not by parameters */
     static std::string premangleMethodName(const std::string & name, const std::string & className);
     
+    /* Generates vtable name for class passed as parameter */
+    static std::string vtableName(const std::string & className);
+    
 };
 
 

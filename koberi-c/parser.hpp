@@ -49,9 +49,10 @@ class Parser {
     /* Parses calls to functions or operators */
     ASTFunCall parseFunCall(unsigned long long callBeginning, unsigned long long callEnd);
     
-    /* Parses member access operator[]                                                                              */
-    /* Accepts a reference so when the function execution finishes, the iterator is set to the end of member access */
-    /* and member access parameters aren't parsed as separate variables                                             */
+    /* Parses member access operator[]                                  */
+    /* Accepts a reference so when the function execution finishes,     */
+    /* the iterator is set to the end of member access                  */
+    /* and member access parameters aren't parsed as separate variables */
     ASTMemberAccess parseMemberAccess(unsigned long long & exprBeginning);
     
     /* Finds index of the end of an s-expression */
@@ -63,7 +64,8 @@ class Parser {
     /* Parses global functions */
     parameter parseVariable(unsigned long long sexpBeginning);
     
-    /* Parse sexps finds s-expressions and passes them to parseSexp(), a method which parses single s-expressions  */
+    /* Parse sexps finds s-expressions and passes them to parseSexp(), */
+    /* a method which parses single s-expressions                      */
     void parseSexps(unsigned long long firstSexp);
     
     /* Declares a global variable, called from parseDeclarations() */
@@ -74,6 +76,9 @@ class Parser {
 
     /* Parses a class definition and emplaces it into AST */
     void classDefinition(unsigned long long defBeginning, unsigned long long defEnd);
+    
+    /* Generates a v-table initializer method */
+    void generateVtableInitializer(const std::string & className);
     
     /* parseFun() is capable of parsing normal functions, as well as member functions */
     /* If className is an empty string, function will be treated as a normal function */

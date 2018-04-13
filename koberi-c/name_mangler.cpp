@@ -57,7 +57,15 @@ std::string NameMangler::mangleName(const std::string & name, const std::vector<
 
 std::string NameMangler::premangleMethodName(const std::string & name, const std::string & className) {
     
-    std::string premangledName = className + "_m_" + name;
+    const std::string premangledName = className + "_m_" + name;
     return premangledName;
     
 }
+
+std::string NameMangler::vtableName(const std::string & className) {
+    
+    const std::string vtable = className + "_vt__" + "vtable";
+    return vtable;
+    
+}
+
