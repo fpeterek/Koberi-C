@@ -628,6 +628,10 @@ void Parser::classDefinition(unsigned long long defBeginning, unsigned long long
         
     }
     
+    if (superclass == "" and name != "Object") {
+        superclass = "Object";
+    }
+    
     _ast.emplaceClass(name, superclass);
     
     if (_tokens[firstDeclaration - 1] != tokType::closingPar) {

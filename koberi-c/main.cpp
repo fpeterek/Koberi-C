@@ -9,8 +9,8 @@
 #include "koberi-c.hpp"
 
 #ifdef DEBUG_COMPILE_TEST
-// static const std::string TEST = "testing_script.koberice";
-static const std::string TEST = "power.koberice";
+static const std::string TEST = "testing_script.koberice";
+// static const std::string TEST = "power.koberice";
 #endif
 
 int main(int argc, const char * argv[]) {

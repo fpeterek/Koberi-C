@@ -13,6 +13,15 @@ KoberiC::KoberiC() : _tokenizer(_tokens),
                      _parser(_tokens, _ast),
                      _analyzer(_ast, _aast),
                      _translator(_ast, _aast) {
+                         
+    _tokens = {
+        token(tokType::openingPar, "("),
+        token(tokType::id, "class"),
+        token(tokType::id, "Object"),
+        token(tokType::openingPar, "("),
+        token(tokType::closingPar, ")"),
+        token(tokType::closingPar, ")")
+    };
     
 }
 
