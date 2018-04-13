@@ -658,25 +658,22 @@ void Parser::generateVtableInitializer(const std::string & className) {
     
     for (auto & att : c.attributes) {
         
-        if (_ast.isClass(att.type)) {
-            std::string vtInitializer = NameMangler::premangleMethodName(VTABLE_INIT, att.type);
-            vtInitializer = NameMangler::mangleName(vtInitializer,
-                                                    { parameter("self", syntax::pointerForType(att.type)) });
+        if (not syntax::isPointerType(att.type) and _ast.isClass(att.type)) {
+            std::string vtInitializer = NameMangler::mangleName(VTABLE_INIT,
+                                                    std::vector<std::string>());
+            
+            vtInitializer = NameMangler::premangleMethodName(vtInitializer, att.type);
             
             ASTLiteral * call = new ASTLiteral(syntax::pointerForType("char"),
-                                               vtInitializer + "(&self->" + att.name + ");");
+                                               vtInitializer + "(&self->" + att.name + ")");
             
             _ast.emplaceFunCall("_c", { (ASTNode *)call });
         }
         
     }
     
-    std::string vtInitializer = NameMangler::premangleMethodName(VTABLE_INIT, className);
-    vtInitializer = NameMangler::mangleName(vtInitializer,
-                                            { parameter("self", syntax::pointerForType(className)) });
-    
     ASTLiteral * call = new ASTLiteral(syntax::pointerForType("char"),
-                                       "self->vtable = " + NameMangler::vtableName(className) + ";");
+                                       "self->vtable = " + NameMangler::vtableName(className));
     
     _ast.emplaceFunCall("_c", { (ASTNode *)call });
     _ast.exitScope();

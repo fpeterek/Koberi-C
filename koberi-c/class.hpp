@@ -21,7 +21,7 @@
 /* Abstraction for Kobeři-C classes, all classes are stored as an instance of this struct */
 /* Allows for easy look-up of methods/attributes and superclasses                         */
 
-#define VTABLE_INIT "__vtable_init"
+#define VTABLE_INIT "_vtable_init"
 
 struct _class {
     
