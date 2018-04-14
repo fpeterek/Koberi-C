@@ -463,6 +463,22 @@ void Parser::parseFun(unsigned long long funBeginning, unsigned long long funEnd
     /* EmplaceFunction also changes current scope to the newly emplaced function */
     _ast.emplaceFunction(name, type, params, className);
     
+    for (auto & param : params) {
+        
+        if (not syntax::isPointerType(param.type) and _ast.isClass(param.type)) {
+            
+            std::string vtInitializer = NameMangler::mangleName(syntax::vtableInit,
+                                                                std::vector<std::string>());
+            vtInitializer = NameMangler::premangleMethodName(vtInitializer, param.type);
+            
+            ASTLiteral * call = new ASTLiteral(syntax::pointerForType("char"),
+                                               vtInitializer + "(&" + param.value + ")");
+            
+            _ast.emplaceFunCall("_c", { (ASTNode *)call });
+        }
+        
+    }
+    
     /* If function is a member function, emplace self into ast and function into it's class */
     if (className != "") {
         
@@ -659,9 +675,9 @@ void Parser::generateVtableInitializer(const std::string & className) {
     for (auto & att : c.attributes) {
         
         if (not syntax::isPointerType(att.type) and _ast.isClass(att.type)) {
+            
             std::string vtInitializer = NameMangler::mangleName(syntax::vtableInit,
                                                     std::vector<std::string>());
-            
             vtInitializer = NameMangler::premangleMethodName(vtInitializer, att.type);
             
             ASTLiteral * call = new ASTLiteral(syntax::pointerForType("char"),
