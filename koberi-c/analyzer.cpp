@@ -949,8 +949,20 @@ AASTOperator * Analyzer::newObject(const std::string & type) {
     }
     
     AASTValue * param = new AASTValue(type, type);
+    AASTValue * vtableInitializer;
     
-    return new AASTOperator("new", syntax::pointerForType(type), std::vector<AASTNode *>( { param } ));
+    if (not syntax::isPointerType(type) and _ast.isClass(type)) {
+        
+        std::string vtInitName = NameMangler::mangleName(syntax::vtableInit, std::vector<std::string>());
+        vtInitName = NameMangler::premangleMethodName(vtInitName, type);
+        
+        vtableInitializer = new AASTValue(vtInitName, "vt_init");
+    } else {
+        vtableInitializer = new AASTValue("0", "vt_init");
+    }
+    
+    return new AASTOperator("new", syntax::pointerForType(type),
+                            std::vector<AASTNode *>( { param, vtableInitializer } ));
     
 }
 

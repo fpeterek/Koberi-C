@@ -32,6 +32,12 @@ namespace syntax {
     const std::string intType = "int_type";
     const std::string uintType = "uint_type";
     
+    /* Vtable initializer method name */
+    const std::string vtableInit = "_vtable_init";
+    
+    /* Object memory allocator/vtable initializer function */
+    const std::string memoryAlloc = "_mem_allocator";
+    
     /* Character used to declare pointers */
     const char pointerChar = '*';
     

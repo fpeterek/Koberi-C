@@ -324,6 +324,8 @@ void inlineC(std::stringstream & stream, const std::vector<parameter> & values, 
 
 void print(std::stringstream & stream, const std::vector<parameter> & values, const int indentLevel);
 
+void _new(std::stringstream & stream, const std::vector<parameter> & values, const int indentLevel);
+
 std::string AASTOperator::value(int baseIndent) const {
     
     std::stringstream stream;
@@ -335,6 +337,10 @@ std::string AASTOperator::value(int baseIndent) const {
     
     if (_operator == "_c") {
         inlineC(stream, values, baseIndent);
+    }
+    
+    else if (_operator == "new") {
+        _new(stream, values, baseIndent);
     }
     
     else if (_operator == "print") {
@@ -469,12 +475,19 @@ void unaryOperator(std::stringstream & stream, const std::string & op, const par
         }
         
     }
-    else if (op == "new") {
-        stream << "((" + parameter.value +  "*)malloc(sizeof(" + parameter.value + ")))";
-    }
+
     else {
         stream << op << "( " << parameter.value << " )";
     }
+    
+}
+
+void _new(std::stringstream & stream, const std::vector<parameter> & values, const int indentLevel) {
+    
+    std::string type = translateType(values.front().value);
+    //stream << "((" + parameter.value +  "*)malloc(sizeof(" + parameter.value + ")))";
+    stream << "(" << syntax::memoryAlloc << "(sizeof(" + type + "), ";
+    stream << values.back().value + "));";
     
 }
 

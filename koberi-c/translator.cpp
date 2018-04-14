@@ -104,6 +104,25 @@ void Translator::translateFunctions() {
     
 }
 
+void Translator::memoryAllocator() {
+    
+    _output << "\n" << "/* Memory allocator */" << "\n" << "\n";
+    
+    _output << "void* " << syntax::memoryAlloc << "(" << syntax::intType
+            << " size, void* (*fun)(void*)) {" << "\n";
+    
+    _output << INDENT << "void * object = malloc(size);" << "\n";
+    
+    _output << INDENT << "if (fun) {" << "\n";
+    _output << INDENT << INDENT << "fun(object);" << "\n";
+    _output << INDENT << "}" << "\n";
+    
+    _output << INDENT << "return object;" << "\n";
+    
+    _output << "}" << std::endl;
+    
+}
+
 void Translator::main() {
     
     _output << "\n" << "/* C Main Function */" << "\n" << "\n";
@@ -128,6 +147,7 @@ void Translator::translate() {
     
     libraries();
     typedefs();
+    memoryAllocator();
     translateClasses();
     translateGlobals();
     translateFunctionDeclarations();

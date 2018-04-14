@@ -652,14 +652,14 @@ void Parser::classDefinition(unsigned long long defBeginning, unsigned long long
 
 void Parser::generateVtableInitializer(const std::string & className) {
     
-    _ast.emplaceFunction(VTABLE_INIT, "void", {}, className);
+    _ast.emplaceFunction(syntax::vtableInit, "void", {}, className);
     
     _class c = _ast.getClass(className);
     
     for (auto & att : c.attributes) {
         
         if (not syntax::isPointerType(att.type) and _ast.isClass(att.type)) {
-            std::string vtInitializer = NameMangler::mangleName(VTABLE_INIT,
+            std::string vtInitializer = NameMangler::mangleName(syntax::vtableInit,
                                                     std::vector<std::string>());
             
             vtInitializer = NameMangler::premangleMethodName(vtInitializer, att.type);

@@ -37,6 +37,10 @@ class Translator {
     /* Creates C int main(int, char**) function, which calls Kobeři-C main function (int main ()) */
     void main();
     
+    /* Creates memory allocator function, which allocates memory and initializes v-tables */
+    /* V-table initializer function is passed via a pointer                               */
+    void memoryAllocator();
+    
     /* Output file stream */
     std::ofstream _output;
     
