@@ -11,6 +11,7 @@
 #ifdef DEBUG_COMPILE_TEST
 static const std::string TEST = "testing_script.koberice";
 // static const std::string TEST = "power.koberice";
+// static const std::string TEST = "vector.koberice";
 #endif
 
 int main(int argc, const char * argv[]) {
@@ -49,14 +50,14 @@ int main(int argc, const char * argv[]) {
     expr::setVerbose(true);
 #endif
     
-    KoberiC ks;
+    KoberiC kc;
     
     try {
         /* If this macro is defined, compile a testing file, don't parse cl args, used for debugging */
 #ifdef DEBUG_COMPILE_TEST
-        ks.compile(TEST);
+        kc.compile(TEST);
 #else
-        ks.compile(file);
+        kc.compile(file);
 #endif
     } catch (std::exception & e) {
         std::cout << e.what() << "\n" << std::endl;
@@ -64,7 +65,7 @@ int main(int argc, const char * argv[]) {
     }
     
 #ifdef PRINT_TOKENS
-    ks.test();
+    kc.test();
 #endif
     
     return 0;
