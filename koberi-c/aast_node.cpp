@@ -197,7 +197,7 @@ std::string AASTClass::vtable() const {
     
     /* Inserting whitespace after { so when trailing commas are being removed, the whitespace */
     /* Character will be removed instead of the brace { */
-    std::string table = "void (*" + NameMangler::premangleMethodName("vtable", _name) +"[])(void) = { \n";
+    std::string table = "void (*" + NameMangler::vtableName(_name) +"[])(void) = { \n";
     
     std::vector<std::string> methods;
     
