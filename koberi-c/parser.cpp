@@ -226,7 +226,6 @@ void Parser::parseConstruct(unsigned long long constructBeginning, unsigned long
     }
     
     
-    
     _ast.emplaceConstruct(construct, condition);
     
     /* Parse all sexps inside construct body */
@@ -788,8 +787,25 @@ void Parser::definition(unsigned long long defBeginning, unsigned long long defE
     
 }
 
+void Parser::globalVarInit() {
+    
+    _ast.emplaceFunction("_globalVarInit", "void", std::vector<parameter>(), "");
+    
+    for (const auto & var : _ast.getGlobalScope().vars) {
+        
+        if (_ast.isClass(var.second)) {
+            _ast.emplaceInitializerCall(var.first);
+        }
+        
+    }
+    
+    _ast.exitScope();
+    
+}
+
 void Parser::parse() {
     
     parseDefinitions();
+    globalVarInit();
     
 }

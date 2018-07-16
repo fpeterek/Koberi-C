@@ -128,6 +128,7 @@ void Translator::main() {
     _output << "\n" << "/* C Main Function */" << "\n" << "\n";
     
     _output << "int main(int argc, const char * argv[]) {" << "\n";
+    _output << INDENT << NameMangler::mangleName("_globalVarInit", std::vector<parameter>()) << "();" << "\n";
     _output << INDENT << "return " << NameMangler::mangleName("main", std::vector<parameter>()) << "();" << "\n";
     _output << "}" << std::endl;
     

@@ -98,6 +98,9 @@ class Parser {
     /* and calls method which parses such definition                                  */
     void definition(unsigned long long defBeginning, unsigned long long defEnd);
     
+    /* Initializes vtable pointers on global variables */
+    void globalVarInit();
+    
 public:
     Parser(std::vector<token> & vectorRef, TraversableAbstractSyntaxTree & ast);
     

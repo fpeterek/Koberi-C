@@ -177,6 +177,8 @@ void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
         throw redefinition_of_variable(name);
     }
     
+    _currentScope->vars[name] = type;
+    
 }
 
 void AbstractSyntaxTree::emplaceInitializerCall(const std::string & varName) {
