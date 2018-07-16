@@ -102,6 +102,8 @@ class Analyzer {
     /* Analyzes variable declarations, deduces type if possible */
     AASTDeclaration * analyzeDeclaration(ASTDeclaration & declaration);
     
+    AASTFuncall * getInitializer(ASTInitializer & initializer);
+    
     AASTValue analyzeMemberAccess(ASTMemberAccess & attribute);
     /* Checks if nth parameter of member access has attribute n+1 and returns type of member access operator */
     std::string checkAttributesAndReturnType(parameter & var, std::vector<ASTNode*> & attributes, unsigned int iter = 1);

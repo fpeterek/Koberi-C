@@ -31,6 +31,7 @@ enum class NodeType {
     Variable,
     Literal,
     MemberAccess,
+    Initializer,
     None /* Used for construction of ASTNode, which should never be constructed and None should never be used */
     
 };
@@ -183,6 +184,16 @@ struct ASTDeclaration : public ASTNode {
                    const std::string & paramType,
                    const std::string & paramName,
                    ASTNode * paramValue);
+    
+};
+
+/* Call to object initializer */
+struct ASTInitializer : public ASTNode {
+    
+    std::string name;
+    
+    ASTInitializer(ASTScope * parent,
+                   const std::string & varName);
     
 };
 

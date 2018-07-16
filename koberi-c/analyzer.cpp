@@ -230,6 +230,11 @@ AASTNode * Analyzer::analyzeFunctionNode(ASTNode * node) {
         ASTDeclaration * d = (ASTDeclaration*)node;
         functionNode = analyzeDeclaration(*d);
         
+    } else if (node->nodeType == NodeType::Initializer) {
+      
+        ASTInitializer * init = (ASTInitializer*)node;
+        functionNode = getInitializer(*init);
+        
     } else {
         
         throw invalid_statement(currentFunction());
@@ -876,6 +881,25 @@ AASTValue Analyzer::analyzeMemberAccess(ASTMemberAccess & attribute) {
     delete baseValue;
     
     return AASTValue(attr.value, attr.type);
+    
+}
+
+AASTFuncall * Analyzer::getInitializer(ASTInitializer & initializer) {
+    
+    std::string vtInitializer = NameMangler::mangleName(syntax::vtableInit,
+                                                        std::vector<std::string>());
+    
+    ASTVariable variable = ASTVariable(initializer.name, initializer.parentScope);
+    parameter var = getVariable(variable);
+    
+    vtInitializer = NameMangler::premangleMethodName(vtInitializer, var.type);
+    
+    std::vector<AASTNode *> param = { new AASTValue(var.name, var.type) };
+    
+    std::vector<AASTNode *> initParam;
+    initParam.emplace_back(analyzeOperator("&", param));
+    
+    return new AASTFuncall(vtInitializer, "void", initParam);
     
 }
 

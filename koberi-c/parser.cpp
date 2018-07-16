@@ -164,14 +164,7 @@ void Parser::localVarDeclaration(unsigned long long declBeginning, unsigned long
     
     if (not syntax::isPointerType(type) and _ast.isClass(type)) {
     
-        std::string vtInitializer = NameMangler::mangleName(syntax::vtableInit,
-                                                            std::vector<std::string>());
-        vtInitializer = NameMangler::premangleMethodName(vtInitializer, type);
-        
-        ASTLiteral * call = new ASTLiteral(syntax::pointerForType("char"),
-                                           vtInitializer + "(&" + name + ")");
-        
-        _ast.emplaceFunCall("_c", { (ASTNode *)call });
+        _ast.emplaceInitializerCall(name);
         
     }
     

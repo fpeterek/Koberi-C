@@ -179,6 +179,14 @@ void AbstractSyntaxTree::emplaceDeclaration(const std::string & type,
     
 }
 
+void AbstractSyntaxTree::emplaceInitializerCall(const std::string & varName) {
+    
+    ASTInitializer * init = new ASTInitializer(_currentScope, varName);
+    
+    _currentScope->childNodes.emplace_back(init);
+    
+}
+
 void AbstractSyntaxTree::addClassAttribute(const parameter & attribute, const std::string & className) {
 
     addClassAttribute(attribute.type, attribute.name, className);

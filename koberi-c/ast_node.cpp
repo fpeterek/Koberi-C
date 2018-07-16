@@ -118,6 +118,10 @@ ASTFunCall::ASTFunCall(ASTScope * parent,
                 parameters.emplace_back( new ASTConstruct( *( (ASTConstruct*)param ) ) );
                 break;
                 
+            case NodeType::Initializer:
+                parameters.emplace_back( new ASTInitializer( *((ASTInitializer*)param) ) );
+                break;
+                
             default:
                 delete param;
                 break;
@@ -175,6 +179,10 @@ ASTFunCall::ASTFunCall(const ASTFunCall & orig) {
                 
             case NodeType::Construct:
                 parameters.emplace_back( new ASTConstruct( *( (ASTConstruct*)param ) ) );
+                break;
+                
+            case NodeType::Initializer:
+                parameters.emplace_back( new ASTInitializer( *((ASTInitializer*)param) ) );
                 break;
                 
             default:
@@ -315,6 +323,10 @@ ASTMemberAccess::ASTMemberAccess(const ASTMemberAccess & orig) {
                 accessOrder.emplace_back( new ASTConstruct( *((ASTConstruct*)node) ) );
                 break;
                 
+            case NodeType::Initializer:
+                accessOrder.emplace_back( new ASTInitializer( *((ASTInitializer*)node) ) );
+                break;
+                
             default:
                 break;
                 
@@ -352,5 +364,15 @@ ASTFunCall * ASTFunCall::createFunCall(ASTScope * parent,
     ASTFunCall * funcall = new ASTFunCall(parent, name, params, object);
     
     return funcall;
+    
+}
+
+ASTInitializer::ASTInitializer(ASTScope * parent,
+               const std::string & varName) {
+    
+    parentScope = parent;
+    
+    nodeType = NodeType::Initializer;
+    name     = varName;
     
 }

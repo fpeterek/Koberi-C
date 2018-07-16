@@ -93,6 +93,8 @@ public:
                             const std::string & name,
                             ASTNode * value = nullptr);
     
+    void emplaceInitializerCall(const std::string & varName);
+    
     /* Methods, which create constructs, which have their own scope, such as if... */
     /* enter the scope of those constructs                                         */
     /* This method reverses the effect and should be called after parsing of such  */
