@@ -38,6 +38,9 @@ namespace syntax {
     /* Object memory allocator/vtable initializer function */
     const std::string memoryAlloc = "_mem_allocator";
     
+    /* Copy object function */
+    const std::string copyObject = "_copy_object";
+    
     /* Character used to declare pointers */
     const char pointerChar = '*';
     

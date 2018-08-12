@@ -123,6 +123,24 @@ void Translator::memoryAllocator() {
     
 }
 
+void Translator::objectCopyFun() {
+    
+    _output << "\n" << "/* Object copy function - copies objects and preservers vtable ptrs */"
+            << "\n\n";
+    
+    _output << "void " << syntax::copyObject << "(void * dest, void * orig, size_t objectSize) {\n\n";
+    
+    _output << INDENT << "dest += sizeof(void*);" << "\n";
+    _output << INDENT << "orig += sizeof(void*);" << "\n\n";
+    
+    _output << INDENT << "objectSize -= sizeof(void*);" << "\n\n";
+    
+    _output << INDENT << "memcpy(dest, orig, objectSize);" << "\n\n";
+    
+    _output << "}" << "\n\n";
+    
+}
+
 void Translator::main() {
     
     _output << "\n" << "/* C Main Function */" << "\n" << "\n";
@@ -149,6 +167,7 @@ void Translator::translate() {
     libraries();
     typedefs();
     memoryAllocator();
+    objectCopyFun();
     translateClasses();
     translateGlobals();
     translateFunctionDeclarations();

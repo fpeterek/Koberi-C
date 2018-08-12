@@ -84,21 +84,13 @@ ASTScope * TraversableAbstractSyntaxTree::getGlobalScopePtr() {
 
 std::string TraversableAbstractSyntaxTree::getVarTypeRecursive(const std::string & varName, ASTScope * scope) {
     
-    try {
-        
+    if (scope->vars.count(varName)) {
         return scope->vars.at(varName);
-    
-    } catch (const std::out_of_range & e ) {
-        
-        if (scope == &_globalScope) {
-            
-            throw undefined_variable(varName);
-        
-        }
-        
-        return getVarTypeRecursive(varName, scope->parentScope);
-        
     }
+    if (scope == &_globalScope) {
+        throw undefined_variable(varName);
+    }
+    return getVarTypeRecursive(varName, scope->parentScope);
     
 }
 

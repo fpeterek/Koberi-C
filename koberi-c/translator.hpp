@@ -41,6 +41,9 @@ class Translator {
     /* V-table initializer function is passed via a pointer                               */
     void memoryAllocator();
     
+    /* Creates function which copies objects while preserving vtable pointers */
+    void objectCopyFun();
+    
     /* Output file stream */
     std::ofstream _output;
     

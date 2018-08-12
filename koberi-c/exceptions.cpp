@@ -479,5 +479,9 @@ const char * type_deduction_error::what() const throw() {
     
 }
 
-
+const char * invalid_assignment::what() const throw() {
+    
+    return "Invalid assignment to an expression, that is not an assignable variable.";
+    
+}
 

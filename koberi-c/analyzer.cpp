@@ -193,6 +193,8 @@ AASTScope * Analyzer::analyzeScope(std::vector<ASTNode *> scopeNodes) {
     /* Translate all body nodes */
     for (ASTNode * node : scopeNodes) {
         
+        _currentScope = node->parentScope;
+        
         if (node->nodeType == NodeType::Declaration) {
             _declarations.emplace_back((ASTDeclaration *)node);
         }
@@ -694,11 +696,102 @@ AASTNode * Analyzer::cast(AASTNode * valueToCast, const std::string & type) {
     
 }
 
+void Analyzer::checkIsAssignable(AASTNode * value) {
+    
+    if (value->nodeType() == AASTNodeType::Operator) {
+        
+        AASTOperator & op = *((AASTOperator *)value);
+        
+        if (op.getOperator() == "&") {
+            
+            try {
+                const std::string type = _ast.getVarType(op.value(), _currentScope);
+                return;
+            } catch (const std::exception & e) {
+                throw invalid_assignment();
+            }
+            
+        }
+        
+        throw invalid_assignment();
+        
+    }
+    
+    if (value->nodeType() != AASTNodeType::Value) {
+        throw invalid_assignment();
+    }
+    
+    AASTValue & val = *((AASTValue*)value);
+    
+    if (val.isAssignable()) {
+        return;
+    }
+    
+    try {
+        const std::string type = _ast.getVarType(val.value(), _currentScope);
+    } catch (const std::exception & e) {
+        throw invalid_assignment();
+    }
+    
+}
+
+AASTFuncall * Analyzer::copyObject(AASTNode * lvalue, AASTNode * rvalue) {
+    
+    AASTFuncall * fcall = nullptr;
+    
+    auto toPtr = [&](AASTNode * value) -> AASTNode* {
+        if (not syntax::isPointerType(value->type())) {
+            std::vector<AASTNode *> val = { value };
+            return analyzeOperator("&", val);
+        }
+        return value;
+    };
+    
+    lvalue = toPtr(lvalue);
+    rvalue = toPtr(rvalue);
+    
+    std::string type = lvalue->type();
+    if (type.back() == syntax::pointerChar) {
+        type.pop_back();
+    }
+    
+    std::vector<AASTNode *> size_of = { new AASTValue(type, type) };
+    
+    fcall = new AASTFuncall(syntax::copyObject, "void", { lvalue, rvalue, analyzeOperator("size_of", size_of) });
+    
+    return fcall;
+    
+}
+
 AASTOperator * Analyzer::analyzeOperator(const std::string & op, std::vector<AASTNode *> & params) {
     
-    const bool isParamless  = expr::isParameterlessOperator(op);
-    const bool isUnary      = expr::isUnaryOperator(op);
-    const bool isBinary     = expr::isBinaryOperator(op);
+    if (params.size() == 2 and op == "set") {
+        
+        checkIsAssignable(params.front());
+        
+        /* Check if references are being assigned. If not, copy objects */
+        /* If yes, just assign references                               */
+        
+        const bool lIsClass = _ast.isClass(params.front()->type());
+        const bool rIsClass = _ast.isClass(params.back()->type());
+        const bool lIsPtr = syntax::isPointerType(params.front()->type());
+        bool rIsAmp = false;
+        if (params.back()->nodeType() == AASTNodeType::Operator) {
+            AASTOperator & op = *((AASTOperator*)params.back());
+            rIsAmp = op.getOperator() == "&";
+        }
+        const bool rIsPtr = rIsAmp;
+        
+        if (lIsClass and rIsClass and not (lIsPtr and rIsPtr)) {
+            
+            return (AASTOperator*)copyObject(params.front(), params.back());
+        
+        }
+    }
+    
+    const bool isParamless = expr::isParameterlessOperator(op);
+    const bool isUnary     = expr::isUnaryOperator(op);
+    const bool isBinary    = expr::isBinaryOperator(op);
     
     if (isParamless) {
         
@@ -826,6 +919,8 @@ AASTValue Analyzer::analyzeMemberAccess(ASTMemberAccess & attribute) {
     AASTNode * baseValue;
     parameter baseVal;
     
+    bool isAssignable = true;
+    
     if ((*attribute.accessOrder[0]).nodeType == NodeType::FunCall) {
         
         ASTFunCall & fcall = *((ASTFunCall*)attribute.accessOrder[0]);
@@ -833,11 +928,15 @@ AASTValue Analyzer::analyzeMemberAccess(ASTMemberAccess & attribute) {
         baseVal.type = baseValue->type();
         baseVal.value = baseValue->value();
         
+        if (not syntax::isPointerType(baseVal.type)) {
+            isAssignable = false;
+        }
+        
     } else {
         
         baseVal.name = ((ASTVariable*)attribute.accessOrder[0])->name;
         baseVal.type = _ast.getVarType(baseVal.name, attribute.parentScope);
-        baseValue = new AASTValue(baseVal.name, baseVal.type);
+        baseValue = new AASTValue(baseVal.name, baseVal.type, isAssignable);
         
     }
     
@@ -880,7 +979,7 @@ AASTValue Analyzer::analyzeMemberAccess(ASTMemberAccess & attribute) {
     
     delete baseValue;
     
-    return AASTValue(attr.value, attr.type);
+    return AASTValue(attr.value, attr.type, isAssignable);
     
 }
 

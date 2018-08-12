@@ -180,7 +180,7 @@ AASTOperator * expr::set(const AASTNode * lvalue, const AASTNode * rvalue) {
         }
         
         return new AASTOperator("=",
-                            lvalueType,
+                            "void",
                             std::vector<AASTNode *>( { derefLvalue,
                                                        const_cast<AASTNode *>(rvalue)
                                                      }));
@@ -204,7 +204,7 @@ AASTOperator * expr::set(const AASTNode * lvalue, const AASTNode * rvalue) {
         }
         
         return new AASTOperator("=",
-                            lvalue->type(),
+                            "void",
                             std::vector<AASTNode *>( { const_cast<AASTNode *>(lvalue),
                                                        derefRvalue,
                                                      }));
@@ -218,7 +218,7 @@ AASTOperator * expr::set(const AASTNode * lvalue, const AASTNode * rvalue) {
     }
     
     return new AASTOperator("=",
-                        lvalue->type(),
+                        "void",
                         std::vector<AASTNode *>( { const_cast<AASTNode *>(lvalue),
                                                    const_cast<AASTNode *>(rvalue)
                                                  } ));

@@ -24,6 +24,8 @@ class Analyzer {
     TraversableAbstractSyntaxTree & _ast;
     AnalyzedAbstractSyntaxTree & _aast;
     
+    ASTScope * _currentScope = nullptr;
+    
     /* Used to store name of current function to make error messages slightly more useful */
     std::string _functionName;
     std::string _functionType;
@@ -75,6 +77,17 @@ class Analyzer {
     /* Not all steps are always possible when deleting objects                      */
     /* deleteObjects() only handles these steps if they're possible to perform      */
     AASTScope * deleteObject(AASTNode * object);
+    
+    /* Copies the value of an object into a variable while preserving vtable pointers   */
+    /* Vtable pointers need to be preserved in case someone assigns a value of object's */
+    /* superclass instance while the object was passed polymorphically as an instance   */
+    /* of it's superclass                                                               */
+    /* Copies contents of an object using memcpy                                        */
+    AASTFuncall * copyObject(AASTNode * lvalue, AASTNode * rvalue);
+    
+    /* Checks if value is assignable (variable), throws exception on values which are */
+    /* unassignable, eg. literals, function calls                                     */
+    void checkIsAssignable(AASTNode * value);
     
     /* Analyzes a function call parameter */
     AASTNode * getFuncallParameter(ASTNode * node);

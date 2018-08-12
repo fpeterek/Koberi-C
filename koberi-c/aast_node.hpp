@@ -148,11 +148,13 @@ public:
 class AASTValue : public AASTNode {
     
     const std::string _value;
+    const bool _isAssignable;
     
 public:
     
-    AASTValue(const std::string & value, const std::string & type);
+    AASTValue(const std::string & value, const std::string & type, const bool assignable = false);
     std::string value(int baseIndent = 0) const;
+    bool isAssignable();
     
 };
 

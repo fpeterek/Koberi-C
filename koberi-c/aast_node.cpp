@@ -261,8 +261,13 @@ std::string AASTFuncall::value(int baseIndent) const {
 }
 
 AASTValue::AASTValue(const std::string & value,
-                     const std::string & type) : _value(value),
-                                                 AASTNode(AASTNodeType::Value, type) { }
+                     const std::string & type,
+                     bool assignable) : _value(value), _isAssignable(assignable),
+                                        AASTNode(AASTNodeType::Value, type) { }
+
+bool AASTValue::isAssignable() {
+    return _isAssignable;
+}
 
 std::string AASTValue::value(int baseIndent) const {
     

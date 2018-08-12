@@ -413,4 +413,11 @@ public:
     
 };
 
+class invalid_assignment : public std::exception {
+    
+public:
+    
+    const char * what() const throw();
+};
+
 #endif /* exceptions_hpp */
