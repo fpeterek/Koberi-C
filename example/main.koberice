@@ -1,0 +1,30 @@
+#import "shape" "factorial"
+
+
+(class Square (Shape)
+    (int side)
+    (int area ()
+        (return (* [self side] [self side])))
+
+    (void destruct ()
+        (print "Square destructor \n")))
+
+(class Circle (Shape)
+    (int radius)
+    
+    (int area ()
+        (return (* [self radius] [self radius] 3.14159)))
+
+    (void destruct ()
+        (print "Circle destructor \n")))
+
+(int main()
+    (Circle circle)
+    (set [circle radius] 5)
+    (print "Circle with radius " [circle radius] " has area " ([circle area]) "\n")
+
+    (Shape* shape (& circle))
+    (print "Shape area: " ([shape area]) "\n")
+    
+    (print "5! = " (fact 5) "\n"))
+

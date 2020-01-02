@@ -1,0 +1,8 @@
+(class Shape ()
+
+    (void destruct ()
+        (print "Shape destructor" "\n"))
+
+    (int area ()
+        (return 0)))
+

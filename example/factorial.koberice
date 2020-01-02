@@ -1,0 +1,5 @@
+(int fact(int x)
+    (if (equals 0 x)
+        (return 1))
+    (return (* x (fact (- x 1)))))
+
